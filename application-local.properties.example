@@ -16,3 +16,4 @@ app.security.jwt.secret=REEMPLAZA_CON_UN_SECRETO_SEGURO_GENERADO_LOCALMENTE
 # ── Sobreescrituras de desarrollo ───────────────────────────────────────────
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.format_sql=true
+

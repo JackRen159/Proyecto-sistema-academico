@@ -29,7 +29,7 @@ public class Acudiente {
     @Column(name = "telefono_alternativo", length = 20)
     private String telefonoAlternativo;
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(unique = true, length = 100)
     private String correo;
 
     @Column(nullable = false, length = 150)
