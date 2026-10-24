@@ -33,11 +33,17 @@ public class EstudianteRequest {
     @Size (max = 20, message = "El telefono no puede superar los 20 caracteres")
     private String telefono;
 
-     public String getNombres(){
+    public String getNombres(){
         return nombres;
+    }
+    public void setNombres(String nombres){
+        this.nombres = nombres;
     }
     public String getApellidos(){
         return apellidos;
+    }
+    public void setApellidos(String apellidos){
+        this.apellidos = apellidos;
     }
     public String getDocumento(){
         return documento;

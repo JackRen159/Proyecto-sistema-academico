@@ -1,0 +1,18 @@
+# ── Perfil: local (desarrollo personal) ─────────────────────────────────────
+# Este archivo NO debe agregarse al repositorio Git.
+# Contiene las credenciales reales para el entorno local del desarrollador.
+# Copia este archivo como application-local.properties y completa los valores.
+#
+# Activar con: -Dspring.profiles.active=local
+# O agregando spring.profiles.active=local a tu IDE / script de arranque.
+
+spring.datasource.url=jdbc:postgresql://localhost:5432/sistema_academico
+spring.datasource.username=postgres
+spring.datasource.password=REEMPLAZA_CON_LA_NUEVA_CONTRASENA_ROTADA
+
+# Secreto de firma JWT (mínimo 32 caracteres, generado con openssl rand -base64 32)
+app.security.jwt.secret=REEMPLAZA_CON_UN_SECRETO_SEGURO_GENERADO_LOCALMENTE
+
+# ── Sobreescrituras de desarrollo ───────────────────────────────────────────
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true

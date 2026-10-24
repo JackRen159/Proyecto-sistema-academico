@@ -1,7 +1,11 @@
 package jackren.sistemaacademico.main.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "estudiantes")
@@ -32,6 +36,14 @@ public class Estudiante {
 
     @Column(nullable = false)
     private Boolean activo = true;
+
+    @CreationTimestamp
+    @Column(name = "fecha_creacion", updatable = false)
+    private LocalDateTime fechaCreacion;
+
+    @UpdateTimestamp
+    @Column(name = "fecha_actualizacion")
+    private LocalDateTime fechaActualizacion;
 
     public Estudiante(){
 
@@ -80,5 +92,17 @@ public class Estudiante {
     }
     public void setActivo(Boolean activo){
         this.activo = activo;
+    }
+    public LocalDateTime getFechaCreacion(){
+        return fechaCreacion;
+    }
+    public void setFechaCreacion(LocalDateTime fechaCreacion){
+        this.fechaCreacion = fechaCreacion;
+    }
+    public LocalDateTime getFechaActualizacion(){
+        return fechaActualizacion;
+    }
+    public void setFechaActualizacion(LocalDateTime fechaActualizacion){
+        this.fechaActualizacion = fechaActualizacion;
     }
 }

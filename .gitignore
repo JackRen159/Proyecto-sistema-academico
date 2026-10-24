@@ -31,3 +31,13 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# ── Secretos y configuración local ──────────────────────────────────────────
+# Nunca agregar archivos con credenciales reales al repositorio.
+application-local.properties
+application-local.yml
+*.local.properties
+*.local.yml
+.env
+.env.*
+!.env.example

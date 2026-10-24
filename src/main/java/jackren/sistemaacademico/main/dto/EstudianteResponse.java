@@ -1,6 +1,7 @@
 package jackren.sistemaacademico.main.dto;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class EstudianteResponse {
 
@@ -12,9 +13,11 @@ public class EstudianteResponse {
     private String correo;
     private String telefono;
     private Boolean activo;
+    private LocalDateTime fechaCreacion;
+    private LocalDateTime fechaActualizacion;
 
     public EstudianteResponse(Long id, String nombres, String apellidos, String documento, LocalDate fechaNacimiento, String correo,
-        String telefono, Boolean activo){
+        String telefono, Boolean activo, LocalDateTime fechaCreacion, LocalDateTime fechaActualizacion){
             this.id = id;
             this.nombres = nombres;
             this.apellidos = apellidos;
@@ -23,6 +26,8 @@ public class EstudianteResponse {
             this.correo = correo;
             this.telefono = telefono;
             this.activo = activo;
+            this.fechaCreacion = fechaCreacion;
+            this.fechaActualizacion = fechaActualizacion;
         }
     public Long getId(){
         return id;
@@ -47,5 +52,11 @@ public class EstudianteResponse {
     }
     public Boolean getActivo(){
         return activo;
+    }
+    public LocalDateTime getFechaCreacion(){
+        return fechaCreacion;
+    }
+    public LocalDateTime getFechaActualizacion(){
+        return fechaActualizacion;
     }
 }
