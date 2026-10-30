@@ -43,6 +43,7 @@ class EstudianteServiceTest {
         requestValido.setFechaNacimiento(LocalDate.of(2005, 5, 15));
         requestValido.setCorreo("carlos.gomez@colegio.edu");
         requestValido.setTelefono("3001234567");
+        requestValido.setDireccion("Calle 10 # 20-30");
     }
 
     @Test

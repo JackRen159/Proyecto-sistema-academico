@@ -12,12 +12,13 @@ public class EstudianteResponse {
     private LocalDate fechaNacimiento;
     private String correo;
     private String telefono;
+    private String direccion;
     private Boolean activo;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaActualizacion;
 
     public EstudianteResponse(Long id, String nombres, String apellidos, String documento, LocalDate fechaNacimiento, String correo,
-        String telefono, Boolean activo, LocalDateTime fechaCreacion, LocalDateTime fechaActualizacion){
+        String telefono, String direccion, Boolean activo, LocalDateTime fechaCreacion, LocalDateTime fechaActualizacion){
             this.id = id;
             this.nombres = nombres;
             this.apellidos = apellidos;
@@ -25,10 +26,12 @@ public class EstudianteResponse {
             this.fechaNacimiento = fechaNacimiento;
             this.correo = correo;
             this.telefono = telefono;
+            this.direccion = direccion;
             this.activo = activo;
             this.fechaCreacion = fechaCreacion;
             this.fechaActualizacion = fechaActualizacion;
         }
+
     public Long getId(){
         return id;
     }
@@ -49,6 +52,9 @@ public class EstudianteResponse {
     }
     public String getTelefono(){
         return telefono;
+    }
+    public String getDireccion(){
+        return direccion;
     }
     public Boolean getActivo(){
         return activo;

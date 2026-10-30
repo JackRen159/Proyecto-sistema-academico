@@ -21,6 +21,7 @@ public class EstudianteMapper {
         estudiante.setFechaNacimiento(request.getFechaNacimiento());
         estudiante.setCorreo(request.getCorreo());
         estudiante.setTelefono(request.getTelefono());
+        estudiante.setDireccion(request.getDireccion());
 
         return estudiante;
     }
@@ -37,6 +38,7 @@ public class EstudianteMapper {
         estudiante.setFechaNacimiento(request.getFechaNacimiento());
         estudiante.setCorreo(request.getCorreo());
         estudiante.setTelefono(request.getTelefono());
+        estudiante.setDireccion(request.getDireccion());
     }
 
     // Convierte la Entidad JPA al DTO de respuesta
@@ -53,10 +55,10 @@ public class EstudianteMapper {
                 estudiante.getFechaNacimiento(),
                 estudiante.getCorreo(),
                 estudiante.getTelefono(),
+                estudiante.getDireccion(),
                 estudiante.getActivo(),
                 estudiante.getFechaCreacion(),
                 estudiante.getFechaActualizacion()
         );
     }
 }
-

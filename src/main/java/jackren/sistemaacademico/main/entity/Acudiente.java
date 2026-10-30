@@ -16,9 +16,6 @@ public class Acudiente extends Persona {
     @Column(name = "telefono_alternativo", length = 20)
     private String telefonoAlternativo;
 
-    @Column(nullable = false, length = 150)
-    private String direccion;
-
     @Column(nullable = false, length = 80)
     private String ocupacion;
 
@@ -32,14 +29,6 @@ public class Acudiente extends Persona {
 
     public void setTelefonoAlternativo(String telefonoAlternativo) {
         this.telefonoAlternativo = telefonoAlternativo;
-    }
-
-    public String getDireccion() {
-        return direccion;
-    }
-
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
     }
 
     public String getOcupacion() {

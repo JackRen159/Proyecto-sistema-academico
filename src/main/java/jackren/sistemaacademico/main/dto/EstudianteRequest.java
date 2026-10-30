@@ -33,6 +33,10 @@ public class EstudianteRequest {
     @Size (max = 20, message = "El telefono no puede superar los 20 caracteres")
     private String telefono;
 
+    @NotBlank (message = "La direccion es obligatoria")
+    @Size (max = 150, message = "La direccion no puede superar los 150 caracteres")
+    private String direccion;
+
     public String getNombres(){
         return nombres;
     }
@@ -68,5 +72,11 @@ public class EstudianteRequest {
     }
     public void setTelefono(String telefono){
         this.telefono = telefono;
+    }
+    public String getDireccion(){
+        return direccion;
+    }
+    public void setDireccion(String direccion){
+        this.direccion = direccion;
     }
 }
