@@ -2,6 +2,8 @@ package jackren.sistemaacademico.main.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,6 +14,28 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    // Manejo de errores de autenticacion (credenciales invalidas, cuenta deshabilitada)
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> manejarAutenticacion(AuthenticationException ex) {
+        ErrorResponse response = new ErrorResponse(
+                HttpStatus.UNAUTHORIZED.value(),
+                "No autorizado",
+                ex.getMessage() != null ? ex.getMessage() : "Autenticacion fallida"
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    // Manejo de permisos insuficientes (rol no autorizado)
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> manejarAccesoDenegado(AccessDeniedException ex) {
+        ErrorResponse response = new ErrorResponse(
+                HttpStatus.FORBIDDEN.value(),
+                "Acceso denegado",
+                "No posee los permisos requeridos para ejecutar esta operacion"
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
 
     // Manejo de validaciones fallidas de DTO (@NotBlank, @Size, @Past, etc.)
     @ExceptionHandler(MethodArgumentNotValidException.class)

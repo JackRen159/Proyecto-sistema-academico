@@ -10,8 +10,12 @@ spring.datasource.url=jdbc:postgresql://localhost:5432/sistema_academico
 spring.datasource.username=postgres
 spring.datasource.password=REEMPLAZA_CON_LA_NUEVA_CONTRASENA_ROTADA
 
-# Secreto de firma JWT (mínimo 32 caracteres, generado con openssl rand -base64 32)
-app.security.jwt.secret=REEMPLAZA_CON_UN_SECRETO_SEGURO_GENERADO_LOCALMENTE
+# Secreto de firma JWT (mínimo 32 caracteres / 256 bits)
+jwt.secret=REEMPLAZA_CON_UN_SECRETO_SEGURO_GENERADO_LOCALMENTE
+
+# Bootstrap opcional de administrador inicial (perfil dev)
+security.bootstrap.admin.username=admin
+security.bootstrap.admin.password=TuContrasenaSegura123*
 
 # ── Sobreescrituras de desarrollo ───────────────────────────────────────────
 spring.jpa.show-sql=true
