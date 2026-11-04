@@ -3,7 +3,10 @@ package jackren.sistemaacademico.main.service;
 import jackren.sistemaacademico.main.dto.EstudianteRequest;
 import jackren.sistemaacademico.main.dto.EstudianteResponse;
 import jackren.sistemaacademico.main.entity.Estudiante;
+import jackren.sistemaacademico.main.exception.ConflictoNegocioException;
+import jackren.sistemaacademico.main.exception.RecursoNoEncontradoException;
 import jackren.sistemaacademico.main.mapper.EstudianteMapper;
+import jackren.sistemaacademico.main.repository.EstudianteAcudienteRepository;
 import jackren.sistemaacademico.main.repository.EstudianteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,6 +28,9 @@ class EstudianteServiceTest {
 
     @Mock
     private EstudianteRepository estudianteRepository;
+
+    @Mock
+    private EstudianteAcudienteRepository estudianteAcudienteRepository;
 
     @Spy
     private EstudianteMapper estudianteMapper;
@@ -62,10 +68,10 @@ class EstudianteServiceTest {
     }
 
     @Test
-    void guardar_CuandoDocumentoYaExiste_DebeLanzarExcepcion() {
+    void guardar_CuandoDocumentoYaExiste_DebeLanzarConflictoNegocioException() {
         when(estudianteRepository.existsByDocumento("10203040")).thenReturn(true);
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
+        ConflictoNegocioException ex = assertThrows(ConflictoNegocioException.class, () -> {
             estudianteService.guardar(requestValido);
         });
 
@@ -74,22 +80,51 @@ class EstudianteServiceTest {
     }
 
     @Test
-    void eliminarPermanente_SinConfirmacion_DebeLanzarExcepcion() {
+    void guardar_CuandoCorreoYaExiste_DebeLanzarConflictoNegocioException() {
+        when(estudianteRepository.existsByDocumento("10203040")).thenReturn(false);
+        when(estudianteRepository.existsByCorreo("carlos.gomez@colegio.edu")).thenReturn(true);
+
+        ConflictoNegocioException ex = assertThrows(ConflictoNegocioException.class, () -> {
+            estudianteService.guardar(requestValido);
+        });
+
+        assertTrue(ex.getMessage().contains("Ya existe un estudiante con el correo"));
+        verify(estudianteRepository, never()).save(any(Estudiante.class));
+    }
+
+    @Test
+    void eliminarPermanente_SinConfirmacion_DebeLanzarIllegalArgumentException() {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
             estudianteService.eliminarPermanente(1L, false);
         });
 
-        assertTrue(ex.getMessage().contains("Debe confirmar explícitamente"));
-        verify(estudianteRepository, never()).deleteById(anyLong());
+        assertTrue(ex.getMessage().contains("Debe confirmar explicitamente"));
+        verify(estudianteRepository, never()).delete(any());
     }
 
     @Test
-    void eliminarPermanente_ConConfirmacion_DebeEliminar() {
-        when(estudianteRepository.existsById(1L)).thenReturn(true);
+    void eliminarPermanente_CuandoTieneVinculaciones_DebeLanzarConflictoNegocioException() {
+        Estudiante estudiante = new Estudiante();
+        when(estudianteRepository.findById(1L)).thenReturn(Optional.of(estudiante));
+        when(estudianteAcudienteRepository.existsByEstudiante(estudiante)).thenReturn(true);
+
+        ConflictoNegocioException ex = assertThrows(ConflictoNegocioException.class, () -> {
+            estudianteService.eliminarPermanente(1L, true);
+        });
+
+        assertTrue(ex.getMessage().contains("cuenta con vinculaciones"));
+        verify(estudianteRepository, never()).delete(any());
+    }
+
+    @Test
+    void eliminarPermanente_ConConfirmacionYSinVinculos_DebeEliminar() {
+        Estudiante estudiante = new Estudiante();
+        when(estudianteRepository.findById(1L)).thenReturn(Optional.of(estudiante));
+        when(estudianteAcudienteRepository.existsByEstudiante(estudiante)).thenReturn(false);
 
         assertDoesNotThrow(() -> estudianteService.eliminarPermanente(1L, true));
 
-        verify(estudianteRepository, times(1)).deleteById(1L);
+        verify(estudianteRepository, times(1)).delete(estudiante);
     }
 
     @Test
@@ -102,6 +137,13 @@ class EstudianteServiceTest {
 
         assertFalse(estudiante.getActivo());
         verify(estudianteRepository, times(1)).save(estudiante);
+    }
+
+    @Test
+    void desactivar_CuandoNoExiste_DebeLanzarRecursoNoEncontradoException() {
+        when(estudianteRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(RecursoNoEncontradoException.class, () -> estudianteService.desactivar(99L));
     }
 
     @Test
@@ -131,4 +173,3 @@ class EstudianteServiceTest {
         verify(estudianteRepository, times(1)).findByDocumento("10203040");
     }
 }
-

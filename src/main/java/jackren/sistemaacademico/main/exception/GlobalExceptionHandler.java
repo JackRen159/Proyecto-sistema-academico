@@ -15,6 +15,28 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    // Manejo de recurso no encontrado (HTTP 404)
+    @ExceptionHandler(RecursoNoEncontradoException.class)
+    public ResponseEntity<ErrorResponse> manejarRecursoNoEncontrado(RecursoNoEncontradoException ex) {
+        ErrorResponse response = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                "Recurso no encontrado",
+                ex.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    // Manejo de conflictos de negocio e invariantes no cumplidas (HTTP 409)
+    @ExceptionHandler(ConflictoNegocioException.class)
+    public ResponseEntity<ErrorResponse> manejarConflictoNegocio(ConflictoNegocioException ex) {
+        ErrorResponse response = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                "Conflicto de negocio",
+                ex.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
     // Manejo de errores de autenticacion (credenciales invalidas, cuenta deshabilitada)
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> manejarAutenticacion(AuthenticationException ex) {
@@ -48,20 +70,20 @@ public class GlobalExceptionHandler {
 
         ErrorResponse response = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
-                "Datos inválidos",
-                "Uno o más campos no cumplen con las validaciones requeridas",
+                "Datos invalidos",
+                "Uno o mas campos no cumplen con las validaciones requeridas",
                 errores
         );
 
         return ResponseEntity.badRequest().body(response);
     }
 
-    // Manejo de reglas de negocio y argumentos no válidos (documento duplicado, confirmación faltante, etc.)
+    // Manejo de argumentos no validos
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> manejarIllegalArgument(IllegalArgumentException ex) {
         ErrorResponse response = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
-                "Regla de negocio no cumplida",
+                "Solicitud invalida",
                 ex.getMessage()
         );
 
@@ -74,10 +96,9 @@ public class GlobalExceptionHandler {
         ErrorResponse response = new ErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "Error interno del servidor",
-                "Ocurrió un error inesperado. Intente nuevamente más tarde."
+                "Ocurrio un error inesperado. Intente nuevamente mas tarde."
         );
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 }
-

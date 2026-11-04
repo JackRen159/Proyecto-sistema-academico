@@ -10,22 +10,30 @@ import java.util.Optional;
 
 public interface EstudianteAcudienteRepository extends JpaRepository<EstudianteAcudiente, Long> {
 
-    // Lista todos los vínculos de un estudiante (para ver sus acudientes)
+    // Lista todos los vinculos de un estudiante (para ver sus acudientes)
     List<EstudianteAcudiente> findByEstudiante(Estudiante estudiante);
 
-    // Lista todos los vínculos de un acudiente (para ver sus estudiantes)
+    // Lista todos los vinculos de un acudiente (para ver sus estudiantes)
     List<EstudianteAcudiente> findByAcudiente(Acudiente acudiente);
 
-    // Verifica si ya existe el vínculo entre un estudiante y un acudiente
+    // Verifica si ya existe el vinculo entre un estudiante y un acudiente
     boolean existsByEstudianteAndAcudiente(Estudiante estudiante, Acudiente acudiente);
 
-    // Obtiene el vínculo específico entre un estudiante y un acudiente
+    // Verifica si un estudiante tiene cualquier relacion registrada
+    boolean existsByEstudiante(Estudiante estudiante);
+
+    // Verifica si un acudiente tiene cualquier relacion registrada
+    boolean existsByAcudiente(Acudiente acudiente);
+
+    // Verifica si el acudiente es principal de algun estudiante que se encuentre activo
+    boolean existsByAcudienteAndEsPrincipalTrueAndEstudianteActivoTrue(Acudiente acudiente);
+
+    // Obtiene el vinculo especifico entre un estudiante y un acudiente
     Optional<EstudianteAcudiente> findByEstudianteAndAcudiente(Estudiante estudiante, Acudiente acudiente);
 
     // Obtiene el acudiente principal de un estudiante (para validar el reemplazo)
     Optional<EstudianteAcudiente> findByEstudianteAndEsPrincipalTrue(Estudiante estudiante);
 
-    // Cuenta cuántos acudientes tiene un estudiante (para reglas de negocio)
+    // Cuenta cuantos acudientes tiene un estudiante (para reglas de negocio)
     long countByEstudiante(Estudiante estudiante);
 }
-

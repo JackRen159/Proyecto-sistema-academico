@@ -15,17 +15,20 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Collections;
-
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -106,11 +109,35 @@ class SecurityEndpointsTest {
 
     @Test
     void getEstudiantes_ConTokenJwtValido_DebePermitirAcceso() throws Exception {
-        when(estudianteService.listarTodos()).thenReturn(Collections.emptyList());
+        when(estudianteService.listarPaginado(any())).thenReturn(Page.empty());
 
         mockMvc.perform(get("/api/estudiantes")
                         .with(jwt().jwt(builder -> builder.subject("admin").claim("rol", "ADMINISTRADOR"))))
                 .andExpect(status().isOk());
     }
-}
 
+    @Test
+    void eliminarEstudiante_ConRolNoAdministrador_DebeRetornar403Forbidden() throws Exception {
+        mockMvc.perform(delete("/api/estudiantes/1")
+                        .param("confirmar", "true")
+                        .with(jwt()
+                                .authorities(new SimpleGrantedAuthority("ROLE_PROFESOR"))
+                                .jwt(builder -> builder.subject("profe").claim("rol", "PROFESOR"))))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.status").value(403))
+                .andExpect(jsonPath("$.error").value("Acceso denegado"))
+                .andExpect(jsonPath("$.mensaje").value("No posee los permisos requeridos para ejecutar esta operacion"));
+    }
+
+    @Test
+    void eliminarEstudiante_ConRolAdministrador_DebePermitirOperacion() throws Exception {
+        doNothing().when(estudianteService).eliminarPermanente(eq(1L), eq(true));
+
+        mockMvc.perform(delete("/api/estudiantes/1")
+                        .param("confirmar", "true")
+                        .with(jwt()
+                                .authorities(new SimpleGrantedAuthority("ROLE_ADMINISTRADOR"))
+                                .jwt(builder -> builder.subject("admin").claim("rol", "ADMINISTRADOR"))))
+                .andExpect(status().isNoContent());
+    }
+}

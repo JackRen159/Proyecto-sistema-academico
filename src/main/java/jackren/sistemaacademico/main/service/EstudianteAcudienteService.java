@@ -5,6 +5,8 @@ import jackren.sistemaacademico.main.dto.EstudianteAcudienteResponse;
 import jackren.sistemaacademico.main.entity.Acudiente;
 import jackren.sistemaacademico.main.entity.Estudiante;
 import jackren.sistemaacademico.main.entity.EstudianteAcudiente;
+import jackren.sistemaacademico.main.exception.ConflictoNegocioException;
+import jackren.sistemaacademico.main.exception.RecursoNoEncontradoException;
 import jackren.sistemaacademico.main.mapper.EstudianteAcudienteMapper;
 import jackren.sistemaacademico.main.repository.AcudienteRepository;
 import jackren.sistemaacademico.main.repository.EstudianteAcudienteRepository;
@@ -37,21 +39,21 @@ public class EstudianteAcudienteService {
     @Transactional
     public EstudianteAcudienteResponse asociar(EstudianteAcudienteRequest request) {
         Estudiante estudiante = estudianteRepository.findByDocumento(request.getDocumentoEstudiante())
-                .orElseThrow(() -> new IllegalArgumentException("No se encontró el estudiante con documento: " + request.getDocumentoEstudiante()));
+                .orElseThrow(() -> new RecursoNoEncontradoException("No se encontro el estudiante con documento: " + request.getDocumentoEstudiante()));
 
         if (!estudiante.getActivo()) {
-            throw new IllegalArgumentException("El estudiante con documento " + request.getDocumentoEstudiante() + " se encuentra inactivo");
+            throw new ConflictoNegocioException("El estudiante con documento " + request.getDocumentoEstudiante() + " se encuentra inactivo");
         }
 
         Acudiente acudiente = acudienteRepository.findByDocumento(request.getDocumentoAcudiente())
-                .orElseThrow(() -> new IllegalArgumentException("No se encontró el acudiente con documento: " + request.getDocumentoAcudiente()));
+                .orElseThrow(() -> new RecursoNoEncontradoException("No se encontro el acudiente con documento: " + request.getDocumentoAcudiente()));
 
         if (!acudiente.getActivo()) {
-            throw new IllegalArgumentException("El acudiente con documento " + request.getDocumentoAcudiente() + " se encuentra inactivo");
+            throw new ConflictoNegocioException("El acudiente con documento " + request.getDocumentoAcudiente() + " se encuentra inactivo");
         }
 
         if (estudianteAcudienteRepository.existsByEstudianteAndAcudiente(estudiante, acudiente)) {
-            throw new IllegalArgumentException("El acudiente con documento " + request.getDocumentoAcudiente()
+            throw new ConflictoNegocioException("El acudiente con documento " + request.getDocumentoAcudiente()
                     + " ya se encuentra vinculado al estudiante con documento " + request.getDocumentoEstudiante());
         }
 
@@ -78,7 +80,7 @@ public class EstudianteAcudienteService {
     // Listar todos los acudientes de un estudiante por su documento
     public List<EstudianteAcudienteResponse> listarAcudientesPorEstudiante(String documentoEstudiante) {
         Estudiante estudiante = estudianteRepository.findByDocumento(documentoEstudiante)
-                .orElseThrow(() -> new IllegalArgumentException("No se encontró el estudiante con documento: " + documentoEstudiante));
+                .orElseThrow(() -> new RecursoNoEncontradoException("No se encontro el estudiante con documento: " + documentoEstudiante));
 
         return estudianteAcudienteRepository.findByEstudiante(estudiante)
                 .stream()
@@ -89,7 +91,7 @@ public class EstudianteAcudienteService {
     // Listar todos los estudiantes a cargo de un acudiente por su documento
     public List<EstudianteAcudienteResponse> listarEstudiantesPorAcudiente(String documentoAcudiente) {
         Acudiente acudiente = acudienteRepository.findByDocumento(documentoAcudiente)
-                .orElseThrow(() -> new IllegalArgumentException("No se encontró el acudiente con documento: " + documentoAcudiente));
+                .orElseThrow(() -> new RecursoNoEncontradoException("No se encontro el acudiente con documento: " + documentoAcudiente));
 
         return estudianteAcudienteRepository.findByAcudiente(acudiente)
                 .stream()
@@ -101,13 +103,13 @@ public class EstudianteAcudienteService {
     @Transactional
     public EstudianteAcudienteResponse cambiarAcudientePrincipal(String documentoEstudiante, String documentoNuevoPrincipal) {
         Estudiante estudiante = estudianteRepository.findByDocumento(documentoEstudiante)
-                .orElseThrow(() -> new IllegalArgumentException("No se encontró el estudiante con documento: " + documentoEstudiante));
+                .orElseThrow(() -> new RecursoNoEncontradoException("No se encontro el estudiante con documento: " + documentoEstudiante));
 
         Acudiente nuevoPrincipal = acudienteRepository.findByDocumento(documentoNuevoPrincipal)
-                .orElseThrow(() -> new IllegalArgumentException("No se encontró el acudiente con documento: " + documentoNuevoPrincipal));
+                .orElseThrow(() -> new RecursoNoEncontradoException("No se encontro el acudiente con documento: " + documentoNuevoPrincipal));
 
         EstudianteAcudiente relacionNuevoPrincipal = estudianteAcudienteRepository.findByEstudianteAndAcudiente(estudiante, nuevoPrincipal)
-                .orElseThrow(() -> new IllegalArgumentException("El acudiente no está vinculado a este estudiante"));
+                .orElseThrow(() -> new ConflictoNegocioException("El acudiente no esta vinculado a este estudiante"));
 
         if (Boolean.TRUE.equals(relacionNuevoPrincipal.getEsPrincipal())) {
             return estudianteAcudienteMapper.toResponse(relacionNuevoPrincipal);
@@ -129,23 +131,22 @@ public class EstudianteAcudienteService {
     @Transactional
     public void desvincular(String documentoEstudiante, String documentoAcudiente) {
         Estudiante estudiante = estudianteRepository.findByDocumento(documentoEstudiante)
-                .orElseThrow(() -> new IllegalArgumentException("No se encontró el estudiante con documento: " + documentoEstudiante));
+                .orElseThrow(() -> new RecursoNoEncontradoException("No se encontro el estudiante con documento: " + documentoEstudiante));
 
         Acudiente acudiente = acudienteRepository.findByDocumento(documentoAcudiente)
-                .orElseThrow(() -> new IllegalArgumentException("No se encontró el acudiente con documento: " + documentoAcudiente));
+                .orElseThrow(() -> new RecursoNoEncontradoException("No se encontro el acudiente con documento: " + documentoAcudiente));
 
         EstudianteAcudiente relacion = estudianteAcudienteRepository.findByEstudianteAndAcudiente(estudiante, acudiente)
-                .orElseThrow(() -> new IllegalArgumentException("No existe vínculo entre el estudiante y el acudiente especificados"));
+                .orElseThrow(() -> new RecursoNoEncontradoException("No existe vinculo entre el estudiante y el acudiente especificados"));
 
         // Regla institucional: Si es el acudiente principal y hay otros acudientes, debe reemplazarse primero
         if (Boolean.TRUE.equals(relacion.getEsPrincipal())) {
             long totalAcudientes = estudianteAcudienteRepository.countByEstudiante(estudiante);
             if (totalAcudientes > 1) {
-                throw new IllegalArgumentException("No se puede desvincular al acudiente principal. Primero debe designar a otro de sus acudientes como principal.");
+                throw new ConflictoNegocioException("No se puede desvincular al acudiente principal. Primero debe designar a otro de sus acudientes como principal.");
             }
         }
 
         estudianteAcudienteRepository.delete(relacion);
     }
 }
-

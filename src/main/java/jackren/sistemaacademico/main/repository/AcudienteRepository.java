@@ -1,6 +1,8 @@
 package jackren.sistemaacademico.main.repository;
 
 import jackren.sistemaacademico.main.entity.Acudiente;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -15,4 +17,6 @@ public interface AcudienteRepository extends JpaRepository<Acudiente, Long> {
     boolean existsByCorreo(String correo);
 
     List<Acudiente> findByActivoTrue();
+
+    Page<Acudiente> findByActivoTrue(Pageable pageable);
 }

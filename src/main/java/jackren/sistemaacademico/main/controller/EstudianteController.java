@@ -4,11 +4,14 @@ import jackren.sistemaacademico.main.dto.EstudianteRequest;
 import jackren.sistemaacademico.main.dto.EstudianteResponse;
 import jackren.sistemaacademico.main.service.EstudianteService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/estudiantes")
@@ -21,24 +24,19 @@ public class EstudianteController {
     }
 
     @GetMapping
-    public ResponseEntity<List<EstudianteResponse>> listarTodos() {
-        return ResponseEntity.ok(
-                estudianteService.listarTodos()
-        );
+    public ResponseEntity<Page<EstudianteResponse>> listar(
+            @PageableDefault(size = 20, sort = "apellidos") Pageable pageable) {
+        return ResponseEntity.ok(estudianteService.listarPaginado(pageable));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<EstudianteResponse> buscarPorId(@PathVariable Long id) {
-        return estudianteService.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(estudianteService.obtenerPorId(id));
     }
 
     @GetMapping("/documento/{documento}")
     public ResponseEntity<EstudianteResponse> buscarPorDocumento(@PathVariable String documento) {
-        return estudianteService.buscarPorDocumento(documento)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(estudianteService.obtenerPorDocumento(documento));
     }
 
     @PostMapping
@@ -68,6 +66,7 @@ public class EstudianteController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<Void> eliminarPermanente(
             @PathVariable Long id,
             @RequestParam(defaultValue = "false") boolean confirmar) {

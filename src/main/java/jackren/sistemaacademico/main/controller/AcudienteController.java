@@ -4,11 +4,14 @@ import jackren.sistemaacademico.main.dto.AcudienteRequest;
 import jackren.sistemaacademico.main.dto.AcudienteResponse;
 import jackren.sistemaacademico.main.service.AcudienteService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/acudientes")
@@ -21,24 +24,19 @@ public class AcudienteController {
     }
 
     @GetMapping
-    public ResponseEntity<List<AcudienteResponse>> listarTodos() {
-        return ResponseEntity.ok(
-                acudienteService.listarTodos()
-        );
+    public ResponseEntity<Page<AcudienteResponse>> listar(
+            @PageableDefault(size = 20, sort = "apellidos") Pageable pageable) {
+        return ResponseEntity.ok(acudienteService.listarPaginado(pageable));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<AcudienteResponse> buscarPorId(@PathVariable Long id) {
-        return acudienteService.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(acudienteService.obtenerPorId(id));
     }
 
     @GetMapping("/documento/{documento}")
     public ResponseEntity<AcudienteResponse> buscarPorDocumento(@PathVariable String documento) {
-        return acudienteService.buscarPorDocumento(documento)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(acudienteService.obtenerPorDocumento(documento));
     }
 
     @PostMapping
@@ -68,6 +66,7 @@ public class AcudienteController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<Void> eliminarPermanente(
             @PathVariable Long id,
             @RequestParam(defaultValue = "false") boolean confirmar) {

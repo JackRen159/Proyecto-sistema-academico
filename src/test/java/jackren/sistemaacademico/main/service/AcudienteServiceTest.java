@@ -3,8 +3,11 @@ package jackren.sistemaacademico.main.service;
 import jackren.sistemaacademico.main.dto.AcudienteRequest;
 import jackren.sistemaacademico.main.dto.AcudienteResponse;
 import jackren.sistemaacademico.main.entity.Acudiente;
+import jackren.sistemaacademico.main.exception.ConflictoNegocioException;
+import jackren.sistemaacademico.main.exception.RecursoNoEncontradoException;
 import jackren.sistemaacademico.main.mapper.AcudienteMapper;
 import jackren.sistemaacademico.main.repository.AcudienteRepository;
+import jackren.sistemaacademico.main.repository.EstudianteAcudienteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +27,9 @@ class AcudienteServiceTest {
 
     @Mock
     private AcudienteRepository acudienteRepository;
+
+    @Mock
+    private EstudianteAcudienteRepository estudianteAcudienteRepository;
 
     @Spy
     private AcudienteMapper acudienteMapper;
@@ -63,10 +69,10 @@ class AcudienteServiceTest {
     }
 
     @Test
-    void guardar_CuandoDocumentoYaExiste_DebeLanzarExcepcion() {
+    void guardar_CuandoDocumentoYaExiste_DebeLanzarConflictoNegocioException() {
         when(acudienteRepository.existsByDocumento("50607080")).thenReturn(true);
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
+        ConflictoNegocioException ex = assertThrows(ConflictoNegocioException.class, () -> {
             acudienteService.guardar(requestValido);
         });
 
@@ -75,11 +81,11 @@ class AcudienteServiceTest {
     }
 
     @Test
-    void guardar_CuandoCorreoYaExiste_DebeLanzarExcepcion() {
+    void guardar_CuandoCorreoYaExiste_DebeLanzarConflictoNegocioException() {
         when(acudienteRepository.existsByDocumento("50607080")).thenReturn(false);
         when(acudienteRepository.existsByCorreo("maria.rodriguez@email.com")).thenReturn(true);
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
+        ConflictoNegocioException ex = assertThrows(ConflictoNegocioException.class, () -> {
             acudienteService.guardar(requestValido);
         });
 
@@ -88,15 +94,53 @@ class AcudienteServiceTest {
     }
 
     @Test
-    void desactivar_DebeCambiarEstadoActivoAFalso() {
+    void actualizar_CuandoCorreoEsNull_NoDebeLanzarNullPointerException() {
+        Acudiente acudienteExistente = new Acudiente();
+        acudienteExistente.setDocumento("50607080");
+        acudienteExistente.setCorreo("antiguo@email.com");
+        acudienteExistente.setNombres("Maria");
+        acudienteExistente.setApellidos("Rodriguez");
+        acudienteExistente.setTelefono("3119876543");
+        acudienteExistente.setDireccion("Calle 10 # 20 - 30");
+        acudienteExistente.setOcupacion("Ingeniera");
+
+        requestValido.setCorreo(null); // Opcional según DM V2.0 §1.3
+
+        when(acudienteRepository.findById(1L)).thenReturn(Optional.of(acudienteExistente));
+        when(acudienteRepository.save(any(Acudiente.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        assertDoesNotThrow(() -> {
+            AcudienteResponse response = acudienteService.actualizar(1L, requestValido);
+            assertNull(response.getCorreo());
+        });
+    }
+
+    @Test
+    void desactivar_CuandoNoEsPrincipalDeEstudianteActivo_DebeCambiarEstadoActivoAFalso() {
         Acudiente acudiente = new Acudiente();
         acudiente.setActivo(true);
         when(acudienteRepository.findById(1L)).thenReturn(Optional.of(acudiente));
+        when(estudianteAcudienteRepository.existsByAcudienteAndEsPrincipalTrueAndEstudianteActivoTrue(acudiente)).thenReturn(false);
 
         acudienteService.desactivar(1L);
 
         assertFalse(acudiente.getActivo());
         verify(acudienteRepository, times(1)).save(acudiente);
+    }
+
+    @Test
+    void desactivar_CuandoEsPrincipalDeEstudianteActivo_DebeLanzarConflictoNegocioException() {
+        Acudiente acudiente = new Acudiente();
+        acudiente.setActivo(true);
+        when(acudienteRepository.findById(1L)).thenReturn(Optional.of(acudiente));
+        when(estudianteAcudienteRepository.existsByAcudienteAndEsPrincipalTrueAndEstudianteActivoTrue(acudiente)).thenReturn(true);
+
+        ConflictoNegocioException ex = assertThrows(ConflictoNegocioException.class, () -> {
+            acudienteService.desactivar(1L);
+        });
+
+        assertTrue(ex.getMessage().contains("es el acudiente principal de uno o mas estudiantes activos"));
+        verify(acudienteRepository, never()).save(acudiente);
     }
 
     @Test
@@ -112,22 +156,38 @@ class AcudienteServiceTest {
     }
 
     @Test
-    void eliminarPermanente_SinConfirmacion_DebeLanzarExcepcion() {
+    void eliminarPermanente_SinConfirmacion_DebeLanzarIllegalArgumentException() {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
             acudienteService.eliminarPermanente(1L, false);
         });
 
-        assertTrue(ex.getMessage().contains("Debe confirmar explícitamente"));
-        verify(acudienteRepository, never()).deleteById(anyLong());
+        assertTrue(ex.getMessage().contains("Debe confirmar explicitamente"));
+        verify(acudienteRepository, never()).delete(any());
     }
 
     @Test
-    void eliminarPermanente_ConConfirmacion_DebeEliminar() {
-        when(acudienteRepository.existsById(1L)).thenReturn(true);
+    void eliminarPermanente_CuandoTieneVinculaciones_DebeLanzarConflictoNegocioException() {
+        Acudiente acudiente = new Acudiente();
+        when(acudienteRepository.findById(1L)).thenReturn(Optional.of(acudiente));
+        when(estudianteAcudienteRepository.existsByAcudiente(acudiente)).thenReturn(true);
+
+        ConflictoNegocioException ex = assertThrows(ConflictoNegocioException.class, () -> {
+            acudienteService.eliminarPermanente(1L, true);
+        });
+
+        assertTrue(ex.getMessage().contains("cuenta con vinculaciones"));
+        verify(acudienteRepository, never()).delete(any());
+    }
+
+    @Test
+    void eliminarPermanente_ConConfirmacionYSinVinculos_DebeEliminar() {
+        Acudiente acudiente = new Acudiente();
+        when(acudienteRepository.findById(1L)).thenReturn(Optional.of(acudiente));
+        when(estudianteAcudienteRepository.existsByAcudiente(acudiente)).thenReturn(false);
 
         assertDoesNotThrow(() -> acudienteService.eliminarPermanente(1L, true));
 
-        verify(acudienteRepository, times(1)).deleteById(1L);
+        verify(acudienteRepository, times(1)).delete(acudiente);
     }
 
     @Test
