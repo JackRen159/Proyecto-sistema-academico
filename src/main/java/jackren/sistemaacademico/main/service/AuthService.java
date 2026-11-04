@@ -12,6 +12,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
@@ -53,6 +56,7 @@ public class AuthService {
             Instant expiresAt = now.plus(expirationHours, ChronoUnit.HOURS);
 
             JwtClaimsSet claims = JwtClaimsSet.builder()
+                    .id(UUID.randomUUID().toString())
                     .issuer("sistema-academico")
                     .issuedAt(now)
                     .expiresAt(expiresAt)
@@ -61,7 +65,8 @@ public class AuthService {
                     .claim("rol", usuario.getRol().name())
                     .build();
 
-            String token = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+            JwsHeader jwsHeader = JwsHeader.with(MacAlgorithm.HS256).build();
+            String token = jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
             long expiresInSeconds = ChronoUnit.SECONDS.between(now, expiresAt);
 
             return new LoginResponse(token, "Bearer", usuario.getUsername(), usuario.getRol(), expiresInSeconds);

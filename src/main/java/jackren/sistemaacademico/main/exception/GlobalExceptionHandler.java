@@ -48,6 +48,19 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
+    // Manejo de tasa limite excedida (HTTP 429)
+    @ExceptionHandler(DemasiadasPeticionesException.class)
+    public ResponseEntity<ErrorResponse> manejarDemasiadasPeticiones(DemasiadasPeticionesException ex) {
+        ErrorResponse response = new ErrorResponse(
+                HttpStatus.TOO_MANY_REQUESTS.value(),
+                "Demasiadas peticiones",
+                ex.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header("Retry-After", "60")
+                .body(response);
+    }
+
     // Manejo de permisos insuficientes (rol no autorizado)
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> manejarAccesoDenegado(AccessDeniedException ex) {

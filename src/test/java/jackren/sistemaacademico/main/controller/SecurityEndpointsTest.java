@@ -7,8 +7,10 @@ import jackren.sistemaacademico.main.dto.LoginResponse;
 import jackren.sistemaacademico.main.entity.Rol;
 import jackren.sistemaacademico.main.repository.UsuarioRepository;
 import jackren.sistemaacademico.main.security.CustomUserDetailsService;
+import jackren.sistemaacademico.main.security.LoginRateLimiterService;
 import jackren.sistemaacademico.main.security.RestAccessDeniedHandler;
 import jackren.sistemaacademico.main.security.RestAuthenticationEntryPoint;
+import jackren.sistemaacademico.main.security.TokenRevocationService;
 import jackren.sistemaacademico.main.service.AuthService;
 import jackren.sistemaacademico.main.service.EstudianteService;
 import org.junit.jupiter.api.Test;
@@ -40,7 +42,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         JwtConfig.class,
         RestAuthenticationEntryPoint.class,
         RestAccessDeniedHandler.class,
-        CustomUserDetailsService.class
+        CustomUserDetailsService.class,
+        TokenRevocationService.class,
+        LoginRateLimiterService.class
 })
 @TestPropertySource(properties = {
         "jwt.secret=404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970",
@@ -112,7 +116,9 @@ class SecurityEndpointsTest {
         when(estudianteService.listarPaginado(any())).thenReturn(Page.empty());
 
         mockMvc.perform(get("/api/estudiantes")
-                        .with(jwt().jwt(builder -> builder.subject("admin").claim("rol", "ADMINISTRADOR"))))
+                        .with(jwt()
+                                .authorities(new SimpleGrantedAuthority("ROLE_ADMINISTRADOR"))
+                                .jwt(builder -> builder.subject("admin").claim("rol", "ADMINISTRADOR"))))
                 .andExpect(status().isOk());
     }
 
