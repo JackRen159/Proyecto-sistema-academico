@@ -8,10 +8,10 @@
 		<version>4.1.1</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>jackren.sistemaacademico</groupId>
-	<artifactId>main</artifactId>
+	<groupId>com.jackren</groupId>
+	<artifactId>sistema-academico</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>main</name>
+	<name>sistema-academico</name>
 	<description/>
 	<url/>
 	<licenses>
