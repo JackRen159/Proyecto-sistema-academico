@@ -58,6 +58,13 @@ public class SecurityConfig {
                 // Endpoints públicos de autenticación
                 .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
+                // Documentación OpenAPI 3.x y Swagger UI interactiva
+                .requestMatchers(
+                    "/v3/api-docs/**",
+                    "/v3/api-docs.yaml",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html"
+                ).permitAll()
                 .requestMatchers("/error").permitAll()
                 // Toda otra operación bajo /api/** requiere autenticación
                 .requestMatchers("/api/**").authenticated()

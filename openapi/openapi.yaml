@@ -1,0 +1,1193 @@
+openapi: 3.0.3
+info:
+  title: Sistema de Gestión Escolar API
+  description: |
+    Contrato oficial y versionado de la API REST para el Sistema de Gestión Escolar.
+    Gestiona autenticación stateless mediante JWT, control de acceso basado en roles (RBAC),
+    estudiantes, acudientes y vinculaciones familiares con protección de unicidad para acudiente principal.
+  version: 1.0.0
+  contact:
+    name: Equipo de Desarrollo Sistema Escolar
+    email: soporte@sistemaescolar.local
+
+servers:
+  - url: http://localhost:8080
+    description: Servidor de desarrollo local
+
+security:
+  - BearerAuth: []
+
+paths:
+  # ---------------------------------------------------------------------------
+  # AUTENTICACIÓN Y SESIÓN
+  # ---------------------------------------------------------------------------
+  /api/auth/login:
+    post:
+      tags:
+        - Autenticación
+      summary: Iniciar sesión y obtener token JWT
+      description: |
+        Autentica a un usuario mediante credenciales institucionales.
+        Protegido por limitador de tasa (máximo 5 intentos por minuto por IP).
+        Al superar el límite responde HTTP 429 con cabecera Retry-After.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Autenticación exitosa. Retorna token JWT y rol asignado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Solicitud inválida (campos vacíos o con formato erróneo).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Credenciales inválidas o cuenta inactiva.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Demasiadas peticiones. Límite de tasa de inicio de sesión superado.
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+                example: 60
+              description: Segundos de espera requeridos antes de reintentar.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/logout:
+    post:
+      tags:
+        - Autenticación
+      summary: Cerrar sesión e invalidar token JWT
+      description: |
+        Registra el identificador único (`jti`) del token JWT en la lista de revocación
+        del servidor para impedir su reutilización. El cliente SPA debe descartar el token en memoria.
+      responses:
+        '200':
+          description: Sesión cerrada exitosamente.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensaje:
+                    type: string
+                    example: Sesion cerrada exitosamente. Descarte el token en memoria.
+
+  /api/auth/me:
+    get:
+      tags:
+        - Autenticación
+      summary: Consultar perfil del usuario autenticado
+      description: Retorna el identificador, nombre de usuario, rol institucional y estado de actividad.
+      responses:
+        '200':
+          description: Perfil recuperado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsuarioResponse'
+        '401':
+          description: No autenticado o token JWT inválido/expirado/revocado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ---------------------------------------------------------------------------
+  # ESTUDIANTES
+  # ---------------------------------------------------------------------------
+  /api/estudiantes:
+    get:
+      tags:
+        - Estudiantes
+      summary: Listar estudiantes paginados
+      description: |
+        Permite consultar el listado de estudiantes con paginación y ordenamiento.
+        Requiere rol ADMINISTRADOR, RECTOR, COORDINADOR, SECRETARIA o PROFESOR.
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+          description: Número de página (iniciando en 0).
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 20
+          description: Cantidad de registros por página.
+        - name: sort
+          in: query
+          schema:
+            type: string
+            default: apellidos,asc
+          description: Criterio de ordenamiento (ej. apellidos,asc).
+      responses:
+        '200':
+          description: Listado paginado de estudiantes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedEstudianteResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+
+    post:
+      tags:
+        - Estudiantes
+      summary: Registrar nuevo estudiante
+      description: |
+        Crea un registro de estudiante en estado activo.
+        Requiere rol ADMINISTRADOR, RECTOR o SECRETARIA.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EstudianteRequest'
+      responses:
+        '201':
+          description: Estudiante creado exitosamente.
+          headers:
+            Location:
+              schema:
+                type: string
+                example: /api/estudiantes/1
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstudianteResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          description: Documento o correo electrónico ya registrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/estudiantes/{id}:
+    get:
+      tags:
+        - Estudiantes
+      summary: Obtener estudiante por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Estudiante encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstudianteResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    put:
+      tags:
+        - Estudiantes
+      summary: Actualizar datos de un estudiante
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EstudianteRequest'
+      responses:
+        '200':
+          description: Estudiante actualizado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstudianteResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+
+    delete:
+      tags:
+        - Estudiantes
+      summary: Eliminación permanente (destructiva) de un estudiante
+      description: |
+        Operación altamente restringida solo para ADMINISTRADOR.
+        Requiere el parámetro explícito `confirmar=true`.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: confirmar
+          in: query
+          required: true
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '204':
+          description: Estudiante eliminado permanentemente.
+        '400':
+          description: Confirmación no proporcionada o inválida.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/estudiantes/documento/{documento}:
+    get:
+      tags:
+        - Estudiantes
+      summary: Buscar estudiante por documento de identidad
+      parameters:
+        - name: documento
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Estudiante encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstudianteResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/estudiantes/{id}/desactivar:
+    patch:
+      tags:
+        - Estudiantes
+      summary: Desactivación lógica de un estudiante
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Estudiante desactivado lógicamente.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/estudiantes/{id}/restaurar:
+    patch:
+      tags:
+        - Estudiantes
+      summary: Restaurar estudiante desactivado lógicamente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Estudiante restaurado a estado activo.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  # ---------------------------------------------------------------------------
+  # ACUDIENTES
+  # ---------------------------------------------------------------------------
+  /api/acudientes:
+    get:
+      tags:
+        - Acudientes
+      summary: Listar acudientes paginados
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: sort
+          in: query
+          schema:
+            type: string
+            default: apellidos,asc
+      responses:
+        '200':
+          description: Listado paginado de acudientes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedAcudienteResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+
+    post:
+      tags:
+        - Acudientes
+      summary: Registrar nuevo acudiente
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcudienteRequest'
+      responses:
+        '201':
+          description: Acudiente registrado exitosamente.
+          headers:
+            Location:
+              schema:
+                type: string
+                example: /api/acudientes/1
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcudienteResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+
+  /api/acudientes/{id}:
+    get:
+      tags:
+        - Acudientes
+      summary: Obtener acudiente por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Acudiente encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcudienteResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    put:
+      tags:
+        - Acudientes
+      summary: Actualizar datos de un acudiente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcudienteRequest'
+      responses:
+        '200':
+          description: Acudiente actualizado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcudienteResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+
+    delete:
+      tags:
+        - Acudientes
+      summary: Eliminación permanente (destructiva) de un acudiente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: confirmar
+          in: query
+          required: true
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '204':
+          description: Acudiente eliminado permanentemente.
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/acudientes/documento/{documento}:
+    get:
+      tags:
+        - Acudientes
+      summary: Buscar acudiente por documento de identidad
+      parameters:
+        - name: documento
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Acudiente encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcudienteResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/acudientes/{id}/desactivar:
+    patch:
+      tags:
+        - Acudientes
+      summary: Desactivación lógica de un acudiente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Acudiente desactivado lógicamente.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/acudientes/{id}/restaurar:
+    patch:
+      tags:
+        - Acudientes
+      summary: Restaurar acudiente desactivado lógicamente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Acudiente restaurado a estado activo.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  # ---------------------------------------------------------------------------
+  # VINCULACIONES ESTUDIANTE - ACUDIENTE
+  # ---------------------------------------------------------------------------
+  /api/vinculaciones:
+    post:
+      tags:
+        - Vinculaciones
+      summary: Asociar acudiente a un estudiante mediante documentos
+      description: |
+        Crea el vínculo entre un estudiante y un acudiente. Si `esPrincipal` es verdadero,
+        invalida o valida el invariante de que un estudiante solo puede tener un único acudiente principal.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EstudianteAcudienteRequest'
+      responses:
+        '201':
+          description: Vínculo creado exitosamente.
+          headers:
+            Location:
+              schema:
+                type: string
+                example: /api/vinculaciones/estudiante/1001234567
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstudianteAcudienteResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          description: Estudiante o acudiente no encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: El vínculo ya existe o el estudiante ya cuenta con un acudiente principal activo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/vinculaciones/estudiante/{documentoEstudiante}:
+    get:
+      tags:
+        - Vinculaciones
+      summary: Listar todos los acudientes vinculados a un estudiante
+      parameters:
+        - name: documentoEstudiante
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de vínculos con acudientes del estudiante.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EstudianteAcudienteResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/vinculaciones/acudiente/{documentoAcudiente}:
+    get:
+      tags:
+        - Vinculaciones
+      summary: Listar todos los estudiantes vinculados a un acudiente
+      parameters:
+        - name: documentoAcudiente
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de estudiantes a cargo del acudiente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EstudianteAcudienteResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/vinculaciones/estudiante/{documentoEstudiante}/principal/{documentoNuevoPrincipal}:
+    patch:
+      tags:
+        - Vinculaciones
+      summary: Cambiar el acudiente principal de un estudiante
+      description: |
+        Transfiere la designación de acudiente principal al acudiente especificado de forma atómica.
+      parameters:
+        - name: documentoEstudiante
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: documentoNuevoPrincipal
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Acudiente principal actualizado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstudianteAcudienteResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+
+  /api/vinculaciones/estudiante/{documentoEstudiante}/acudiente/{documentoAcudiente}:
+    delete:
+      tags:
+        - Vinculaciones
+      summary: Desvincular un acudiente de un estudiante
+      parameters:
+        - name: documentoEstudiante
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: documentoAcudiente
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Vínculo eliminado exitosamente.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+# -----------------------------------------------------------------------------
+# COMPONENTES / SCHEMAS / SEGURIDAD
+# -----------------------------------------------------------------------------
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Token JWT emitido por `/api/auth/login`. Envíe la cabecera HTTP:
+        `Authorization: Bearer <token>`
+
+  responses:
+    BadRequestError:
+      description: Datos inválidos o faltantes en la solicitud.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    UnauthorizedError:
+      description: Autenticación requerida o credenciales inválidas.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ForbiddenError:
+      description: Acceso denegado por permisos o rol insuficiente.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFoundError:
+      description: El recurso solicitado no existe.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ConflictError:
+      description: Conflicto con el estado actual o violación de invariante de negocio.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    # ENUMS
+    Rol:
+      type: string
+      enum:
+        - ADMINISTRADOR
+        - RECTOR
+        - COORDINADOR
+        - PROFESOR
+        - ESTUDIANTE
+        - ACUDIENTE
+        - SECRETARIA
+      example: ADMINISTRADOR
+
+    Parentesco:
+      type: string
+      enum:
+        - PADRE
+        - MADRE
+        - ABUELO
+        - ABUELA
+        - TIO
+        - TIA
+        - PRIMO
+        - PRIMA
+        - HERMANO_MAYOR
+        - TUTOR_LEGAL
+        - OTRO
+      example: MADRE
+
+    # AUTENTICACIÓN
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          maxLength: 50
+          example: admin
+        password:
+          type: string
+          format: password
+          example: Admin123*
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        tokenType:
+          type: string
+          example: Bearer
+        username:
+          type: string
+          example: admin
+        rol:
+          $ref: '#/components/schemas/Rol'
+        expiresIn:
+          type: integer
+          format: int64
+          description: Tiempo de expiración en segundos (ej. 28800 = 8 horas).
+          example: 28800
+
+    UsuarioResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        username:
+          type: string
+          example: admin
+        rol:
+          $ref: '#/components/schemas/Rol'
+        activo:
+          type: boolean
+          example: true
+
+    # ESTUDIANTE
+    EstudianteRequest:
+      type: object
+      required:
+        - nombres
+        - apellidos
+        - documento
+        - fechaNacimiento
+        - direccion
+      properties:
+        nombres:
+          type: string
+          maxLength: 50
+          example: Carlos Andrés
+        apellidos:
+          type: string
+          maxLength: 50
+          example: Pérez Gómez
+        documento:
+          type: string
+          maxLength: 20
+          example: 1001234567
+        fechaNacimiento:
+          type: string
+          format: date
+          example: 2010-05-15
+        correo:
+          type: string
+          format: email
+          maxLength: 100
+          example: carlos.perez@colegio.edu.co
+        telefono:
+          type: string
+          maxLength: 20
+          example: 3001234567
+        direccion:
+          type: string
+          maxLength: 150
+          example: Calle 45 # 12-34 Barrio El Poblado
+
+    EstudianteResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        nombres:
+          type: string
+          example: Carlos Andrés
+        apellidos:
+          type: string
+          example: Pérez Gómez
+        documento:
+          type: string
+          example: 1001234567
+        fechaNacimiento:
+          type: string
+          format: date
+          example: 2010-05-15
+        correo:
+          type: string
+          example: carlos.perez@colegio.edu.co
+        telefono:
+          type: string
+          example: 3001234567
+        direccion:
+          type: string
+          example: Calle 45 # 12-34 Barrio El Poblado
+        activo:
+          type: boolean
+          example: true
+        fechaCreacion:
+          type: string
+          format: date-time
+          example: 2026-03-01T10:00:00
+        fechaActualizacion:
+          type: string
+          format: date-time
+          example: 2026-03-01T10:00:00
+
+    # ACUDIENTE
+    AcudienteRequest:
+      type: object
+      required:
+        - nombres
+        - apellidos
+        - documento
+        - telefono
+        - correo
+        - direccion
+        - ocupacion
+      properties:
+        nombres:
+          type: string
+          maxLength: 50
+          example: Martha Cecilia
+        apellidos:
+          type: string
+          maxLength: 50
+          example: Gómez Rodríguez
+        documento:
+          type: string
+          maxLength: 20
+          example: 43567890
+        telefono:
+          type: string
+          maxLength: 20
+          example: 3109876543
+        telefonoAlternativo:
+          type: string
+          maxLength: 20
+          example: 6041234567
+        correo:
+          type: string
+          format: email
+          maxLength: 100
+          example: martha.gomez@gmail.com
+        direccion:
+          type: string
+          maxLength: 150
+          example: Calle 45 # 12-34 Barrio El Poblado
+        ocupacion:
+          type: string
+          maxLength: 80
+          example: Ingeniera de Sistemas
+
+    AcudienteResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        nombres:
+          type: string
+          example: Martha Cecilia
+        apellidos:
+          type: string
+          example: Gómez Rodríguez
+        documento:
+          type: string
+          example: 43567890
+        telefono:
+          type: string
+          example: 3109876543
+        telefonoAlternativo:
+          type: string
+          example: 6041234567
+        correo:
+          type: string
+          example: martha.gomez@gmail.com
+        direccion:
+          type: string
+          example: Calle 45 # 12-34 Barrio El Poblado
+        ocupacion:
+          type: string
+          example: Ingeniera de Sistemas
+        activo:
+          type: boolean
+          example: true
+        fechaCreacion:
+          type: string
+          format: date-time
+          example: 2026-03-01T10:00:00
+        fechaActualizacion:
+          type: string
+          format: date-time
+          example: 2026-03-01T10:00:00
+
+    # VINCULACIÓN
+    EstudianteAcudienteRequest:
+      type: object
+      required:
+        - documentoEstudiante
+        - documentoAcudiente
+        - parentesco
+        - esPrincipal
+        - conviveConEstudiante
+        - autorizadoRetiro
+      properties:
+        documentoEstudiante:
+          type: string
+          maxLength: 20
+          example: 1001234567
+        documentoAcudiente:
+          type: string
+          maxLength: 20
+          example: 43567890
+        parentesco:
+          $ref: '#/components/schemas/Parentesco'
+        esPrincipal:
+          type: boolean
+          example: true
+        conviveConEstudiante:
+          type: boolean
+          example: true
+        autorizadoRetiro:
+          type: boolean
+          example: true
+
+    EstudianteAcudienteResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        estudianteId:
+          type: integer
+          format: int64
+          example: 1
+        estudianteNombres:
+          type: string
+          example: Carlos Andrés
+        estudianteApellidos:
+          type: string
+          example: Pérez Gómez
+        estudianteDocumento:
+          type: string
+          example: 1001234567
+        acudienteId:
+          type: integer
+          format: int64
+          example: 1
+        acudienteNombres:
+          type: string
+          example: Martha Cecilia
+        acudienteApellidos:
+          type: string
+          example: Gómez Rodríguez
+        acudienteDocumento:
+          type: string
+          example: 43567890
+        acudienteTelefono:
+          type: string
+          example: 3109876543
+        acudienteTelefonoAlternativo:
+          type: string
+          example: 6041234567
+        acudienteCorreo:
+          type: string
+          example: martha.gomez@gmail.com
+        parentesco:
+          $ref: '#/components/schemas/Parentesco'
+        esPrincipal:
+          type: boolean
+          example: true
+        conviveConEstudiante:
+          type: boolean
+          example: true
+        autorizadoRetiro:
+          type: boolean
+          example: true
+        fechaVinculacion:
+          type: string
+          format: date-time
+          example: 2026-03-01T10:00:00
+
+    # PAGINACIÓN
+    PageMetadata:
+      type: object
+      properties:
+        size:
+          type: integer
+          example: 20
+        number:
+          type: integer
+          example: 0
+        totalElements:
+          type: integer
+          format: int64
+          example: 1
+        totalPages:
+          type: integer
+          example: 1
+
+    PagedEstudianteResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/EstudianteResponse'
+        page:
+          $ref: '#/components/schemas/PageMetadata'
+
+    PagedAcudienteResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/AcudienteResponse'
+        page:
+          $ref: '#/components/schemas/PageMetadata'
+
+    # RESPUESTAS DE ERROR
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          example: 2026-03-01T12:00:00
+        status:
+          type: integer
+          example: 400
+        error:
+          type: string
+          example: Datos invalidos
+        mensaje:
+          type: string
+          example: Uno o mas campos no cumplen con las validaciones requeridas
+        validaciones:
+          type: object
+          additionalProperties:
+            type: string
+          example:
+            correo: El correo electronico no tiene un formato valido
+            documento: El documento es obligatorio
