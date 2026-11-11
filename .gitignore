@@ -41,3 +41,14 @@ application-local.yml
 .env
 .env.*
 !.env.example
+
+# ── Frontend (Node.js / Angular) ────────────────────────────────────────────
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/.openapitools/
+
+# ── Tooling local ───────────────────────────────────────────────────────────
+.codegraph-wsl/
+
+
