@@ -1,5 +1,7 @@
 export * from './acudientes.service';
 import { AcudientesService } from './acudientes.service';
+export * from './asignaciones-acadmicas.service';
+import { AsignacionesAcadmicasService } from './asignaciones-acadmicas.service';
 export * from './autenticacin.service';
 import { AutenticacinService } from './autenticacin.service';
 export * from './estructura-acadmica-aos-lectivos.service';
@@ -18,6 +20,8 @@ export * from './estructura-acadmica-reas.service';
 import { EstructuraAcadmicaReasService } from './estructura-acadmica-reas.service';
 export * from './estudiantes.service';
 import { EstudiantesService } from './estudiantes.service';
+export * from './profesores.service';
+import { ProfesoresService } from './profesores.service';
 export * from './vinculaciones.service';
 import { VinculacionesService } from './vinculaciones.service';
-export const APIS = [AcudientesService, AutenticacinService, EstructuraAcadmicaAosLectivosService, EstructuraAcadmicaAsignaturasService, EstructuraAcadmicaGradosService, EstructuraAcadmicaGruposService, EstructuraAcadmicaPeriodosService, EstructuraAcadmicaPlanDeEstudiosService, EstructuraAcadmicaReasService, EstudiantesService, VinculacionesService];
+export const APIS = [AcudientesService, AsignacionesAcadmicasService, AutenticacinService, EstructuraAcadmicaAosLectivosService, EstructuraAcadmicaAsignaturasService, EstructuraAcadmicaGradosService, EstructuraAcadmicaGruposService, EstructuraAcadmicaPeriodosService, EstructuraAcadmicaPlanDeEstudiosService, EstructuraAcadmicaReasService, EstudiantesService, ProfesoresService, VinculacionesService];

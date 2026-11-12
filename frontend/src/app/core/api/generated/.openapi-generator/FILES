@@ -4,6 +4,7 @@ api.base.service.ts
 api.module.ts
 api/acudientes.service.ts
 api/api.ts
+api/asignaciones-acadmicas.service.ts
 api/autenticacin.service.ts
 api/estructura-acadmica-aos-lectivos.service.ts
 api/estructura-acadmica-asignaturas.service.ts
@@ -13,6 +14,7 @@ api/estructura-acadmica-periodos.service.ts
 api/estructura-acadmica-plan-de-estudios.service.ts
 api/estructura-acadmica-reas.service.ts
 api/estudiantes.service.ts
+api/profesores.service.ts
 api/vinculaciones.service.ts
 configuration.ts
 encoder.ts
@@ -25,6 +27,8 @@ model/anio-lectivo-response.ts
 model/api-auth-logout-post200-response.ts
 model/area-request.ts
 model/area-response.ts
+model/asignacion-academica-request.ts
+model/asignacion-academica-response.ts
 model/asignatura-request.ts
 model/asignatura-response.ts
 model/error-response.ts
@@ -50,7 +54,10 @@ model/paged-estudiante-response.ts
 model/parentesco.ts
 model/periodo-academico-request.ts
 model/periodo-academico-response.ts
+model/profesor-request.ts
+model/profesor-response.ts
 model/rol.ts
+model/tipo-documento.ts
 model/usuario-response.ts
 param.ts
 provide-api.ts

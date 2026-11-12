@@ -1,35 +1,38 @@
 openapi: 3.0.3
 info:
   title: Sistema de Gestión Escolar API
-  description: |
-    Contrato oficial y versionado de la API REST para el Sistema de Gestión Escolar.
-    Gestiona autenticación stateless mediante JWT, control de acceso basado en roles (RBAC),
-    estudiantes, acudientes y vinculaciones familiares con protección de unicidad para acudiente principal.
+  description: 'Contrato oficial y versionado de la API REST para el Sistema de Gestión
+    Escolar.
+
+    Gestiona autenticación stateless mediante JWT, control de acceso basado en roles
+    (RBAC),
+
+    estudiantes, acudientes y vinculaciones familiares con protección de unicidad
+    para acudiente principal.
+
+    '
   version: 1.0.0
   contact:
     name: Equipo de Desarrollo Sistema Escolar
     email: soporte@sistemaescolar.local
-
 servers:
-  - url: http://localhost:8080
-    description: Servidor de desarrollo local
-
+- url: http://localhost:8080
+  description: Servidor de desarrollo local
 security:
-  - BearerAuth: []
-
+- BearerAuth: []
 paths:
-  # ---------------------------------------------------------------------------
-  # AUTENTICACIÓN Y SESIÓN
-  # ---------------------------------------------------------------------------
   /api/auth/login:
     post:
       tags:
-        - Autenticación
+      - Autenticación
       summary: Iniciar sesión y obtener token JWT
-      description: |
-        Autentica a un usuario mediante credenciales institucionales.
+      description: 'Autentica a un usuario mediante credenciales institucionales.
+
         Protegido por limitador de tasa (máximo 5 intentos por minuto por IP).
+
         Al superar el límite responde HTTP 429 con cabecera Retry-After.
+
+        '
       security: []
       requestBody:
         required: true
@@ -68,15 +71,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
   /api/auth/logout:
     post:
       tags:
-        - Autenticación
+      - Autenticación
       summary: Cerrar sesión e invalidar token JWT
-      description: |
-        Registra el identificador único (`jti`) del token JWT en la lista de revocación
-        del servidor para impedir su reutilización. El cliente SPA debe descartar el token en memoria.
+      description: 'Registra el identificador único (`jti`) del token JWT en la lista
+        de revocación
+
+        del servidor para impedir su reutilización. El cliente SPA debe descartar
+        el token en memoria.
+
+        '
       responses:
         '200':
           description: Sesión cerrada exitosamente.
@@ -88,13 +94,13 @@ paths:
                   mensaje:
                     type: string
                     example: Sesion cerrada exitosamente. Descarte el token en memoria.
-
   /api/auth/me:
     get:
       tags:
-        - Autenticación
+      - Autenticación
       summary: Consultar perfil del usuario autenticado
-      description: Retorna el identificador, nombre de usuario, rol institucional y estado de actividad.
+      description: Retorna el identificador, nombre de usuario, rol institucional
+        y estado de actividad.
       responses:
         '200':
           description: Perfil recuperado exitosamente.
@@ -108,37 +114,35 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
-  # ---------------------------------------------------------------------------
-  # ESTUDIANTES
-  # ---------------------------------------------------------------------------
   /api/estudiantes:
     get:
       tags:
-        - Estudiantes
+      - Estudiantes
       summary: Listar estudiantes paginados
-      description: |
-        Permite consultar el listado de estudiantes con paginación y ordenamiento.
+      description: 'Permite consultar el listado de estudiantes con paginación y ordenamiento.
+
         Requiere rol ADMINISTRADOR, RECTOR, COORDINADOR, SECRETARIA o PROFESOR.
+
+        '
       parameters:
-        - name: page
-          in: query
-          schema:
-            type: integer
-            default: 0
-          description: Número de página (iniciando en 0).
-        - name: size
-          in: query
-          schema:
-            type: integer
-            default: 20
-          description: Cantidad de registros por página.
-        - name: sort
-          in: query
-          schema:
-            type: string
-            default: apellidos,asc
-          description: Criterio de ordenamiento (ej. apellidos,asc).
+      - name: page
+        in: query
+        schema:
+          type: integer
+          default: 0
+        description: Número de página (iniciando en 0).
+      - name: size
+        in: query
+        schema:
+          type: integer
+          default: 20
+        description: Cantidad de registros por página.
+      - name: sort
+        in: query
+        schema:
+          type: string
+          default: apellidos,asc
+        description: Criterio de ordenamiento (ej. apellidos,asc).
       responses:
         '200':
           description: Listado paginado de estudiantes.
@@ -150,14 +154,15 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '403':
           $ref: '#/components/responses/ForbiddenError'
-
     post:
       tags:
-        - Estudiantes
+      - Estudiantes
       summary: Registrar nuevo estudiante
-      description: |
-        Crea un registro de estudiante en estado activo.
+      description: 'Crea un registro de estudiante en estado activo.
+
         Requiere rol ADMINISTRADOR, RECTOR o SECRETARIA.
+
+        '
       requestBody:
         required: true
         content:
@@ -188,19 +193,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
   /api/estudiantes/{id}:
     get:
       tags:
-        - Estudiantes
+      - Estudiantes
       summary: Obtener estudiante por ID
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         '200':
           description: Estudiante encontrado.
@@ -214,18 +218,17 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-
     put:
       tags:
-        - Estudiantes
+      - Estudiantes
       summary: Actualizar datos de un estudiante
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       requestBody:
         required: true
         content:
@@ -249,27 +252,28 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '409':
           $ref: '#/components/responses/ConflictError'
-
     delete:
       tags:
-        - Estudiantes
+      - Estudiantes
       summary: Eliminación permanente (destructiva) de un estudiante
-      description: |
-        Operación altamente restringida solo para ADMINISTRADOR.
+      description: 'Operación altamente restringida solo para ADMINISTRADOR.
+
         Requiere el parámetro explícito `confirmar=true`.
+
+        '
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: confirmar
-          in: query
-          required: true
-          schema:
-            type: boolean
-            default: false
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: confirmar
+        in: query
+        required: true
+        schema:
+          type: boolean
+          default: false
       responses:
         '204':
           description: Estudiante eliminado permanentemente.
@@ -285,18 +289,17 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-
   /api/estudiantes/documento/{documento}:
     get:
       tags:
-        - Estudiantes
+      - Estudiantes
       summary: Buscar estudiante por documento de identidad
       parameters:
-        - name: documento
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: documento
+        in: path
+        required: true
+        schema:
+          type: string
       responses:
         '200':
           description: Estudiante encontrado.
@@ -310,19 +313,18 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-
   /api/estudiantes/{id}/desactivar:
     patch:
       tags:
-        - Estudiantes
+      - Estudiantes
       summary: Desactivación lógica de un estudiante
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         '204':
           description: Estudiante desactivado lógicamente.
@@ -332,19 +334,18 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-
   /api/estudiantes/{id}/restaurar:
     patch:
       tags:
-        - Estudiantes
+      - Estudiantes
       summary: Restaurar estudiante desactivado lógicamente
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         '204':
           description: Estudiante restaurado a estado activo.
@@ -354,31 +355,27 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-
-  # ---------------------------------------------------------------------------
-  # ACUDIENTES
-  # ---------------------------------------------------------------------------
   /api/acudientes:
     get:
       tags:
-        - Acudientes
+      - Acudientes
       summary: Listar acudientes paginados
       parameters:
-        - name: page
-          in: query
-          schema:
-            type: integer
-            default: 0
-        - name: size
-          in: query
-          schema:
-            type: integer
-            default: 20
-        - name: sort
-          in: query
-          schema:
-            type: string
-            default: apellidos,asc
+      - name: page
+        in: query
+        schema:
+          type: integer
+          default: 0
+      - name: size
+        in: query
+        schema:
+          type: integer
+          default: 20
+      - name: sort
+        in: query
+        schema:
+          type: string
+          default: apellidos,asc
       responses:
         '200':
           description: Listado paginado de acudientes.
@@ -390,10 +387,9 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '403':
           $ref: '#/components/responses/ForbiddenError'
-
     post:
       tags:
-        - Acudientes
+      - Acudientes
       summary: Registrar nuevo acudiente
       requestBody:
         required: true
@@ -421,19 +417,18 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '409':
           $ref: '#/components/responses/ConflictError'
-
   /api/acudientes/{id}:
     get:
       tags:
-        - Acudientes
+      - Acudientes
       summary: Obtener acudiente por ID
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         '200':
           description: Acudiente encontrado.
@@ -447,18 +442,17 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-
     put:
       tags:
-        - Acudientes
+      - Acudientes
       summary: Actualizar datos de un acudiente
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       requestBody:
         required: true
         content:
@@ -482,24 +476,23 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '409':
           $ref: '#/components/responses/ConflictError'
-
     delete:
       tags:
-        - Acudientes
+      - Acudientes
       summary: Eliminación permanente (destructiva) de un acudiente
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: confirmar
-          in: query
-          required: true
-          schema:
-            type: boolean
-            default: false
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: confirmar
+        in: query
+        required: true
+        schema:
+          type: boolean
+          default: false
       responses:
         '204':
           description: Acudiente eliminado permanentemente.
@@ -511,18 +504,17 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-
   /api/acudientes/documento/{documento}:
     get:
       tags:
-        - Acudientes
+      - Acudientes
       summary: Buscar acudiente por documento de identidad
       parameters:
-        - name: documento
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: documento
+        in: path
+        required: true
+        schema:
+          type: string
       responses:
         '200':
           description: Acudiente encontrado.
@@ -536,19 +528,18 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-
   /api/acudientes/{id}/desactivar:
     patch:
       tags:
-        - Acudientes
+      - Acudientes
       summary: Desactivación lógica de un acudiente
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         '204':
           description: Acudiente desactivado lógicamente.
@@ -558,19 +549,18 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-
   /api/acudientes/{id}/restaurar:
     patch:
       tags:
-        - Acudientes
+      - Acudientes
       summary: Restaurar acudiente desactivado lógicamente
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         '204':
           description: Acudiente restaurado a estado activo.
@@ -580,18 +570,18 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-
-  # ---------------------------------------------------------------------------
-  # VINCULACIONES ESTUDIANTE - ACUDIENTE
-  # ---------------------------------------------------------------------------
   /api/vinculaciones:
     post:
       tags:
-        - Vinculaciones
+      - Vinculaciones
       summary: Asociar acudiente a un estudiante mediante documentos
-      description: |
-        Crea el vínculo entre un estudiante y un acudiente. Si `esPrincipal` es verdadero,
-        invalida o valida el invariante de que un estudiante solo puede tener un único acudiente principal.
+      description: 'Crea el vínculo entre un estudiante y un acudiente. Si `esPrincipal`
+        es verdadero,
+
+        invalida o valida el invariante de que un estudiante solo puede tener un único
+        acudiente principal.
+
+        '
       requestBody:
         required: true
         content:
@@ -623,23 +613,23 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '409':
-          description: El vínculo ya existe o el estudiante ya cuenta con un acudiente principal activo.
+          description: El vínculo ya existe o el estudiante ya cuenta con un acudiente
+            principal activo.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
   /api/vinculaciones/estudiante/{documentoEstudiante}:
     get:
       tags:
-        - Vinculaciones
+      - Vinculaciones
       summary: Listar todos los acudientes vinculados a un estudiante
       parameters:
-        - name: documentoEstudiante
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: documentoEstudiante
+        in: path
+        required: true
+        schema:
+          type: string
       responses:
         '200':
           description: Lista de vínculos con acudientes del estudiante.
@@ -655,18 +645,17 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-
   /api/vinculaciones/acudiente/{documentoAcudiente}:
     get:
       tags:
-        - Vinculaciones
+      - Vinculaciones
       summary: Listar todos los estudiantes vinculados a un acudiente
       parameters:
-        - name: documentoAcudiente
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: documentoAcudiente
+        in: path
+        required: true
+        schema:
+          type: string
       responses:
         '200':
           description: Lista de estudiantes a cargo del acudiente.
@@ -682,25 +671,26 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-
   /api/vinculaciones/estudiante/{documentoEstudiante}/principal/{documentoNuevoPrincipal}:
     patch:
       tags:
-        - Vinculaciones
+      - Vinculaciones
       summary: Cambiar el acudiente principal de un estudiante
-      description: |
-        Transfiere la designación de acudiente principal al acudiente especificado de forma atómica.
+      description: 'Transfiere la designación de acudiente principal al acudiente
+        especificado de forma atómica.
+
+        '
       parameters:
-        - name: documentoEstudiante
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: documentoNuevoPrincipal
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: documentoEstudiante
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: documentoNuevoPrincipal
+        in: path
+        required: true
+        schema:
+          type: string
       responses:
         '200':
           description: Acudiente principal actualizado exitosamente.
@@ -716,23 +706,22 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '409':
           $ref: '#/components/responses/ConflictError'
-
   /api/vinculaciones/estudiante/{documentoEstudiante}/acudiente/{documentoAcudiente}:
     delete:
       tags:
-        - Vinculaciones
+      - Vinculaciones
       summary: Desvincular un acudiente de un estudiante
       parameters:
-        - name: documentoEstudiante
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: documentoAcudiente
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: documentoEstudiante
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: documentoAcudiente
+        in: path
+        required: true
+        schema:
+          type: string
       responses:
         '204':
           description: Vínculo eliminado exitosamente.
@@ -742,30 +731,25 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-
-# -----------------------------------------------------------------------------
-
-  # ---------------------------------------------------------------------------
-  # ESTRUCTURA ACADÉMICA - GRADOS Y PLAN DE ESTUDIOS
-  # ---------------------------------------------------------------------------
   /api/grados:
     get:
       tags:
-        - Estructura Académica - Grados
+      - Estructura Académica - Grados
       summary: Listar grados del sistema escolar
-      description: Retorna la lista de grados ordenados por su jerarquía curricular (Transición a 11°).
+      description: Retorna la lista de grados ordenados por su jerarquía curricular
+        (Transición a 11°).
       parameters:
-        - name: nivel
-          in: query
-          required: false
-          schema:
-            $ref: '#/components/schemas/NivelEducativo'
-        - name: soloActivos
-          in: query
-          required: false
-          schema:
-            type: boolean
-            default: true
+      - name: nivel
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/NivelEducativo'
+      - name: soloActivos
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
       responses:
         '200':
           description: Listado de grados obtenido exitosamente.
@@ -779,19 +763,18 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '403':
           $ref: '#/components/responses/ForbiddenError'
-
   /api/grados/{id}:
     get:
       tags:
-        - Estructura Académica - Grados
+      - Estructura Académica - Grados
       summary: Obtener un grado por ID
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         '200':
           description: Grado encontrado.
@@ -805,19 +788,18 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-
   /api/grados/codigo/{codigo}:
     get:
       tags:
-        - Estructura Académica - Grados
+      - Estructura Académica - Grados
       summary: Obtener un grado por código
       parameters:
-        - name: codigo
-          in: path
-          required: true
-          schema:
-            type: string
-            example: "10"
+      - name: codigo
+        in: path
+        required: true
+        schema:
+          type: string
+          example: '10'
       responses:
         '200':
           description: Grado encontrado.
@@ -831,19 +813,18 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-
   /api/grados/{gradoId}/plan-estudios:
     get:
       tags:
-        - Estructura Académica - Plan de Estudios
+      - Estructura Académica - Plan de Estudios
       summary: Consultar plan de estudios de un grado
       parameters:
-        - name: gradoId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: gradoId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         '200':
           description: Plan de estudios del grado obtenido exitosamente.
@@ -861,15 +842,15 @@ paths:
           $ref: '#/components/responses/NotFoundError'
     post:
       tags:
-        - Estructura Académica - Plan de Estudios
+      - Estructura Académica - Plan de Estudios
       summary: Asignar una asignatura al plan de estudios de un grado
       parameters:
-        - name: gradoId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: gradoId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       requestBody:
         required: true
         content:
@@ -893,30 +874,30 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '409':
           $ref: '#/components/responses/ConflictError'
-
   /api/grados/plan-estudios/{id}:
     put:
       tags:
-        - Estructura Académica - Plan de Estudios
-      summary: Actualizar intensidad horaria u optatividad de una asignatura en el plan de estudios
+      - Estructura Académica - Plan de Estudios
+      summary: Actualizar intensidad horaria u optatividad de una asignatura en el
+        plan de estudios
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: intensidadHoraria
-          in: query
-          required: false
-          schema:
-            type: integer
-            example: 4
-        - name: esOptativa
-          in: query
-          required: false
-          schema:
-            type: boolean
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: intensidadHoraria
+        in: query
+        required: false
+        schema:
+          type: integer
+          example: 4
+      - name: esOptativa
+        in: query
+        required: false
+        schema:
+          type: boolean
       responses:
         '200':
           description: Asignación actualizada.
@@ -934,15 +915,15 @@ paths:
           $ref: '#/components/responses/NotFoundError'
     delete:
       tags:
-        - Estructura Académica - Plan de Estudios
+      - Estructura Académica - Plan de Estudios
       summary: Desactivar asignatura del plan de estudios de un grado
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         '204':
           description: Asignación desactivada exitosamente.
@@ -952,22 +933,18 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-
-  # ---------------------------------------------------------------------------
-  # ESTRUCTURA ACADÉMICA - ÁREAS
-  # ---------------------------------------------------------------------------
   /api/areas:
     get:
       tags:
-        - Estructura Académica - Áreas
+      - Estructura Académica - Áreas
       summary: Listar áreas del conocimiento
       parameters:
-        - name: soloActivas
-          in: query
-          required: false
-          schema:
-            type: boolean
-            default: false
+      - name: soloActivas
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
       responses:
         '200':
           description: Listado de áreas obtenido exitosamente.
@@ -983,7 +960,7 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
     post:
       tags:
-        - Estructura Académica - Áreas
+      - Estructura Académica - Áreas
       summary: Crear una nueva área del conocimiento
       requestBody:
         required: true
@@ -1006,19 +983,18 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '409':
           $ref: '#/components/responses/ConflictError'
-
   /api/areas/{id}:
     get:
       tags:
-        - Estructura Académica - Áreas
+      - Estructura Académica - Áreas
       summary: Obtener área por ID
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         '200':
           description: Área encontrada.
@@ -1034,15 +1010,15 @@ paths:
           $ref: '#/components/responses/NotFoundError'
     put:
       tags:
-        - Estructura Académica - Áreas
+      - Estructura Académica - Áreas
       summary: Actualizar área existente
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       requestBody:
         required: true
         content:
@@ -1066,19 +1042,18 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '409':
           $ref: '#/components/responses/ConflictError'
-
   /api/areas/{id}/desactivar:
     patch:
       tags:
-        - Estructura Académica - Áreas
+      - Estructura Académica - Áreas
       summary: Desactivar lógicamente un área
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         '204':
           description: Área desactivada exitosamente.
@@ -1088,19 +1063,18 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-
   /api/areas/{id}/activar:
     patch:
       tags:
-        - Estructura Académica - Áreas
+      - Estructura Académica - Áreas
       summary: Reactivar lógicamente un área
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         '204':
           description: Área reactivada exitosamente.
@@ -1110,28 +1084,24 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-
-  # ---------------------------------------------------------------------------
-  # ESTRUCTURA ACADÉMICA - ASIGNATURAS (CATÁLOGO ADAPTABLE S2)
-  # ---------------------------------------------------------------------------
   /api/asignaturas:
     get:
       tags:
-        - Estructura Académica - Asignaturas
+      - Estructura Académica - Asignaturas
       summary: Listar asignaturas del sistema
       parameters:
-        - name: areaId
-          in: query
-          required: false
-          schema:
-            type: integer
-            format: int64
-        - name: soloActivas
-          in: query
-          required: false
-          schema:
-            type: boolean
-            default: true
+      - name: areaId
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int64
+      - name: soloActivas
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
       responses:
         '200':
           description: Listado de asignaturas obtenido exitosamente.
@@ -1147,7 +1117,7 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
     post:
       tags:
-        - Estructura Académica - Asignaturas
+      - Estructura Académica - Asignaturas
       summary: Registrar una nueva asignatura configurable
       requestBody:
         required: true
@@ -1172,19 +1142,18 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '409':
           $ref: '#/components/responses/ConflictError'
-
   /api/asignaturas/{id}:
     get:
       tags:
-        - Estructura Académica - Asignaturas
+      - Estructura Académica - Asignaturas
       summary: Obtener asignatura por ID
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         '200':
           description: Asignatura encontrada.
@@ -1200,15 +1169,15 @@ paths:
           $ref: '#/components/responses/NotFoundError'
     put:
       tags:
-        - Estructura Académica - Asignaturas
+      - Estructura Académica - Asignaturas
       summary: Actualizar asignatura existente
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       requestBody:
         required: true
         content:
@@ -1232,19 +1201,18 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '409':
           $ref: '#/components/responses/ConflictError'
-
   /api/asignaturas/{id}/desactivar:
     patch:
       tags:
-        - Estructura Académica - Asignaturas
+      - Estructura Académica - Asignaturas
       summary: Desactivar lógicamente una asignatura
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         '204':
           description: Asignatura desactivada exitosamente.
@@ -1254,19 +1222,18 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-
   /api/asignaturas/{id}/activar:
     patch:
       tags:
-        - Estructura Académica - Asignaturas
+      - Estructura Académica - Asignaturas
       summary: Reactivar lógicamente una asignatura
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         '204':
           description: Asignatura reactivada exitosamente.
@@ -1276,14 +1243,10 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-
-  # ---------------------------------------------------------------------------
-  # ESTRUCTURA ACADÉMICA - AÑOS LECTIVOS
-  # ---------------------------------------------------------------------------
   /api/anios-lectivos:
     get:
       tags:
-        - Estructura Académica - Años Lectivos
+      - Estructura Académica - Años Lectivos
       summary: Listar años escolares vigentes e históricos
       responses:
         '200':
@@ -1300,7 +1263,7 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
     post:
       tags:
-        - Estructura Académica - Años Lectivos
+      - Estructura Académica - Años Lectivos
       summary: Registrar nuevo año escolar en planificación
       requestBody:
         required: true
@@ -1323,11 +1286,10 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '409':
           $ref: '#/components/responses/ConflictError'
-
   /api/anios-lectivos/activo:
     get:
       tags:
-        - Estructura Académica - Años Lectivos
+      - Estructura Académica - Años Lectivos
       summary: Consultar el año escolar actualmente ACTIVO
       responses:
         '200':
@@ -1342,19 +1304,18 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-
   /api/anios-lectivos/{id}:
     get:
       tags:
-        - Estructura Académica - Años Lectivos
+      - Estructura Académica - Años Lectivos
       summary: Obtener año escolar por ID
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         '200':
           description: Año escolar encontrado.
@@ -1370,15 +1331,15 @@ paths:
           $ref: '#/components/responses/NotFoundError'
     put:
       tags:
-        - Estructura Académica - Años Lectivos
+      - Estructura Académica - Años Lectivos
       summary: Actualizar año escolar existente
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       requestBody:
         required: true
         content:
@@ -1402,20 +1363,20 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '409':
           $ref: '#/components/responses/ConflictError'
-
   /api/anios-lectivos/{id}/activar:
     patch:
       tags:
-        - Estructura Académica - Años Lectivos
+      - Estructura Académica - Años Lectivos
       summary: Activar formalmente un año escolar
-      description: "Invariante de negocio: solo puede existir a lo sumo UN año en estado ACTIVO."
+      description: 'Invariante de negocio: solo puede existir a lo sumo UN año en
+        estado ACTIVO.'
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         '200':
           description: Año escolar activado exitosamente.
@@ -1431,19 +1392,18 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '409':
           $ref: '#/components/responses/ConflictError'
-
   /api/anios-lectivos/{id}/cerrar:
     patch:
       tags:
-        - Estructura Académica - Años Lectivos
+      - Estructura Académica - Años Lectivos
       summary: Cerrar formalmente un año escolar
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         '200':
           description: Año escolar cerrado exitosamente.
@@ -1457,19 +1417,18 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-
   /api/anios-lectivos/{anioId}/periodos:
     get:
       tags:
-        - Estructura Académica - Periodos
+      - Estructura Académica - Periodos
       summary: Listar periodos académicos de un año escolar
       parameters:
-        - name: anioId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: anioId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         '200':
           description: Periodos obtenidos exitosamente.
@@ -1487,15 +1446,15 @@ paths:
           $ref: '#/components/responses/NotFoundError'
     post:
       tags:
-        - Estructura Académica - Periodos
+      - Estructura Académica - Periodos
       summary: Registrar periodo académico para un año escolar
       parameters:
-        - name: anioId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: anioId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       requestBody:
         required: true
         content:
@@ -1519,22 +1478,18 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '409':
           $ref: '#/components/responses/ConflictError'
-
-  # ---------------------------------------------------------------------------
-  # ESTRUCTURA ACADÉMICA - PERIODOS ACADÉMICOS
-  # ---------------------------------------------------------------------------
   /api/periodos/{id}:
     get:
       tags:
-        - Estructura Académica - Periodos
+      - Estructura Académica - Periodos
       summary: Obtener periodo por ID
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         '200':
           description: Periodo encontrado.
@@ -1550,15 +1505,15 @@ paths:
           $ref: '#/components/responses/NotFoundError'
     put:
       tags:
-        - Estructura Académica - Periodos
+      - Estructura Académica - Periodos
       summary: Actualizar periodo académico
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       requestBody:
         required: true
         content:
@@ -1582,19 +1537,18 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '409':
           $ref: '#/components/responses/ConflictError'
-
   /api/periodos/{id}/abrir:
     patch:
       tags:
-        - Estructura Académica - Periodos
+      - Estructura Académica - Periodos
       summary: Abrir periodo para ingreso de evaluaciones
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         '200':
           description: Periodo abierto exitosamente.
@@ -1608,19 +1562,18 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-
   /api/periodos/{id}/cerrar:
     patch:
       tags:
-        - Estructura Académica - Periodos
+      - Estructura Académica - Periodos
       summary: Cerrar periodo académico formalmente
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         '200':
           description: Periodo cerrado exitosamente.
@@ -1634,28 +1587,24 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-
-  # ---------------------------------------------------------------------------
-  # ESTRUCTURA ACADÉMICA - GRUPOS / SALONES
-  # ---------------------------------------------------------------------------
   /api/grupos:
     get:
       tags:
-        - Estructura Académica - Grupos
+      - Estructura Académica - Grupos
       summary: Listar grupos por año escolar y grado
       parameters:
-        - name: anioLectivoId
-          in: query
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: gradoId
-          in: query
-          required: false
-          schema:
-            type: integer
-            format: int64
+      - name: anioLectivoId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: gradoId
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int64
       responses:
         '200':
           description: Listado de grupos obtenido exitosamente.
@@ -1675,7 +1624,7 @@ paths:
           $ref: '#/components/responses/NotFoundError'
     post:
       tags:
-        - Estructura Académica - Grupos
+      - Estructura Académica - Grupos
       summary: Registrar nuevo grupo en un año lectivo y grado
       requestBody:
         required: true
@@ -1700,19 +1649,18 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '409':
           $ref: '#/components/responses/ConflictError'
-
   /api/grupos/{id}:
     get:
       tags:
-        - Estructura Académica - Grupos
+      - Estructura Académica - Grupos
       summary: Obtener grupo por ID
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         '200':
           description: Grupo encontrado.
@@ -1728,15 +1676,15 @@ paths:
           $ref: '#/components/responses/NotFoundError'
     put:
       tags:
-        - Estructura Académica - Grupos
+      - Estructura Académica - Grupos
       summary: Actualizar grupo existente
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       requestBody:
         required: true
         content:
@@ -1760,19 +1708,18 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '409':
           $ref: '#/components/responses/ConflictError'
-
   /api/grupos/{id}/desactivar:
     patch:
       tags:
-        - Estructura Académica - Grupos
+      - Estructura Académica - Grupos
       summary: Desactivar lógicamente un grupo
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         '204':
           description: Grupo desactivado exitosamente.
@@ -1782,19 +1729,18 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-
   /api/grupos/{id}/activar:
     patch:
       tags:
-        - Estructura Académica - Grupos
+      - Estructura Académica - Grupos
       summary: Reactivar lógicamente un grupo
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         '204':
           description: Grupo reactivado exitosamente.
@@ -1804,22 +1750,316 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
-
-# -----------------------------------------------------------------------------
-# COMPONENTES / SCHEMAS / SEGURIDAD
-# -----------------------------------------------------------------------------
-
-# -----------------------------------------------------------------------------
+  /api/profesores:
+    get:
+      tags:
+      - Profesores
+      summary: Listar profesores
+      parameters:
+      - name: soloActivos
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+      responses:
+        '200':
+          description: Listado de profesores obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProfesorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+    post:
+      tags:
+      - Profesores
+      summary: Crear un nuevo profesor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfesorRequest'
+      responses:
+        '201':
+          description: Profesor registrado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfesorResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/profesores/paginado:
+    get:
+      tags:
+      - Profesores
+      summary: Listar profesores con paginación
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 20
+      responses:
+        '200':
+          description: Página de profesores obtenida exitosamente.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  /api/profesores/{id}:
+    get:
+      tags:
+      - Profesores
+      summary: Obtener profesor por ID
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Profesor encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfesorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      tags:
+      - Profesores
+      summary: Actualizar datos de un profesor
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfesorRequest'
+      responses:
+        '200':
+          description: Profesor actualizado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfesorResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/profesores/{id}/desactivar:
+    patch:
+      tags:
+      - Profesores
+      summary: Desactivar lógicamente un profesor
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '204':
+          description: Profesor desactivado exitosamente.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/asignaciones-academicas:
+    get:
+      tags:
+      - Asignaciones Académicas
+      summary: Listar asignaciones académicas por profesor, grupo o año lectivo
+      parameters:
+      - name: profesorId
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int64
+      - name: grupoId
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int64
+      - name: anioLectivoId
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Listado de asignaciones obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AsignacionAcademicaResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+    post:
+      tags:
+      - Asignaciones Académicas
+      summary: Crear una nueva asignación académica
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AsignacionAcademicaRequest'
+      responses:
+        '201':
+          description: Asignación creada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AsignacionAcademicaResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/asignaciones-academicas/{id}:
+    get:
+      tags:
+      - Asignaciones Académicas
+      summary: Obtener asignación académica por ID
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Asignación académica encontrada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AsignacionAcademicaResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      tags:
+      - Asignaciones Académicas
+      summary: Actualizar asignación académica
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AsignacionAcademicaRequest'
+      responses:
+        '200':
+          description: Asignación actualizada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AsignacionAcademicaResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/asignaciones-academicas/{id}/desactivar:
+    patch:
+      tags:
+      - Asignaciones Académicas
+      summary: Desactivar asignación académica
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '204':
+          description: Asignación académica desactivada exitosamente.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
 components:
   securitySchemes:
     BearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: |
-        Token JWT emitido por `/api/auth/login`. Envíe la cabecera HTTP:
+      description: 'Token JWT emitido por `/api/auth/login`. Envíe la cabecera HTTP:
+
         `Authorization: Bearer <token>`
 
+        '
   responses:
     BadRequestError:
       description: Datos inválidos o faltantes en la solicitud.
@@ -1851,43 +2091,38 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
-
   schemas:
-    # ENUMS
     Rol:
       type: string
       enum:
-        - ADMINISTRADOR
-        - RECTOR
-        - COORDINADOR
-        - PROFESOR
-        - ESTUDIANTE
-        - ACUDIENTE
-        - SECRETARIA
+      - ADMINISTRADOR
+      - RECTOR
+      - COORDINADOR
+      - PROFESOR
+      - ESTUDIANTE
+      - ACUDIENTE
+      - SECRETARIA
       example: ADMINISTRADOR
-
     Parentesco:
       type: string
       enum:
-        - PADRE
-        - MADRE
-        - ABUELO
-        - ABUELA
-        - TIO
-        - TIA
-        - PRIMO
-        - PRIMA
-        - HERMANO_MAYOR
-        - TUTOR_LEGAL
-        - OTRO
+      - PADRE
+      - MADRE
+      - ABUELO
+      - ABUELA
+      - TIO
+      - TIA
+      - PRIMO
+      - PRIMA
+      - HERMANO_MAYOR
+      - TUTOR_LEGAL
+      - OTRO
       example: MADRE
-
-    # AUTENTICACIÓN
     LoginRequest:
       type: object
       required:
-        - username
-        - password
+      - username
+      - password
       properties:
         username:
           type: string
@@ -1897,7 +2132,6 @@ components:
           type: string
           format: password
           example: Admin123*
-
     LoginResponse:
       type: object
       properties:
@@ -1917,7 +2151,6 @@ components:
           format: int64
           description: Tiempo de expiración en segundos (ej. 28800 = 8 horas).
           example: 28800
-
     UsuarioResponse:
       type: object
       properties:
@@ -1933,16 +2166,14 @@ components:
         activo:
           type: boolean
           example: true
-
-    # ESTUDIANTE
     EstudianteRequest:
       type: object
       required:
-        - nombres
-        - apellidos
-        - documento
-        - fechaNacimiento
-        - direccion
+      - nombres
+      - apellidos
+      - documento
+      - fechaNacimiento
+      - direccion
       properties:
         nombres:
           type: string
@@ -1972,8 +2203,7 @@ components:
         direccion:
           type: string
           maxLength: 150
-          example: Calle 45 # 12-34 Barrio El Poblado
-
+          example: Calle 45
     EstudianteResponse:
       type: object
       properties:
@@ -2002,30 +2232,28 @@ components:
           example: 3001234567
         direccion:
           type: string
-          example: Calle 45 # 12-34 Barrio El Poblado
+          example: Calle 45
         activo:
           type: boolean
           example: true
         fechaCreacion:
           type: string
           format: date-time
-          example: 2026-03-01T10:00:00
+          example: 2026-03-01 10:00:00
         fechaActualizacion:
           type: string
           format: date-time
-          example: 2026-03-01T10:00:00
-
-    # ACUDIENTE
+          example: 2026-03-01 10:00:00
     AcudienteRequest:
       type: object
       required:
-        - nombres
-        - apellidos
-        - documento
-        - telefono
-        - correo
-        - direccion
-        - ocupacion
+      - nombres
+      - apellidos
+      - documento
+      - telefono
+      - correo
+      - direccion
+      - ocupacion
       properties:
         nombres:
           type: string
@@ -2055,12 +2283,11 @@ components:
         direccion:
           type: string
           maxLength: 150
-          example: Calle 45 # 12-34 Barrio El Poblado
+          example: Calle 45
         ocupacion:
           type: string
           maxLength: 80
           example: Ingeniera de Sistemas
-
     AcudienteResponse:
       type: object
       properties:
@@ -2088,7 +2315,7 @@ components:
           example: martha.gomez@gmail.com
         direccion:
           type: string
-          example: Calle 45 # 12-34 Barrio El Poblado
+          example: Calle 45
         ocupacion:
           type: string
           example: Ingeniera de Sistemas
@@ -2098,22 +2325,20 @@ components:
         fechaCreacion:
           type: string
           format: date-time
-          example: 2026-03-01T10:00:00
+          example: 2026-03-01 10:00:00
         fechaActualizacion:
           type: string
           format: date-time
-          example: 2026-03-01T10:00:00
-
-    # VINCULACIÓN
+          example: 2026-03-01 10:00:00
     EstudianteAcudienteRequest:
       type: object
       required:
-        - documentoEstudiante
-        - documentoAcudiente
-        - parentesco
-        - esPrincipal
-        - conviveConEstudiante
-        - autorizadoRetiro
+      - documentoEstudiante
+      - documentoAcudiente
+      - parentesco
+      - esPrincipal
+      - conviveConEstudiante
+      - autorizadoRetiro
       properties:
         documentoEstudiante:
           type: string
@@ -2134,7 +2359,6 @@ components:
         autorizadoRetiro:
           type: boolean
           example: true
-
     EstudianteAcudienteResponse:
       type: object
       properties:
@@ -2191,9 +2415,7 @@ components:
         fechaVinculacion:
           type: string
           format: date-time
-          example: 2026-03-01T10:00:00
-
-    # PAGINACIÓN
+          example: 2026-03-01 10:00:00
     PageMetadata:
       type: object
       properties:
@@ -2210,7 +2432,6 @@ components:
         totalPages:
           type: integer
           example: 1
-
     PagedEstudianteResponse:
       type: object
       properties:
@@ -2220,7 +2441,6 @@ components:
             $ref: '#/components/schemas/EstudianteResponse'
         page:
           $ref: '#/components/schemas/PageMetadata'
-
     PagedAcudienteResponse:
       type: object
       properties:
@@ -2230,15 +2450,13 @@ components:
             $ref: '#/components/schemas/AcudienteResponse'
         page:
           $ref: '#/components/schemas/PageMetadata'
-
-    # RESPUESTAS DE ERROR
     ErrorResponse:
       type: object
       properties:
         timestamp:
           type: string
           format: date-time
-          example: 2026-03-01T12:00:00
+          example: 2026-03-01 12:00:00
         status:
           type: integer
           example: 400
@@ -2255,44 +2473,36 @@ components:
           example:
             correo: El correo electronico no tiene un formato valido
             documento: El documento es obligatorio
-
-    # -------------------------------------------------------------------------
-    # SCHEMAS DE ESTRUCTURA ACADÉMICA (FRENTE 2)
-    # -------------------------------------------------------------------------
     NivelEducativo:
       type: string
       enum:
-        - PREESCOLAR
-        - BASICA_PRIMARIA
-        - BASICA_SECUNDARIA
-        - MEDIA
+      - PREESCOLAR
+      - BASICA_PRIMARIA
+      - BASICA_SECUNDARIA
+      - MEDIA
       example: MEDIA
-
     EstadoAnioLectivo:
       type: string
       enum:
-        - PLANIFICACION
-        - ACTIVO
-        - CERRADO
+      - PLANIFICACION
+      - ACTIVO
+      - CERRADO
       example: ACTIVO
-
     EstadoPeriodo:
       type: string
       enum:
-        - ABIERTO
-        - CERRADO
+      - ABIERTO
+      - CERRADO
       example: ABIERTO
-
     Jornada:
       type: string
       enum:
-        - MANANA
-        - TARDE
-        - UNICA
-        - NOCTURNA
-        - COMPLETA
+      - MANANA
+      - TARDE
+      - UNICA
+      - NOCTURNA
+      - COMPLETA
       example: MANANA
-
     GradoResponse:
       type: object
       properties:
@@ -2302,10 +2512,10 @@ components:
           example: 10
         codigo:
           type: string
-          example: "10"
+          example: '10'
         nombre:
           type: string
-          example: "Décimo"
+          example: Décimo
         nivel:
           $ref: '#/components/schemas/NivelEducativo'
         ordenJerarquico:
@@ -2314,26 +2524,24 @@ components:
         activo:
           type: boolean
           example: true
-
     AreaRequest:
       type: object
       required:
-        - codigo
-        - nombre
+      - codigo
+      - nombre
       properties:
         codigo:
           type: string
           maxLength: 30
-          example: "HUM"
+          example: HUM
         nombre:
           type: string
           maxLength: 100
-          example: "Humanidades y Lengua Castellana"
+          example: Humanidades y Lengua Castellana
         descripcion:
           type: string
           maxLength: 255
-          example: "Área fundamental del currículo"
-
+          example: Área fundamental del currículo
     AreaResponse:
       type: object
       properties:
@@ -2343,13 +2551,13 @@ components:
           example: 1
         codigo:
           type: string
-          example: "HUM"
+          example: HUM
         nombre:
           type: string
-          example: "Humanidades y Lengua Castellana"
+          example: Humanidades y Lengua Castellana
         descripcion:
           type: string
-          example: "Área fundamental del currículo"
+          example: Área fundamental del currículo
         activo:
           type: boolean
           example: true
@@ -2359,12 +2567,11 @@ components:
         fechaActualizacion:
           type: string
           format: date-time
-
     AsignaturaRequest:
       type: object
       required:
-        - codigo
-        - nombre
+      - codigo
+      - nombre
       properties:
         areaId:
           type: integer
@@ -2374,16 +2581,15 @@ components:
         codigo:
           type: string
           maxLength: 30
-          example: "FILO"
+          example: FILO
         nombre:
           type: string
           maxLength: 100
-          example: "Filosofía"
+          example: Filosofía
         descripcion:
           type: string
           maxLength: 255
-          example: "Asignatura adaptable de educación media"
-
+          example: Asignatura adaptable de educación media
     AsignaturaResponse:
       type: object
       properties:
@@ -2399,16 +2605,16 @@ components:
         areaNombre:
           type: string
           nullable: true
-          example: "Humanidades"
+          example: Humanidades
         codigo:
           type: string
-          example: "FILO"
+          example: FILO
         nombre:
           type: string
-          example: "Filosofía"
+          example: Filosofía
         descripcion:
           type: string
-          example: "Asignatura adaptable"
+          example: Asignatura adaptable
         activo:
           type: boolean
           example: true
@@ -2418,13 +2624,12 @@ components:
         fechaActualizacion:
           type: string
           format: date-time
-
     GradoAsignaturaRequest:
       type: object
       required:
-        - gradoId
-        - asignaturaId
-        - intensidadHoraria
+      - gradoId
+      - asignaturaId
+      - intensidadHoraria
       properties:
         gradoId:
           type: integer
@@ -2442,7 +2647,6 @@ components:
           type: boolean
           default: false
           example: false
-
     GradoAsignaturaResponse:
       type: object
       properties:
@@ -2456,20 +2660,20 @@ components:
           example: 10
         gradoCodigo:
           type: string
-          example: "10"
+          example: '10'
         gradoNombre:
           type: string
-          example: "Décimo"
+          example: Décimo
         asignaturaId:
           type: integer
           format: int64
           example: 1
         asignaturaCodigo:
           type: string
-          example: "FILO"
+          example: FILO
         asignaturaNombre:
           type: string
-          example: "Filosofía"
+          example: Filosofía
         intensidadHoraria:
           type: integer
           example: 3
@@ -2485,14 +2689,13 @@ components:
         fechaActualizacion:
           type: string
           format: date-time
-
     AnioLectivoRequest:
       type: object
       required:
-        - anio
-        - nombre
-        - fechaInicio
-        - fechaFin
+      - anio
+      - nombre
+      - fechaInicio
+      - fechaFin
       properties:
         anio:
           type: integer
@@ -2500,16 +2703,15 @@ components:
         nombre:
           type: string
           maxLength: 100
-          example: "Año Escolar 2026"
+          example: Año Escolar 2026
         fechaInicio:
           type: string
           format: date
-          example: "2026-01-15"
+          example: '2026-01-15'
         fechaFin:
           type: string
           format: date
-          example: "2026-11-30"
-
+          example: '2026-11-30'
     AnioLectivoResponse:
       type: object
       properties:
@@ -2522,15 +2724,15 @@ components:
           example: 2026
         nombre:
           type: string
-          example: "Año Escolar 2026"
+          example: Año Escolar 2026
         fechaInicio:
           type: string
           format: date
-          example: "2026-01-15"
+          example: '2026-01-15'
         fechaFin:
           type: string
           format: date
-          example: "2026-11-30"
+          example: '2026-11-30'
         estado:
           $ref: '#/components/schemas/EstadoAnioLectivo'
         fechaCreacion:
@@ -2539,15 +2741,14 @@ components:
         fechaActualizacion:
           type: string
           format: date-time
-
     PeriodoAcademicoRequest:
       type: object
       required:
-        - numero
-        - nombre
-        - fechaInicio
-        - fechaFin
-        - porcentaje
+      - numero
+      - nombre
+      - fechaInicio
+      - fechaFin
+      - porcentaje
       properties:
         numero:
           type: integer
@@ -2557,22 +2758,21 @@ components:
         nombre:
           type: string
           maxLength: 50
-          example: "Primer Periodo"
+          example: Primer Periodo
         fechaInicio:
           type: string
           format: date
-          example: "2026-01-15"
+          example: '2026-01-15'
         fechaFin:
           type: string
           format: date
-          example: "2026-04-15"
+          example: '2026-04-15'
         porcentaje:
           type: number
           format: double
           minimum: 0.01
-          maximum: 100.00
-          example: 25.00
-
+          maximum: 100.0
+          example: 25.0
     PeriodoAcademicoResponse:
       type: object
       properties:
@@ -2589,19 +2789,19 @@ components:
           example: 1
         nombre:
           type: string
-          example: "Primer Periodo"
+          example: Primer Periodo
         fechaInicio:
           type: string
           format: date
-          example: "2026-01-15"
+          example: '2026-01-15'
         fechaFin:
           type: string
           format: date
-          example: "2026-04-15"
+          example: '2026-04-15'
         porcentaje:
           type: number
           format: double
-          example: 25.00
+          example: 25.0
         estado:
           $ref: '#/components/schemas/EstadoPeriodo'
         fechaCreacion:
@@ -2610,15 +2810,14 @@ components:
         fechaActualizacion:
           type: string
           format: date-time
-
     GrupoRequest:
       type: object
       required:
-        - anioLectivoId
-        - gradoId
-        - nombre
-        - jornada
-        - cupoMaximo
+      - anioLectivoId
+      - gradoId
+      - nombre
+      - jornada
+      - cupoMaximo
       properties:
         anioLectivoId:
           type: integer
@@ -2631,14 +2830,13 @@ components:
         nombre:
           type: string
           maxLength: 20
-          example: "A"
+          example: A
         jornada:
           $ref: '#/components/schemas/Jornada'
         cupoMaximo:
           type: integer
           minimum: 1
           example: 35
-
     GrupoResponse:
       type: object
       properties:
@@ -2659,13 +2857,13 @@ components:
           example: 10
         gradoCodigo:
           type: string
-          example: "10"
+          example: '10'
         gradoNombre:
           type: string
-          example: "Décimo"
+          example: Décimo
         nombre:
           type: string
-          example: "A"
+          example: A
         jornada:
           $ref: '#/components/schemas/Jornada'
         cupoMaximo:
@@ -2680,4 +2878,207 @@ components:
         fechaActualizacion:
           type: string
           format: date-time
-
+    TipoDocumento:
+      type: string
+      enum:
+      - CC
+      - CE
+      - PASAPORTE
+      - PEP
+      - PPT
+      description: Tipo de documento de identidad oficial en Colombia
+    ProfesorRequest:
+      type: object
+      required:
+      - documento
+      - nombres
+      - apellidos
+      - correo
+      properties:
+        tipoDocumento:
+          $ref: '#/components/schemas/TipoDocumento'
+        documento:
+          type: string
+          maxLength: 20
+          example: '1020304050'
+        nombres:
+          type: string
+          maxLength: 50
+          example: Carlos
+        apellidos:
+          type: string
+          maxLength: 50
+          example: Gómez
+        correo:
+          type: string
+          format: email
+          maxLength: 100
+          example: carlos.gomez@colegio.edu.co
+        telefono:
+          type: string
+          maxLength: 20
+          example: '3001234567'
+        direccion:
+          type: string
+          maxLength: 150
+          example: 'Calle 45 # 12-34'
+        tituloAcademico:
+          type: string
+          maxLength: 100
+          example: Licenciado en Matemáticas
+        especialidad:
+          type: string
+          maxLength: 100
+          example: Álgebra y Trigonometría
+        usuarioId:
+          type: integer
+          format: int64
+          nullable: true
+          example: 5
+    ProfesorResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        tipoDocumento:
+          $ref: '#/components/schemas/TipoDocumento'
+        documento:
+          type: string
+          example: '1020304050'
+        nombres:
+          type: string
+          example: Carlos
+        apellidos:
+          type: string
+          example: Gómez
+        nombreCompleto:
+          type: string
+          example: Carlos Gómez
+        correo:
+          type: string
+          example: carlos.gomez@colegio.edu.co
+        telefono:
+          type: string
+          example: '3001234567'
+        direccion:
+          type: string
+          example: 'Calle 45 # 12-34'
+        tituloAcademico:
+          type: string
+          example: Licenciado en Matemáticas
+        especialidad:
+          type: string
+          example: Álgebra y Trigonometría
+        usuarioId:
+          type: integer
+          format: int64
+          nullable: true
+          example: 5
+        username:
+          type: string
+          nullable: true
+          example: profesor1
+        activo:
+          type: boolean
+          example: true
+        fechaCreacion:
+          type: string
+          format: date-time
+        fechaActualizacion:
+          type: string
+          format: date-time
+    AsignacionAcademicaRequest:
+      type: object
+      required:
+      - profesorId
+      - grupoId
+      - asignaturaId
+      properties:
+        profesorId:
+          type: integer
+          format: int64
+          example: 1
+        grupoId:
+          type: integer
+          format: int64
+          example: 10
+        asignaturaId:
+          type: integer
+          format: int64
+          example: 100
+        intensidadHorariaSemanal:
+          type: integer
+          minimum: 1
+          default: 1
+          example: 4
+        esDirectorGrupo:
+          type: boolean
+          default: false
+          example: false
+    AsignacionAcademicaResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 50
+        profesorId:
+          type: integer
+          format: int64
+          example: 1
+        profesorNombreCompleto:
+          type: string
+          example: Carlos Gómez
+        profesorDocumento:
+          type: string
+          example: '1020304050'
+        grupoId:
+          type: integer
+          format: int64
+          example: 10
+        grupoNombre:
+          type: string
+          example: 10-A
+        gradoNombre:
+          type: string
+          example: Décimo
+        anioLectivoId:
+          type: integer
+          format: int64
+          example: 1
+        anioLectivo:
+          type: integer
+          example: 2026
+        asignaturaId:
+          type: integer
+          format: int64
+          example: 100
+        asignaturaNombre:
+          type: string
+          example: Física
+        asignaturaCodigo:
+          type: string
+          example: FIS10
+        intensidadHorariaSemanal:
+          type: integer
+          example: 4
+        esDirectorGrupo:
+          type: boolean
+          example: false
+        activo:
+          type: boolean
+          example: true
+        fechaCreacion:
+          type: string
+          format: date-time
+        fechaActualizacion:
+          type: string
+          format: date-time
+tags:
+- name: Profesores
+  description: Gestión de docentes, datos profesionales y vinculación a cuentas de
+    usuario
+- name: Asignaciones Académicas
+  description: Asignación curricular docente-grupo-asignatura e intensidad horaria
