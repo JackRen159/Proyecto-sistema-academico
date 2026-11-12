@@ -744,7 +744,1071 @@ paths:
           $ref: '#/components/responses/NotFoundError'
 
 # -----------------------------------------------------------------------------
+
+  # ---------------------------------------------------------------------------
+  # ESTRUCTURA ACADÉMICA - GRADOS Y PLAN DE ESTUDIOS
+  # ---------------------------------------------------------------------------
+  /api/grados:
+    get:
+      tags:
+        - Estructura Académica - Grados
+      summary: Listar grados del sistema escolar
+      description: Retorna la lista de grados ordenados por su jerarquía curricular (Transición a 11°).
+      parameters:
+        - name: nivel
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/NivelEducativo'
+        - name: soloActivos
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: Listado de grados obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GradoResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+
+  /api/grados/{id}:
+    get:
+      tags:
+        - Estructura Académica - Grados
+      summary: Obtener un grado por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Grado encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GradoResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/grados/codigo/{codigo}:
+    get:
+      tags:
+        - Estructura Académica - Grados
+      summary: Obtener un grado por código
+      parameters:
+        - name: codigo
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "10"
+      responses:
+        '200':
+          description: Grado encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GradoResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/grados/{gradoId}/plan-estudios:
+    get:
+      tags:
+        - Estructura Académica - Plan de Estudios
+      summary: Consultar plan de estudios de un grado
+      parameters:
+        - name: gradoId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Plan de estudios del grado obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GradoAsignaturaResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    post:
+      tags:
+        - Estructura Académica - Plan de Estudios
+      summary: Asignar una asignatura al plan de estudios de un grado
+      parameters:
+        - name: gradoId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GradoAsignaturaRequest'
+      responses:
+        '201':
+          description: Asignatura incorporada exitosamente al plan de estudios.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GradoAsignaturaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+
+  /api/grados/plan-estudios/{id}:
+    put:
+      tags:
+        - Estructura Académica - Plan de Estudios
+      summary: Actualizar intensidad horaria u optatividad de una asignatura en el plan de estudios
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: intensidadHoraria
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 4
+        - name: esOptativa
+          in: query
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Asignación actualizada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GradoAsignaturaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      tags:
+        - Estructura Académica - Plan de Estudios
+      summary: Desactivar asignatura del plan de estudios de un grado
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Asignación desactivada exitosamente.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  # ---------------------------------------------------------------------------
+  # ESTRUCTURA ACADÉMICA - ÁREAS
+  # ---------------------------------------------------------------------------
+  /api/areas:
+    get:
+      tags:
+        - Estructura Académica - Áreas
+      summary: Listar áreas del conocimiento
+      parameters:
+        - name: soloActivas
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Listado de áreas obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AreaResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+    post:
+      tags:
+        - Estructura Académica - Áreas
+      summary: Crear una nueva área del conocimiento
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AreaRequest'
+      responses:
+        '201':
+          description: Área creada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AreaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+
+  /api/areas/{id}:
+    get:
+      tags:
+        - Estructura Académica - Áreas
+      summary: Obtener área por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Área encontrada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AreaResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      tags:
+        - Estructura Académica - Áreas
+      summary: Actualizar área existente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AreaRequest'
+      responses:
+        '200':
+          description: Área actualizada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AreaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+
+  /api/areas/{id}/desactivar:
+    patch:
+      tags:
+        - Estructura Académica - Áreas
+      summary: Desactivar lógicamente un área
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Área desactivada exitosamente.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/areas/{id}/activar:
+    patch:
+      tags:
+        - Estructura Académica - Áreas
+      summary: Reactivar lógicamente un área
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Área reactivada exitosamente.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  # ---------------------------------------------------------------------------
+  # ESTRUCTURA ACADÉMICA - ASIGNATURAS (CATÁLOGO ADAPTABLE S2)
+  # ---------------------------------------------------------------------------
+  /api/asignaturas:
+    get:
+      tags:
+        - Estructura Académica - Asignaturas
+      summary: Listar asignaturas del sistema
+      parameters:
+        - name: areaId
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - name: soloActivas
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: Listado de asignaturas obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AsignaturaResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+    post:
+      tags:
+        - Estructura Académica - Asignaturas
+      summary: Registrar una nueva asignatura configurable
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AsignaturaRequest'
+      responses:
+        '201':
+          description: Asignatura creada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AsignaturaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+
+  /api/asignaturas/{id}:
+    get:
+      tags:
+        - Estructura Académica - Asignaturas
+      summary: Obtener asignatura por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Asignatura encontrada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AsignaturaResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      tags:
+        - Estructura Académica - Asignaturas
+      summary: Actualizar asignatura existente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AsignaturaRequest'
+      responses:
+        '200':
+          description: Asignatura actualizada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AsignaturaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+
+  /api/asignaturas/{id}/desactivar:
+    patch:
+      tags:
+        - Estructura Académica - Asignaturas
+      summary: Desactivar lógicamente una asignatura
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Asignatura desactivada exitosamente.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/asignaturas/{id}/activar:
+    patch:
+      tags:
+        - Estructura Académica - Asignaturas
+      summary: Reactivar lógicamente una asignatura
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Asignatura reactivada exitosamente.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  # ---------------------------------------------------------------------------
+  # ESTRUCTURA ACADÉMICA - AÑOS LECTIVOS
+  # ---------------------------------------------------------------------------
+  /api/anios-lectivos:
+    get:
+      tags:
+        - Estructura Académica - Años Lectivos
+      summary: Listar años escolares vigentes e históricos
+      responses:
+        '200':
+          description: Listado de años lectivos obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AnioLectivoResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+    post:
+      tags:
+        - Estructura Académica - Años Lectivos
+      summary: Registrar nuevo año escolar en planificación
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnioLectivoRequest'
+      responses:
+        '201':
+          description: Año escolar creado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnioLectivoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+
+  /api/anios-lectivos/activo:
+    get:
+      tags:
+        - Estructura Académica - Años Lectivos
+      summary: Consultar el año escolar actualmente ACTIVO
+      responses:
+        '200':
+          description: Año escolar activo encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnioLectivoResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/anios-lectivos/{id}:
+    get:
+      tags:
+        - Estructura Académica - Años Lectivos
+      summary: Obtener año escolar por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Año escolar encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnioLectivoResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      tags:
+        - Estructura Académica - Años Lectivos
+      summary: Actualizar año escolar existente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnioLectivoRequest'
+      responses:
+        '200':
+          description: Año escolar actualizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnioLectivoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+
+  /api/anios-lectivos/{id}/activar:
+    patch:
+      tags:
+        - Estructura Académica - Años Lectivos
+      summary: Activar formalmente un año escolar
+      description: "Invariante de negocio: solo puede existir a lo sumo UN año en estado ACTIVO."
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Año escolar activado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnioLectivoResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+
+  /api/anios-lectivos/{id}/cerrar:
+    patch:
+      tags:
+        - Estructura Académica - Años Lectivos
+      summary: Cerrar formalmente un año escolar
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Año escolar cerrado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnioLectivoResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/anios-lectivos/{anioId}/periodos:
+    get:
+      tags:
+        - Estructura Académica - Periodos
+      summary: Listar periodos académicos de un año escolar
+      parameters:
+        - name: anioId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Periodos obtenidos exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PeriodoAcademicoResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    post:
+      tags:
+        - Estructura Académica - Periodos
+      summary: Registrar periodo académico para un año escolar
+      parameters:
+        - name: anioId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PeriodoAcademicoRequest'
+      responses:
+        '201':
+          description: Periodo creado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PeriodoAcademicoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+
+  # ---------------------------------------------------------------------------
+  # ESTRUCTURA ACADÉMICA - PERIODOS ACADÉMICOS
+  # ---------------------------------------------------------------------------
+  /api/periodos/{id}:
+    get:
+      tags:
+        - Estructura Académica - Periodos
+      summary: Obtener periodo por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Periodo encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PeriodoAcademicoResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      tags:
+        - Estructura Académica - Periodos
+      summary: Actualizar periodo académico
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PeriodoAcademicoRequest'
+      responses:
+        '200':
+          description: Periodo actualizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PeriodoAcademicoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+
+  /api/periodos/{id}/abrir:
+    patch:
+      tags:
+        - Estructura Académica - Periodos
+      summary: Abrir periodo para ingreso de evaluaciones
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Periodo abierto exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PeriodoAcademicoResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/periodos/{id}/cerrar:
+    patch:
+      tags:
+        - Estructura Académica - Periodos
+      summary: Cerrar periodo académico formalmente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Periodo cerrado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PeriodoAcademicoResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  # ---------------------------------------------------------------------------
+  # ESTRUCTURA ACADÉMICA - GRUPOS / SALONES
+  # ---------------------------------------------------------------------------
+  /api/grupos:
+    get:
+      tags:
+        - Estructura Académica - Grupos
+      summary: Listar grupos por año escolar y grado
+      parameters:
+        - name: anioLectivoId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: gradoId
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Listado de grupos obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GrupoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    post:
+      tags:
+        - Estructura Académica - Grupos
+      summary: Registrar nuevo grupo en un año lectivo y grado
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GrupoRequest'
+      responses:
+        '201':
+          description: Grupo creado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrupoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+
+  /api/grupos/{id}:
+    get:
+      tags:
+        - Estructura Académica - Grupos
+      summary: Obtener grupo por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Grupo encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrupoResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    put:
+      tags:
+        - Estructura Académica - Grupos
+      summary: Actualizar grupo existente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GrupoRequest'
+      responses:
+        '200':
+          description: Grupo actualizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrupoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+
+  /api/grupos/{id}/desactivar:
+    patch:
+      tags:
+        - Estructura Académica - Grupos
+      summary: Desactivar lógicamente un grupo
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Grupo desactivado exitosamente.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /api/grupos/{id}/activar:
+    patch:
+      tags:
+        - Estructura Académica - Grupos
+      summary: Reactivar lógicamente un grupo
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Grupo reactivado exitosamente.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+# -----------------------------------------------------------------------------
 # COMPONENTES / SCHEMAS / SEGURIDAD
+# -----------------------------------------------------------------------------
+
 # -----------------------------------------------------------------------------
 components:
   securitySchemes:
@@ -1191,3 +2255,429 @@ components:
           example:
             correo: El correo electronico no tiene un formato valido
             documento: El documento es obligatorio
+
+    # -------------------------------------------------------------------------
+    # SCHEMAS DE ESTRUCTURA ACADÉMICA (FRENTE 2)
+    # -------------------------------------------------------------------------
+    NivelEducativo:
+      type: string
+      enum:
+        - PREESCOLAR
+        - BASICA_PRIMARIA
+        - BASICA_SECUNDARIA
+        - MEDIA
+      example: MEDIA
+
+    EstadoAnioLectivo:
+      type: string
+      enum:
+        - PLANIFICACION
+        - ACTIVO
+        - CERRADO
+      example: ACTIVO
+
+    EstadoPeriodo:
+      type: string
+      enum:
+        - ABIERTO
+        - CERRADO
+      example: ABIERTO
+
+    Jornada:
+      type: string
+      enum:
+        - MANANA
+        - TARDE
+        - UNICA
+        - NOCTURNA
+        - COMPLETA
+      example: MANANA
+
+    GradoResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        codigo:
+          type: string
+          example: "10"
+        nombre:
+          type: string
+          example: "Décimo"
+        nivel:
+          $ref: '#/components/schemas/NivelEducativo'
+        ordenJerarquico:
+          type: integer
+          example: 10
+        activo:
+          type: boolean
+          example: true
+
+    AreaRequest:
+      type: object
+      required:
+        - codigo
+        - nombre
+      properties:
+        codigo:
+          type: string
+          maxLength: 30
+          example: "HUM"
+        nombre:
+          type: string
+          maxLength: 100
+          example: "Humanidades y Lengua Castellana"
+        descripcion:
+          type: string
+          maxLength: 255
+          example: "Área fundamental del currículo"
+
+    AreaResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        codigo:
+          type: string
+          example: "HUM"
+        nombre:
+          type: string
+          example: "Humanidades y Lengua Castellana"
+        descripcion:
+          type: string
+          example: "Área fundamental del currículo"
+        activo:
+          type: boolean
+          example: true
+        fechaCreacion:
+          type: string
+          format: date-time
+        fechaActualizacion:
+          type: string
+          format: date-time
+
+    AsignaturaRequest:
+      type: object
+      required:
+        - codigo
+        - nombre
+      properties:
+        areaId:
+          type: integer
+          format: int64
+          nullable: true
+          example: 1
+        codigo:
+          type: string
+          maxLength: 30
+          example: "FILO"
+        nombre:
+          type: string
+          maxLength: 100
+          example: "Filosofía"
+        descripcion:
+          type: string
+          maxLength: 255
+          example: "Asignatura adaptable de educación media"
+
+    AsignaturaResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        areaId:
+          type: integer
+          format: int64
+          nullable: true
+          example: 1
+        areaNombre:
+          type: string
+          nullable: true
+          example: "Humanidades"
+        codigo:
+          type: string
+          example: "FILO"
+        nombre:
+          type: string
+          example: "Filosofía"
+        descripcion:
+          type: string
+          example: "Asignatura adaptable"
+        activo:
+          type: boolean
+          example: true
+        fechaCreacion:
+          type: string
+          format: date-time
+        fechaActualizacion:
+          type: string
+          format: date-time
+
+    GradoAsignaturaRequest:
+      type: object
+      required:
+        - gradoId
+        - asignaturaId
+        - intensidadHoraria
+      properties:
+        gradoId:
+          type: integer
+          format: int64
+          example: 10
+        asignaturaId:
+          type: integer
+          format: int64
+          example: 1
+        intensidadHoraria:
+          type: integer
+          minimum: 1
+          example: 3
+        esOptativa:
+          type: boolean
+          default: false
+          example: false
+
+    GradoAsignaturaResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        gradoId:
+          type: integer
+          format: int64
+          example: 10
+        gradoCodigo:
+          type: string
+          example: "10"
+        gradoNombre:
+          type: string
+          example: "Décimo"
+        asignaturaId:
+          type: integer
+          format: int64
+          example: 1
+        asignaturaCodigo:
+          type: string
+          example: "FILO"
+        asignaturaNombre:
+          type: string
+          example: "Filosofía"
+        intensidadHoraria:
+          type: integer
+          example: 3
+        esOptativa:
+          type: boolean
+          example: false
+        activo:
+          type: boolean
+          example: true
+        fechaCreacion:
+          type: string
+          format: date-time
+        fechaActualizacion:
+          type: string
+          format: date-time
+
+    AnioLectivoRequest:
+      type: object
+      required:
+        - anio
+        - nombre
+        - fechaInicio
+        - fechaFin
+      properties:
+        anio:
+          type: integer
+          example: 2026
+        nombre:
+          type: string
+          maxLength: 100
+          example: "Año Escolar 2026"
+        fechaInicio:
+          type: string
+          format: date
+          example: "2026-01-15"
+        fechaFin:
+          type: string
+          format: date
+          example: "2026-11-30"
+
+    AnioLectivoResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        anio:
+          type: integer
+          example: 2026
+        nombre:
+          type: string
+          example: "Año Escolar 2026"
+        fechaInicio:
+          type: string
+          format: date
+          example: "2026-01-15"
+        fechaFin:
+          type: string
+          format: date
+          example: "2026-11-30"
+        estado:
+          $ref: '#/components/schemas/EstadoAnioLectivo'
+        fechaCreacion:
+          type: string
+          format: date-time
+        fechaActualizacion:
+          type: string
+          format: date-time
+
+    PeriodoAcademicoRequest:
+      type: object
+      required:
+        - numero
+        - nombre
+        - fechaInicio
+        - fechaFin
+        - porcentaje
+      properties:
+        numero:
+          type: integer
+          minimum: 1
+          maximum: 10
+          example: 1
+        nombre:
+          type: string
+          maxLength: 50
+          example: "Primer Periodo"
+        fechaInicio:
+          type: string
+          format: date
+          example: "2026-01-15"
+        fechaFin:
+          type: string
+          format: date
+          example: "2026-04-15"
+        porcentaje:
+          type: number
+          format: double
+          minimum: 0.01
+          maximum: 100.00
+          example: 25.00
+
+    PeriodoAcademicoResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        anioLectivoId:
+          type: integer
+          format: int64
+          example: 1
+        numero:
+          type: integer
+          example: 1
+        nombre:
+          type: string
+          example: "Primer Periodo"
+        fechaInicio:
+          type: string
+          format: date
+          example: "2026-01-15"
+        fechaFin:
+          type: string
+          format: date
+          example: "2026-04-15"
+        porcentaje:
+          type: number
+          format: double
+          example: 25.00
+        estado:
+          $ref: '#/components/schemas/EstadoPeriodo'
+        fechaCreacion:
+          type: string
+          format: date-time
+        fechaActualizacion:
+          type: string
+          format: date-time
+
+    GrupoRequest:
+      type: object
+      required:
+        - anioLectivoId
+        - gradoId
+        - nombre
+        - jornada
+        - cupoMaximo
+      properties:
+        anioLectivoId:
+          type: integer
+          format: int64
+          example: 1
+        gradoId:
+          type: integer
+          format: int64
+          example: 10
+        nombre:
+          type: string
+          maxLength: 20
+          example: "A"
+        jornada:
+          $ref: '#/components/schemas/Jornada'
+        cupoMaximo:
+          type: integer
+          minimum: 1
+          example: 35
+
+    GrupoResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        anioLectivoId:
+          type: integer
+          format: int64
+          example: 1
+        anioLectivoAnio:
+          type: integer
+          example: 2026
+        gradoId:
+          type: integer
+          format: int64
+          example: 10
+        gradoCodigo:
+          type: string
+          example: "10"
+        gradoNombre:
+          type: string
+          example: "Décimo"
+        nombre:
+          type: string
+          example: "A"
+        jornada:
+          $ref: '#/components/schemas/Jornada'
+        cupoMaximo:
+          type: integer
+          example: 35
+        activo:
+          type: boolean
+          example: true
+        fechaCreacion:
+          type: string
+          format: date-time
+        fechaActualizacion:
+          type: string
+          format: date-time
+
