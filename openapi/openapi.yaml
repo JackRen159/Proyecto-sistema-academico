@@ -2344,6 +2344,403 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '403':
           $ref: '#/components/responses/ForbiddenError'
+  /api/calificaciones/escala:
+    post:
+      tags:
+      - Calificaciones y SIEE
+      summary: Guardar o actualizar escala de valoración institucional SIEE
+      description: Configura los rangos de la escala institucional por año lectivo y sus equivalencias con la escala nacional (Decreto 1290).
+      operationId: guardarEscalaSiee
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfiguracionEscalaSieeRequest'
+      responses:
+        '200':
+          description: Escala institucional guardada o actualizada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfiguracionEscalaSieeResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/calificaciones/escala/anio-lectivo/{anioLectivoId}:
+    get:
+      tags:
+      - Calificaciones y SIEE
+      summary: Consultar escala de valoración institucional por año escolar
+      description: Retorna los rangos numéricos y descriptores de desempeño configurados para el año escolar.
+      operationId: obtenerEscalaSieePorAnio
+      parameters:
+      - name: anioLectivoId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Escala institucional obtenida exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfiguracionEscalaSieeResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/calificaciones/actividades:
+    post:
+      tags:
+      - Calificaciones y SIEE
+      summary: Registrar actividad evaluativa dentro de una asignación y periodo
+      description: Crea una actividad evaluativa con ponderación porcentual dentro de una asignación docente en periodo abierto.
+      operationId: crearActividadEvaluativa
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActividadEvaluativaRequest'
+      responses:
+        '201':
+          description: Actividad evaluativa creada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActividadEvaluativaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+    get:
+      tags:
+      - Calificaciones y SIEE
+      summary: Listar actividades evaluativas por asignación y periodo
+      description: Retorna las actividades evaluativas registradas para una carga docente en un periodo académico.
+      operationId: listarActividadesEvaluativas
+      parameters:
+      - name: asignacionId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: periodoId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Listado de actividades evaluativas obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ActividadEvaluativaResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  /api/calificaciones/actividades/notas/lote:
+    post:
+      tags:
+      - Calificaciones y SIEE
+      summary: Registrar o actualizar notas de una actividad evaluativa en lote
+      description: Registra las calificaciones de múltiples estudiantes matriculados en una actividad evaluativa con auditoría automática.
+      operationId: registrarNotasLote
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistroCalificacionesLoteRequest'
+      responses:
+        '200':
+          description: Calificaciones registradas o actualizadas exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CalificacionActividadResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/calificaciones/actividades/notas/{calificacionId}:
+    put:
+      tags:
+      - Calificaciones y SIEE
+      summary: Modificar individualmente una calificación con justificación obligatoria
+      description: Actualiza la nota de una actividad evaluativa generando un registro inmutable en la tabla de auditoría.
+      operationId: actualizarNotaActividad
+      parameters:
+      - name: calificacionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActualizarCalificacionRequest'
+      responses:
+        '200':
+          description: Calificación actualizada y auditada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CalificacionActividadResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/calificaciones/actividades/{actividadId}/notas:
+    get:
+      tags:
+      - Calificaciones y SIEE
+      summary: Consultar calificaciones registradas de una actividad evaluativa
+      description: Retorna la planilla de calificaciones registradas para una actividad concreta.
+      operationId: listarNotasActividad
+      parameters:
+      - name: actividadId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Planilla de notas obtenida exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CalificacionActividadResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/calificaciones/periodo/calcular:
+    post:
+      tags:
+      - Calificaciones y SIEE
+      summary: Calcular definitivas de periodo para una asignación académica
+      description: Calcula el promedio ponderado de las actividades del periodo, homologa el desempeño nacional y determina aprobación.
+      operationId: calcularDefinitivasPeriodo
+      parameters:
+      - name: asignacionId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: periodoId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Definitivas de periodo calculadas exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CalificacionPeriodoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/calificaciones/periodo/{calificacionPeriodoId}/recuperacion:
+    post:
+      tags:
+      - Calificaciones y SIEE
+      summary: Registrar resultado de plan de apoyo o recuperación de periodo
+      description: Registra la nota de recuperación ajustando la nota final y el desempeño homologado con trazabilidad en auditoría.
+      operationId: registrarRecuperacionPeriodo
+      parameters:
+      - name: calificacionPeriodoId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: notaRecuperacion
+        in: query
+        required: true
+        schema:
+          type: number
+          format: float
+      - name: motivo
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Recuperación registrada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CalificacionPeriodoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/calificaciones/periodo:
+    get:
+      tags:
+      - Calificaciones y SIEE
+      summary: Consultar calificaciones definitivas de un grupo, asignatura y periodo
+      description: Retorna la sábana de notas definitivas de periodo para un curso y materia específicos.
+      operationId: listarCalificacionesPeriodo
+      parameters:
+      - name: grupoId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: asignaturaId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: periodoId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Sábana de notas definitivas obtenida exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CalificacionPeriodoResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  /api/calificaciones/estudiante/{matriculaId}/periodo/{periodoId}:
+    get:
+      tags:
+      - Calificaciones y SIEE
+      summary: Consultar boletín / reporte de calificaciones de un estudiante en un periodo
+      description: Retorna todas las calificaciones definitivas de un estudiante para un periodo académico.
+      operationId: listarCalificacionesEstudiantePeriodo
+      parameters:
+      - name: matriculaId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: periodoId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Calificaciones del estudiante obtenidas exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CalificacionPeriodoResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  /api/calificaciones/auditoria/matricula/{matriculaId}:
+    get:
+      tags:
+      - Calificaciones y SIEE
+      summary: Consultar historial inmutable de auditoría de calificaciones de una matrícula
+      description: Retorna la trazabilidad completa de modificaciones a notas de actividades y definitivas de un estudiante.
+      operationId: listarHistorialAuditoriaMatricula
+      parameters:
+      - name: matriculaId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Historial de auditoría obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuditoriaCalificacionResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
 components:
   securitySchemes:
     BearerAuth:
@@ -3565,6 +3962,411 @@ components:
         activa:
           type: boolean
           example: true
+    DesempenoNacional:
+      type: string
+      enum:
+      - SUPERIOR
+      - ALTO
+      - BASICO
+      - BAJO
+      example: ALTO
+    TipoEntidadAuditoriaCalificacion:
+      type: string
+      enum:
+      - ACTIVIDAD
+      - PERIODO
+      example: ACTIVIDAD
+    ConfiguracionEscalaSieeRequest:
+      type: object
+      required:
+      - anioLectivoId
+      - notaMinima
+      - notaMaxima
+      - notaAprobatoria
+      - escalaBasicoMin
+      - escalaAltoMin
+      - escalaSuperiorMin
+      properties:
+        anioLectivoId:
+          type: integer
+          format: int64
+          example: 1
+        notaMinima:
+          type: number
+          format: float
+          example: 1.0
+        notaMaxima:
+          type: number
+          format: float
+          example: 5.0
+        notaAprobatoria:
+          type: number
+          format: float
+          example: 3.0
+        escalaBasicoMin:
+          type: number
+          format: float
+          example: 3.0
+        escalaAltoMin:
+          type: number
+          format: float
+          example: 4.0
+        escalaSuperiorMin:
+          type: number
+          format: float
+          example: 4.6
+        decimalesRedondeo:
+          type: integer
+          example: 1
+        descripcion:
+          type: string
+          example: Escala institucional adoptada según Acuerdo directivo 2026
+    ConfiguracionEscalaSieeResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        anioLectivoId:
+          type: integer
+          format: int64
+          example: 1
+        anioLectivo:
+          type: integer
+          example: 2026
+        notaMinima:
+          type: number
+          format: float
+          example: 1.0
+        notaMaxima:
+          type: number
+          format: float
+          example: 5.0
+        notaAprobatoria:
+          type: number
+          format: float
+          example: 3.0
+        escalaBasicoMin:
+          type: number
+          format: float
+          example: 3.0
+        escalaAltoMin:
+          type: number
+          format: float
+          example: 4.0
+        escalaSuperiorMin:
+          type: number
+          format: float
+          example: 4.6
+        decimalesRedondeo:
+          type: integer
+          example: 1
+        descripcion:
+          type: string
+          example: Escala institucional adoptada según Acuerdo directivo 2026
+        fechaCreacion:
+          type: string
+          format: date-time
+        fechaActualizacion:
+          type: string
+          format: date-time
+    ActividadEvaluativaRequest:
+      type: object
+      required:
+      - asignacionAcademicaId
+      - periodoAcademicoId
+      - nombre
+      - porcentaje
+      properties:
+        asignacionAcademicaId:
+          type: integer
+          format: int64
+          example: 50
+        periodoAcademicoId:
+          type: integer
+          format: int64
+          example: 10
+        nombre:
+          type: string
+          example: Taller de Cinemática
+        descripcion:
+          type: string
+          example: Taller práctico grupal sobre movimiento rectilíneo
+        porcentaje:
+          type: number
+          format: float
+          example: 25.0
+        fechaEvaluacion:
+          type: string
+          format: date
+          example: '2026-03-15'
+    ActividadEvaluativaResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        asignacionAcademicaId:
+          type: integer
+          format: int64
+          example: 50
+        profesorNombreCompleto:
+          type: string
+          example: Albert Einstein
+        grupoId:
+          type: integer
+          format: int64
+          example: 5
+        grupoNombre:
+          type: string
+          example: 10-A
+        asignaturaId:
+          type: integer
+          format: int64
+          example: 100
+        asignaturaNombre:
+          type: string
+          example: Física
+        periodoAcademicoId:
+          type: integer
+          format: int64
+          example: 10
+        periodoNombre:
+          type: string
+          example: Primer Periodo
+        periodoNumero:
+          type: integer
+          example: 1
+        nombre:
+          type: string
+          example: Taller de Cinemática
+        descripcion:
+          type: string
+          example: Taller práctico grupal sobre movimiento rectilíneo
+        porcentaje:
+          type: number
+          format: float
+          example: 25.0
+        fechaEvaluacion:
+          type: string
+          format: date
+          example: '2026-03-15'
+        activo:
+          type: boolean
+          example: true
+        fechaCreacion:
+          type: string
+          format: date-time
+    RegistroCalificacionRequest:
+      type: object
+      required:
+      - matriculaId
+      - valor
+      properties:
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        valor:
+          type: number
+          format: float
+          example: 4.5
+        observaciones:
+          type: string
+          example: Excelente sustentación oral
+    RegistroCalificacionesLoteRequest:
+      type: object
+      required:
+      - actividadId
+      - calificaciones
+      properties:
+        actividadId:
+          type: integer
+          format: int64
+          example: 1
+        calificaciones:
+          type: array
+          items:
+            $ref: '#/components/schemas/RegistroCalificacionRequest'
+    ActualizarCalificacionRequest:
+      type: object
+      required:
+      - valorNuevo
+      - motivo
+      properties:
+        valorNuevo:
+          type: number
+          format: float
+          example: 4.8
+        motivo:
+          type: string
+          example: Reclamo sustentado con entrega física de correcciones
+        observaciones:
+          type: string
+          example: Ajuste de calificación avalado por coordinación
+    CalificacionActividadResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        actividadId:
+          type: integer
+          format: int64
+          example: 1
+        actividadNombre:
+          type: string
+          example: Taller de Cinemática
+        actividadPorcentaje:
+          type: number
+          format: float
+          example: 25.0
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        numeroMatricula:
+          type: string
+          example: MAT-2026-0001
+        estudianteId:
+          type: integer
+          format: int64
+          example: 7
+        estudianteNombreCompleto:
+          type: string
+          example: Isaac Newton
+        estudianteDocumento:
+          type: string
+          example: '10203040'
+        valor:
+          type: number
+          format: float
+          example: 4.5
+        desempeno:
+          $ref: '#/components/schemas/DesempenoNacional'
+        observaciones:
+          type: string
+          example: Excelente sustentación oral
+        fechaRegistro:
+          type: string
+          format: date-time
+        fechaActualizacion:
+          type: string
+          format: date-time
+    CalificacionPeriodoResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        numeroMatricula:
+          type: string
+          example: MAT-2026-0001
+        estudianteId:
+          type: integer
+          format: int64
+          example: 7
+        estudianteNombreCompleto:
+          type: string
+          example: Isaac Newton
+        estudianteDocumento:
+          type: string
+          example: '10203040'
+        asignaturaId:
+          type: integer
+          format: int64
+          example: 100
+        asignaturaNombre:
+          type: string
+          example: Física
+        periodoAcademicoId:
+          type: integer
+          format: int64
+          example: 10
+        periodoNombre:
+          type: string
+          example: Primer Periodo
+        periodoNumero:
+          type: integer
+          example: 1
+        notaDefinitiva:
+          type: number
+          format: float
+          example: 4.3
+        desempeno:
+          $ref: '#/components/schemas/DesempenoNacional'
+        aprobada:
+          type: boolean
+          example: true
+        notaRecuperacion:
+          type: number
+          format: float
+          example: null
+        notaFinal:
+          type: number
+          format: float
+          example: 4.3
+        observaciones:
+          type: string
+          example: Promovido en periodo ordinario
+        fechaCalculo:
+          type: string
+          format: date-time
+        fechaActualizacion:
+          type: string
+          format: date-time
+    AuditoriaCalificacionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        tipoEntidad:
+          $ref: '#/components/schemas/TipoEntidadAuditoriaCalificacion'
+        entidadId:
+          type: integer
+          format: int64
+          example: 10
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        numeroMatricula:
+          type: string
+          example: MAT-2026-0001
+        estudianteNombreCompleto:
+          type: string
+          example: Isaac Newton
+        valorAnterior:
+          type: number
+          format: float
+          example: 3.5
+        valorNuevo:
+          type: number
+          format: float
+          example: 4.5
+        motivo:
+          type: string
+          example: Reclamo atendido en comisión de evaluación
+        usuarioId:
+          type: integer
+          format: int64
+          example: 20
+        username:
+          type: string
+          example: einstein_a
+        fechaAuditoria:
+          type: string
+          format: date-time
 tags:
 - name: Profesores
   description: Gestión de docentes, datos profesionales y vinculación a cuentas de
@@ -3573,3 +4375,5 @@ tags:
   description: Asignación curricular docente-grupo-asignatura e intensidad horaria
 - name: Matrículas
   description: Inscripción formal de estudiantes, control de cupos por grupo, historial y traslados
+- name: Calificaciones y SIEE
+  description: Gestión de escalas institucionales (Decreto 1290), actividades evaluativas, registro de notas, definitivas y auditoría

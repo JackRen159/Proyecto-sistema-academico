@@ -6,6 +6,7 @@ api/acudientes.service.ts
 api/api.ts
 api/asignaciones-acadmicas.service.ts
 api/autenticacin.service.ts
+api/calificaciones-ysiee.service.ts
 api/estructura-acadmica-aos-lectivos.service.ts
 api/estructura-acadmica-asignaturas.service.ts
 api/estructura-acadmica-grados.service.ts
@@ -21,6 +22,9 @@ configuration.ts
 encoder.ts
 git_push.sh
 index.ts
+model/actividad-evaluativa-request.ts
+model/actividad-evaluativa-response.ts
+model/actualizar-calificacion-request.ts
 model/acudiente-request.ts
 model/acudiente-response.ts
 model/anio-lectivo-request.ts
@@ -32,7 +36,13 @@ model/asignacion-academica-request.ts
 model/asignacion-academica-response.ts
 model/asignatura-request.ts
 model/asignatura-response.ts
+model/auditoria-calificacion-response.ts
+model/calificacion-actividad-response.ts
+model/calificacion-periodo-response.ts
 model/cambio-estado-matricula-request.ts
+model/configuracion-escala-siee-request.ts
+model/configuracion-escala-siee-response.ts
+model/desempeno-nacional.ts
 model/error-response.ts
 model/estado-anio-lectivo.ts
 model/estado-matricula.ts
@@ -63,8 +73,11 @@ model/periodo-academico-request.ts
 model/periodo-academico-response.ts
 model/profesor-request.ts
 model/profesor-response.ts
+model/registro-calificacion-request.ts
+model/registro-calificaciones-lote-request.ts
 model/rol.ts
 model/tipo-documento.ts
+model/tipo-entidad-auditoria-calificacion.ts
 model/tipo-matricula.ts
 model/traslado-grupo-request.ts
 model/usuario-response.ts
