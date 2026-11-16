@@ -2049,6 +2049,301 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
+  /api/matriculas:
+    post:
+      tags:
+      - Matrículas
+      summary: Formalizar matrícula de un estudiante en un grupo
+      description: Formaliza la matrícula de un estudiante activo en un grupo con cupo disponible para el año lectivo no cerrado.
+      operationId: matricular
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MatriculaRequest'
+      responses:
+        '201':
+          description: Matrícula formalizada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MatriculaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+    get:
+      tags:
+      - Matrículas
+      summary: Listar matrículas filtradas por grupo o por estudiante
+      description: Retorna las matrículas activas asociadas a un grupo o el historial completo de un estudiante.
+      operationId: listarMatriculas
+      parameters:
+      - name: grupoId
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int64
+      - name: estudianteId
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Lista de matrículas obtenida exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MatriculaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  /api/matriculas/{id}:
+    get:
+      tags:
+      - Matrículas
+      summary: Obtener matrícula por ID
+      description: Retorna el detalle completo de una matrícula institucional por su identificador único.
+      operationId: buscarMatriculaPorId
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Detalle de matrícula obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MatriculaResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/matriculas/numero/{numeroMatricula}:
+    get:
+      tags:
+      - Matrículas
+      summary: Obtener matrícula por número o código formal
+      description: Retorna el detalle de una matrícula a partir de su código formal estructurado (ej. MAT-2026-0001).
+      operationId: buscarMatriculaPorNumero
+      parameters:
+      - name: numeroMatricula
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Detalle de matrícula obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MatriculaResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/matriculas/anio-lectivo/{anioLectivoId}:
+    get:
+      tags:
+      - Matrículas
+      summary: Listar matrículas paginadas por año lectivo
+      description: Retorna una página de matrículas asociadas a una vigencia académica o año lectivo específico.
+      operationId: listarMatriculasPorAnioLectivo
+      parameters:
+      - name: anioLectivoId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 20
+      - name: sort
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Página de matrículas obtenida exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedMatriculaResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/matriculas/{id}/traslado:
+    post:
+      tags:
+      - Matrículas
+      summary: Trasladar estudiante a otro grupo
+      description: Ejecuta el traslado interno de un estudiante a otro grupo del mismo grado y año lectivo con registro inmutable en auditoría.
+      operationId: trasladarEstudianteGrupo
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrasladoGrupoRequest'
+      responses:
+        '200':
+          description: Traslado de grupo ejecutado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MatriculaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/matriculas/{id}/estado:
+    patch:
+      tags:
+      - Matrículas
+      summary: Cambiar estado de matrícula
+      description: Actualiza el estado formal de la matrícula (INSCRITA, MATRICULADA, RETIRADA, FINALIZADA) validando invariantes curriculares.
+      operationId: cambiarEstadoMatricula
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CambioEstadoMatriculaRequest'
+      responses:
+        '200':
+          description: Estado de matrícula actualizado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MatriculaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/matriculas/{id}/historial-traslados:
+    get:
+      tags:
+      - Matrículas
+      summary: Consultar historial de traslados de grupo
+      description: Retorna el historial cronológico de traslados internos de grupo asociados a la matrícula.
+      operationId: listarHistorialTraslados
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Historial de traslados obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HistorialTrasladoResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/matriculas/verificar-activa:
+    get:
+      tags:
+      - Matrículas
+      summary: Verificar si un estudiante tiene matrícula activa en un grupo
+      description: Endpoint contextual para módulos de calificaciones (SIEE) y control de asistencia diaria/sesión.
+      operationId: verificarMatriculaActiva
+      parameters:
+      - name: estudianteId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: grupoId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Resultado de verificación de matrícula activa.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerificarMatriculaActivaResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
 components:
   securitySchemes:
     BearerAuth:
@@ -3076,9 +3371,205 @@ components:
         fechaActualizacion:
           type: string
           format: date-time
+    TipoMatricula:
+      type: string
+      enum:
+      - REGULAR
+      - NUEVO
+      - REINCORPORADO
+      - TRASLADO_EXTERNO
+      example: REGULAR
+    EstadoMatricula:
+      type: string
+      enum:
+      - INSCRITA
+      - MATRICULADA
+      - RETIRADA
+      - FINALIZADA
+      example: MATRICULADA
+    MatriculaRequest:
+      type: object
+      required:
+      - estudianteId
+      - grupoId
+      properties:
+        estudianteId:
+          type: integer
+          format: int64
+          example: 1
+        grupoId:
+          type: integer
+          format: int64
+          example: 10
+        tipoMatricula:
+          $ref: '#/components/schemas/TipoMatricula'
+        folio:
+          type: string
+          maxLength: 30
+          example: FOL-2026-001
+        fechaMatricula:
+          type: string
+          format: date
+          example: '2026-01-20'
+        observaciones:
+          type: string
+          maxLength: 255
+          example: Matrícula formalizada en periodo ordinario
+    MatriculaResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        numeroMatricula:
+          type: string
+          example: MAT-2026-0001
+        estudianteId:
+          type: integer
+          format: int64
+          example: 10
+        estudianteNombreCompleto:
+          type: string
+          example: Juan Camilo Pérez Rodríguez
+        estudianteDocumento:
+          type: string
+          example: '1098765432'
+        grupoId:
+          type: integer
+          format: int64
+          example: 5
+        grupoNombre:
+          type: string
+          example: 10-A
+        gradoId:
+          type: integer
+          format: int64
+          example: 2
+        gradoCodigo:
+          type: string
+          example: '10'
+        gradoNombre:
+          type: string
+          example: Décimo
+        jornada:
+          $ref: '#/components/schemas/Jornada'
+        anioLectivoId:
+          type: integer
+          format: int64
+          example: 1
+        anioLectivo:
+          type: integer
+          example: 2026
+        estado:
+          $ref: '#/components/schemas/EstadoMatricula'
+        tipoMatricula:
+          $ref: '#/components/schemas/TipoMatricula'
+        folio:
+          type: string
+          example: FOL-2026-001
+        fechaMatricula:
+          type: string
+          format: date
+          example: '2026-01-20'
+        observaciones:
+          type: string
+          example: Matrícula formalizada en periodo ordinario
+        activo:
+          type: boolean
+          example: true
+        fechaCreacion:
+          type: string
+          format: date-time
+        fechaActualizacion:
+          type: string
+          format: date-time
+    TrasladoGrupoRequest:
+      type: object
+      required:
+      - nuevoGrupoId
+      - motivo
+      properties:
+        nuevoGrupoId:
+          type: integer
+          format: int64
+          example: 6
+        motivo:
+          type: string
+          maxLength: 255
+          example: Ajuste por balanceo de cupos autorizado por coordinación
+    CambioEstadoMatriculaRequest:
+      type: object
+      required:
+      - nuevoEstado
+      properties:
+        nuevoEstado:
+          $ref: '#/components/schemas/EstadoMatricula'
+        motivo:
+          type: string
+          maxLength: 255
+          example: Retiro voluntario por traslado de residencia familiar
+    HistorialTrasladoResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        matriculaId:
+          type: integer
+          format: int64
+          example: 10
+        numeroMatricula:
+          type: string
+          example: MAT-2026-0001
+        grupoOrigenId:
+          type: integer
+          format: int64
+          example: 5
+        grupoOrigenNombre:
+          type: string
+          example: 10-A
+        grupoDestinoId:
+          type: integer
+          format: int64
+          example: 6
+        grupoDestinoNombre:
+          type: string
+          example: 10-B
+        motivo:
+          type: string
+          example: Ajuste por balanceo de cupos autorizado por coordinación
+        usuarioId:
+          type: integer
+          format: int64
+          example: 2
+        username:
+          type: string
+          example: coordinador1
+        fechaTraslado:
+          type: string
+          format: date-time
+    PagedMatriculaResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/MatriculaResponse'
+        page:
+          $ref: '#/components/schemas/PageMetadata'
+    VerificarMatriculaActivaResponse:
+      type: object
+      properties:
+        activa:
+          type: boolean
+          example: true
 tags:
 - name: Profesores
   description: Gestión de docentes, datos profesionales y vinculación a cuentas de
     usuario
 - name: Asignaciones Académicas
   description: Asignación curricular docente-grupo-asignatura e intensidad horaria
+- name: Matrículas
+  description: Inscripción formal de estudiantes, control de cupos por grupo, historial y traslados
