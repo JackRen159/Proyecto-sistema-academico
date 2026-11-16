@@ -2741,6 +2741,334 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '403':
           $ref: '#/components/responses/ForbiddenError'
+  /api/asistencia/alertas/configuracion:
+    post:
+      tags:
+      - Control de Asistencia
+      summary: Configurar umbrales de alerta temprana de ausentismo escolar
+      description: Define los porcentajes de alerta amarilla y roja por año lectivo para supervisión de ausentismo.
+      operationId: configurarAlertasAsistencia
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfiguracionAlertaAsistenciaRequest'
+      responses:
+        '200':
+          description: Configuración de alertas guardada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfiguracionAlertaAsistenciaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/asistencia/alertas/configuracion/{anioLectivoId}:
+    get:
+      tags:
+      - Control de Asistencia
+      summary: Consultar umbrales de alerta de ausentismo por año escolar
+      description: Retorna los porcentajes de alerta temprana configurados para el año escolar.
+      operationId: obtenerConfiguracionAlertasAsistencia
+      parameters:
+      - name: anioLectivoId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Configuración de alertas obtenida exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfiguracionAlertaAsistenciaResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/asistencia/sesiones:
+    post:
+      tags:
+      - Control de Asistencia
+      summary: Abrir sesión de asistencia por bloque de clase o jornada diaria
+      description: Registra la apertura de una sesión de clase para una asignación docente o una jornada diaria general.
+      operationId: crearSesionAsistencia
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SesionAsistenciaRequest'
+      responses:
+        '201':
+          description: Sesión de asistencia abierta exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SesionAsistenciaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+    get:
+      tags:
+      - Control de Asistencia
+      summary: Listar sesiones de asistencia por asignación o grupo
+      description: Retorna las sesiones registradas en un periodo académico.
+      operationId: listarSesionesAsistencia
+      parameters:
+      - name: asignacionId
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int64
+      - name: grupoId
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int64
+      - name: periodoId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Listado de sesiones obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SesionAsistenciaResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  /api/asistencia/sesiones/{id}:
+    get:
+      tags:
+      - Control de Asistencia
+      summary: Obtener detalle de sesión de asistencia por ID
+      description: Retorna los datos de una sesión específica.
+      operationId: buscarSesionAsistenciaPorId
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Detalle de sesión obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SesionAsistenciaResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/asistencia/sesiones/planilla:
+    post:
+      tags:
+      - Control de Asistencia
+      summary: Registrar o actualizar planilla de asistencia en lote
+      description: Guarda la presencia, ausencias o retardos de todos los estudiantes de la sesión de forma idempotente.
+      operationId: registrarPlanillaAsistenciaLote
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanillaAsistenciaLoteRequest'
+      responses:
+        '200':
+          description: Planilla de asistencia registrada exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RegistroAsistenciaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/asistencia/sesiones/{sesionId}/registros:
+    get:
+      tags:
+      - Control de Asistencia
+      summary: Listar planilla de asistencia registrada para una sesión
+      description: Retorna el estado individual de cada estudiante en la sesión.
+      operationId: listarRegistrosPorSesion
+      parameters:
+      - name: sesionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Planilla de registros de la sesión obtenida exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RegistroAsistenciaResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/asistencia/registros/{registroId}/justificar:
+    post:
+      tags:
+      - Control de Asistencia
+      summary: Justificar formalmente una inasistencia o retardo
+      description: Radica una justificación con soporte documental y reclasifica el estado a AUSENTE_JUSTIFICADA con trazabilidad.
+      operationId: justificarInasistencia
+      parameters:
+      - name: registroId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JustificacionAsistenciaRequest'
+      responses:
+        '200':
+          description: Inasistencia justificada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JustificacionAsistenciaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/asistencia/estudiante/{matriculaId}/resumen:
+    get:
+      tags:
+      - Control de Asistencia
+      summary: Consultar resumen acumulado y porcentaje de inasistencia de un estudiante
+      description: Retorna el balance de asistencia, porcentaje y nivel de alerta temprana para boletines y seguimiento familiar.
+      operationId: obtenerResumenAsistenciaEstudiante
+      parameters:
+      - name: matriculaId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: periodoId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: asignacionId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Resumen de asistencia obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResumenAsistenciaEstudianteResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/asistencia/grupo/{grupoId}/alertas:
+    get:
+      tags:
+      - Control de Asistencia
+      summary: Listar estudiantes en condición de alerta por ausentismo en un grupo
+      description: Retorna los estudiantes con nivel de alerta AMARILLA o ROJA según los umbrales institucionales.
+      operationId: listarAlertasAsistenciaGrupo
+      parameters:
+      - name: grupoId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: periodoId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: asignacionId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Listado de estudiantes en alerta obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResumenAsistenciaEstudianteResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
 components:
   securitySchemes:
     BearerAuth:
@@ -4367,6 +4695,388 @@ components:
         fechaAuditoria:
           type: string
           format: date-time
+    EstadoAsistencia:
+      type: string
+      enum:
+      - PRESENTE
+      - AUSENTE_INJUSTIFICADA
+      - AUSENTE_JUSTIFICADA
+      - RETARDO
+      - RETIRO_ANTICIPADO
+      example: PRESENTE
+    TipoRegistroAsistencia:
+      type: string
+      enum:
+      - SESION_ASIGNATURA
+      - DIARIA_JORNADA
+      example: SESION_ASIGNATURA
+    ConfiguracionAlertaAsistenciaRequest:
+      type: object
+      required:
+      - anioLectivoId
+      - porcentajeAlertaAmarilla
+      - porcentajeAlertaRoja
+      properties:
+        anioLectivoId:
+          type: integer
+          format: int64
+          example: 1
+        porcentajeAlertaAmarilla:
+          type: number
+          format: float
+          example: 15.0
+        porcentajeAlertaRoja:
+          type: number
+          format: float
+          example: 25.0
+        descripcion:
+          type: string
+          example: Umbrales según manual de convivencia 2026
+    ConfiguracionAlertaAsistenciaResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        anioLectivoId:
+          type: integer
+          format: int64
+          example: 1
+        anioLectivo:
+          type: integer
+          example: 2026
+        porcentajeAlertaAmarilla:
+          type: number
+          format: float
+          example: 15.0
+        porcentajeAlertaRoja:
+          type: number
+          format: float
+          example: 25.0
+        descripcion:
+          type: string
+          example: Umbrales según manual de convivencia 2026
+        fechaCreacion:
+          type: string
+          format: date-time
+        fechaActualizacion:
+          type: string
+          format: date-time
+    SesionAsistenciaRequest:
+      type: object
+      required:
+      - grupoId
+      - periodoAcademicoId
+      properties:
+        asignacionAcademicaId:
+          type: integer
+          format: int64
+          example: 50
+        grupoId:
+          type: integer
+          format: int64
+          example: 5
+        periodoAcademicoId:
+          type: integer
+          format: int64
+          example: 10
+        fecha:
+          type: string
+          format: date
+          example: '2026-03-02'
+        bloqueHorario:
+          type: integer
+          example: 1
+        tipoRegistro:
+          $ref: '#/components/schemas/TipoRegistroAsistencia'
+        tema:
+          type: string
+          example: Teorema de Pitágoras
+        observaciones:
+          type: string
+          example: Clase presencial ordinaria
+    SesionAsistenciaResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        asignacionAcademicaId:
+          type: integer
+          format: int64
+          example: 50
+        profesorNombreCompleto:
+          type: string
+          example: Carl Gauss
+        asignaturaNombre:
+          type: string
+          example: Matemáticas
+        grupoId:
+          type: integer
+          format: int64
+          example: 5
+        grupoNombre:
+          type: string
+          example: 10-A
+        periodoAcademicoId:
+          type: integer
+          format: int64
+          example: 10
+        periodoNombre:
+          type: string
+          example: Primer Periodo
+        periodoNumero:
+          type: integer
+          example: 1
+        fecha:
+          type: string
+          format: date
+          example: '2026-03-02'
+        bloqueHorario:
+          type: integer
+          example: 1
+        tipoRegistro:
+          $ref: '#/components/schemas/TipoRegistroAsistencia'
+        tema:
+          type: string
+          example: Teorema de Pitágoras
+        observaciones:
+          type: string
+          example: Clase presencial ordinaria
+        usuarioCreadorId:
+          type: integer
+          format: int64
+          example: 20
+        fechaCreacion:
+          type: string
+          format: date-time
+    RegistroAsistenciaItemRequest:
+      type: object
+      required:
+      - matriculaId
+      - estado
+      properties:
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        estado:
+          $ref: '#/components/schemas/EstadoAsistencia'
+        minutosRetardo:
+          type: integer
+          example: 0
+        observaciones:
+          type: string
+          example: Estudiante presente
+    PlanillaAsistenciaLoteRequest:
+      type: object
+      required:
+      - sesionId
+      - registros
+      properties:
+        sesionId:
+          type: integer
+          format: int64
+          example: 1
+        registros:
+          type: array
+          items:
+            $ref: '#/components/schemas/RegistroAsistenciaItemRequest'
+    RegistroAsistenciaResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        sesionAsistenciaId:
+          type: integer
+          format: int64
+          example: 1
+        fechaSesion:
+          type: string
+          format: date
+          example: '2026-03-02'
+        bloqueHorario:
+          type: integer
+          example: 1
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        numeroMatricula:
+          type: string
+          example: MAT-2026-0001
+        estudianteId:
+          type: integer
+          format: int64
+          example: 7
+        estudianteNombreCompleto:
+          type: string
+          example: Leonhard Euler
+        estudianteDocumento:
+          type: string
+          example: '10203040'
+        estado:
+          $ref: '#/components/schemas/EstadoAsistencia'
+        minutosRetardo:
+          type: integer
+          example: 0
+        observaciones:
+          type: string
+          example: Presente
+        justificado:
+          type: boolean
+          example: false
+        motivoJustificacion:
+          type: string
+          example: null
+        fechaCreacion:
+          type: string
+          format: date-time
+        fechaActualizacion:
+          type: string
+          format: date-time
+    JustificacionAsistenciaRequest:
+      type: object
+      required:
+      - motivo
+      properties:
+        motivo:
+          type: string
+          example: Cita médica odontológica
+        numeroRadicadoSoporte:
+          type: string
+          example: RAD-2026-MED-045
+        fechaRadicacion:
+          type: string
+          format: date
+          example: '2026-03-03'
+        observaciones:
+          type: string
+          example: Soporte físico entregado a coordinación
+    JustificacionAsistenciaResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        registroAsistenciaId:
+          type: integer
+          format: int64
+          example: 100
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        numeroMatricula:
+          type: string
+          example: MAT-2026-0001
+        estudianteNombreCompleto:
+          type: string
+          example: Leonhard Euler
+        motivo:
+          type: string
+          example: Cita médica odontológica
+        numeroRadicadoSoporte:
+          type: string
+          example: RAD-2026-MED-045
+        fechaRadicacion:
+          type: string
+          format: date
+          example: '2026-03-03'
+        usuarioAutorizadorId:
+          type: integer
+          format: int64
+          example: 3
+        username:
+          type: string
+          example: coordinador1
+        observaciones:
+          type: string
+          example: Soporte físico entregado a coordinación
+        fechaCreacion:
+          type: string
+          format: date-time
+    ResumenAsistenciaEstudianteResponse:
+      type: object
+      properties:
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        numeroMatricula:
+          type: string
+          example: MAT-2026-0001
+        estudianteId:
+          type: integer
+          format: int64
+          example: 7
+        estudianteNombreCompleto:
+          type: string
+          example: Leonhard Euler
+        estudianteDocumento:
+          type: string
+          example: '10203040'
+        grupoId:
+          type: integer
+          format: int64
+          example: 5
+        grupoNombre:
+          type: string
+          example: 10-A
+        asignaturaId:
+          type: integer
+          format: int64
+          example: 100
+        asignaturaNombre:
+          type: string
+          example: Matemáticas
+        periodoAcademicoId:
+          type: integer
+          format: int64
+          example: 10
+        periodoNombre:
+          type: string
+          example: Primer Periodo
+        totalSesiones:
+          type: integer
+          format: int64
+          example: 20
+        totalPresente:
+          type: integer
+          format: int64
+          example: 17
+        totalAusenciasInjustificadas:
+          type: integer
+          format: int64
+          example: 2
+        totalAusenciasJustificadas:
+          type: integer
+          format: int64
+          example: 1
+        totalRetardos:
+          type: integer
+          format: int64
+          example: 1
+        totalRetirosAnticipados:
+          type: integer
+          format: int64
+          example: 0
+        porcentajeAsistencia:
+          type: number
+          format: float
+          example: 90.0
+        porcentajeInasistencia:
+          type: number
+          format: float
+          example: 10.0
+        nivelAlerta:
+          type: string
+          example: NINGUNA
 tags:
 - name: Profesores
   description: Gestión de docentes, datos profesionales y vinculación a cuentas de
@@ -4377,3 +5087,5 @@ tags:
   description: Inscripción formal de estudiantes, control de cupos por grupo, historial y traslados
 - name: Calificaciones y SIEE
   description: Gestión de escalas institucionales (Decreto 1290), actividades evaluativas, registro de notas, definitivas y auditoría
+- name: Control de Asistencia
+  description: Registro de asistencia dual (sesión de clase y jornada diaria), justificaciones auditadas y alertas tempranas de ausentismo
