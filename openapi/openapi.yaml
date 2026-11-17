@@ -3069,6 +3069,299 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '403':
           $ref: '#/components/responses/ForbiddenError'
+  /api/documentos/consecutivos:
+    post:
+      tags:
+      - Documentos y Reportes Académicos
+      summary: Configurar o actualizar consecutivo foliado para un tipo de documento y año lectivo
+      operationId: configurarConsecutivo
+      description: 'Establece o actualiza el foliado oficial anual (prefijo, último número y longitud).
+        Requiere rol ADMINISTRADOR, RECTOR o SECRETARIA.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfiguracionConsecutivoRequest'
+      responses:
+        '200':
+          description: Consecutivo configurado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfiguracionConsecutivoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/documentos/consecutivos/anio-lectivo/{anioLectivoId}:
+    get:
+      tags:
+      - Documentos y Reportes Académicos
+      summary: Listar consecutivos configurados para un año lectivo
+      operationId: listarConsecutivosPorAnio
+      description: 'Retorna la lista de consecutivos y foliados definidos para el año escolar solicitado.
+        Requiere rol ADMINISTRADOR, RECTOR, COORDINADOR o SECRETARIA.'
+      parameters:
+      - name: anioLectivoId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Listado de consecutivos obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConfiguracionConsecutivoResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  /api/documentos/boletines/matricula/{matriculaId}/periodo/{periodoId}:
+    post:
+      tags:
+      - Documentos y Reportes Académicos
+      summary: Generar y emitir boletín oficial de calificaciones del periodo (SIEE)
+      operationId: generarBoletinPeriodo
+      description: 'Consolida las calificaciones definitivas por área y asignatura, inasistencias acumuladas
+        y desempeño nacional Decreto 1290, generando foliado y código de verificación inmutable.
+        Requiere rol ADMINISTRADOR, RECTOR, COORDINADOR, SECRETARIA, PROFESOR, ESTUDIANTE o ACUDIENTE.'
+      parameters:
+      - name: matriculaId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: periodoId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmisionDocumentoRequest'
+      responses:
+        '200':
+          description: Boletín oficial generado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoletinPeriodoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/documentos/constancias/matricula/{matriculaId}:
+    post:
+      tags:
+      - Documentos y Reportes Académicos
+      summary: Generar y emitir constancia oficial de matrícula
+      operationId: generarConstanciaMatricula
+      description: 'Genera el documento formal que certifica que el estudiante se encuentra matriculado
+        en el grado y grupo activo, con número consecutivo y código de verificación.
+        Requiere rol ADMINISTRADOR, RECTOR, COORDINADOR, SECRETARIA, ESTUDIANTE o ACUDIENTE.'
+      parameters:
+      - name: matriculaId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmisionDocumentoRequest'
+      responses:
+        '200':
+          description: Constancia de matrícula generada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstanciaMatriculaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/documentos/certificados/matricula/{matriculaId}:
+    post:
+      tags:
+      - Documentos y Reportes Académicos
+      summary: Generar y emitir certificado oficial de estudio
+      operationId: generarCertificadoEstudio
+      description: 'Genera el certificado oficial de calificaciones y estado de promoción escolar del grado cursado.
+        Requiere rol ADMINISTRADOR, RECTOR, COORDINADOR o SECRETARIA.'
+      parameters:
+      - name: matriculaId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmisionDocumentoRequest'
+      responses:
+        '200':
+          description: Certificado de estudio generado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificadoEstudioResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/documentos/verificar/{codigoVerificacion}:
+    get:
+      tags:
+      - Documentos y Reportes Académicos
+      summary: Verificar públicamente la autenticidad de un documento oficial emitido
+      operationId: verificarDocumento
+      security: []
+      description: 'Consulta pública para comprobar la autenticidad, vigencia y estado (activo o anulado)
+        de cualquier documento emitido mediante su código de verificación QR/hash. No requiere autenticación.'
+      parameters:
+      - name: codigoVerificacion
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Documento verificado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistroEmisionResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/documentos/emisiones/estudiante/{estudianteId}:
+    get:
+      tags:
+      - Documentos y Reportes Académicos
+      summary: Listar histórico de documentos oficiales emitidos a un estudiante
+      operationId: listarEmisionesPorEstudiante
+      description: 'Retorna el historial completo de certificados, constancias y boletines generados para un estudiante.
+        Requiere rol ADMINISTRADOR, RECTOR, COORDINADOR, SECRETARIA, PROFESOR, ESTUDIANTE o ACUDIENTE.'
+      parameters:
+      - name: estudianteId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Histórico de emisiones obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RegistroEmisionResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  /api/documentos/emisiones/matricula/{matriculaId}:
+    get:
+      tags:
+      - Documentos y Reportes Académicos
+      summary: Listar histórico de documentos oficiales emitidos para una matrícula
+      operationId: listarEmisionesPorMatricula
+      description: 'Retorna el historial de documentos oficiales vinculados a una matrícula específica.
+        Requiere rol ADMINISTRADOR, RECTOR, COORDINADOR, SECRETARIA, PROFESOR, ESTUDIANTE o ACUDIENTE.'
+      parameters:
+      - name: matriculaId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Histórico de emisiones obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RegistroEmisionResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  /api/documentos/emisiones/{emisionId}/anular:
+    patch:
+      tags:
+      - Documentos y Reportes Académicos
+      summary: Anular una emisión de documento oficial con registro de auditoría
+      operationId: anularEmision
+      description: 'Marca como anulado un documento oficial previamente emitido, registrando motivo, fecha y usuario.
+        Requiere rol ADMINISTRADOR, RECTOR o SECRETARIA.'
+      parameters:
+      - name: emisionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnulacionEmisionRequest'
+      responses:
+        '200':
+          description: Documento anulado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistroEmisionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
 components:
   securitySchemes:
     BearerAuth:
@@ -5077,6 +5370,479 @@ components:
         nivelAlerta:
           type: string
           example: NINGUNA
+    TipoDocumentoAcademico:
+      type: string
+      enum:
+      - BOLETIN_PERIODO
+      - BOLETIN_FINAL
+      - CERTIFICADO_ESTUDIO
+      - CONSTANCIA_MATRICULA
+      - ACTA_COMISION
+      description: Tipo de documento académico oficial emitido por la institución.
+      example: BOLETIN_PERIODO
+    ConfiguracionConsecutivoRequest:
+      type: object
+      required:
+      - anioLectivoId
+      - tipoDocumento
+      properties:
+        anioLectivoId:
+          type: integer
+          format: int64
+          example: 1
+        tipoDocumento:
+          $ref: '#/components/schemas/TipoDocumentoAcademico'
+        prefijo:
+          type: string
+          maxLength: 20
+          example: CERT
+        ultimoNumero:
+          type: integer
+          format: int64
+          minimum: 0
+          example: 0
+        longitudRelleno:
+          type: integer
+          minimum: 1
+          maximum: 10
+          example: 5
+        textoPiePagina:
+          type: string
+          maxLength: 500
+          example: Documento oficial emitido con firma digital.
+    ConfiguracionConsecutivoResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        anioLectivoId:
+          type: integer
+          format: int64
+          example: 1
+        anioLectivo:
+          type: integer
+          example: 2026
+        tipoDocumento:
+          $ref: '#/components/schemas/TipoDocumentoAcademico'
+        prefijo:
+          type: string
+          example: CERT
+        ultimoNumero:
+          type: integer
+          format: int64
+          example: 42
+        longitudRelleno:
+          type: integer
+          example: 5
+        textoPiePagina:
+          type: string
+          example: Documento oficial emitido con firma digital.
+        fechaActualizacion:
+          type: string
+          format: date-time
+    EmisionDocumentoRequest:
+      type: object
+      properties:
+        destinatario:
+          type: string
+          maxLength: 200
+          example: A quien interese
+        motivo:
+          type: string
+          maxLength: 255
+          example: Trámite de subsidio familiar
+    AnulacionEmisionRequest:
+      type: object
+      required:
+      - motivoAnulacion
+      properties:
+        motivoAnulacion:
+          type: string
+          maxLength: 255
+          example: Error en el nombre del destinatario reportado por la secretaría.
+    RegistroEmisionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        tipoDocumento:
+          $ref: '#/components/schemas/TipoDocumentoAcademico'
+        numeroConsecutivoCompleto:
+          type: string
+          example: CERT-2026-00042
+        codigoVerificacion:
+          type: string
+          example: 550e8400-e29b-41d4-a716-446655440000
+        anioLectivoId:
+          type: integer
+          format: int64
+          example: 1
+        anioLectivo:
+          type: integer
+          example: 2026
+        estudianteId:
+          type: integer
+          format: int64
+          example: 10
+        nombreEstudiante:
+          type: string
+          example: Juan Carlos Pérez López
+        documentoEstudiante:
+          type: string
+          example: '1020304050'
+        matriculaId:
+          type: integer
+          format: int64
+          example: 5
+        periodoAcademicoId:
+          type: integer
+          format: int64
+          example: 2
+        nombrePeriodo:
+          type: string
+          example: Primer Periodo
+        grupoId:
+          type: integer
+          format: int64
+          example: 3
+        nombreGrupo:
+          type: string
+          example: '601'
+        destinatario:
+          type: string
+          example: A quien interese
+        motivo:
+          type: string
+          example: Certificado oficial
+        anulado:
+          type: boolean
+          example: false
+        motivoAnulacion:
+          type: string
+          nullable: true
+          example: null
+        fechaAnulacion:
+          type: string
+          format: date-time
+          nullable: true
+        fechaEmision:
+          type: string
+          format: date-time
+    AsignaturaBoletinDTO:
+      type: object
+      properties:
+        asignaturaId:
+          type: integer
+          format: int64
+          example: 1
+        nombreAsignatura:
+          type: string
+          example: Matemáticas
+        intensidadHoraria:
+          type: integer
+          example: 4
+        docente:
+          type: string
+          example: Carlos Mendoza
+        calificacionDefinitiva:
+          type: number
+          format: float
+          nullable: true
+          example: 4.5
+        desempenoNacional:
+          $ref: '#/components/schemas/DesempenoNacional'
+        fallasJustificadas:
+          type: integer
+          format: int64
+          example: 1
+        fallasInjustificadas:
+          type: integer
+          format: int64
+          example: 0
+        retardos:
+          type: integer
+          format: int64
+          example: 1
+        observaciones:
+          type: string
+          nullable: true
+          example: Excelente desempeño y participación en clase.
+    AreaBoletinDTO:
+      type: object
+      properties:
+        areaId:
+          type: integer
+          format: int64
+          example: 1
+        nombreArea:
+          type: string
+          example: Matemáticas y Ciencias Lógicas
+        promedioArea:
+          type: number
+          format: float
+          nullable: true
+          example: 4.3
+        desempenoArea:
+          $ref: '#/components/schemas/DesempenoNacional'
+        asignaturas:
+          type: array
+          items:
+            $ref: '#/components/schemas/AsignaturaBoletinDTO'
+    ResumenBoletinDTO:
+      type: object
+      properties:
+        promedioGeneral:
+          type: number
+          format: float
+          nullable: true
+          example: 4.2
+        desempenoGeneral:
+          $ref: '#/components/schemas/DesempenoNacional'
+        totalAsignaturas:
+          type: integer
+          example: 9
+        asignaturasAprobadas:
+          type: integer
+          example: 9
+        asignaturasReprobadas:
+          type: integer
+          example: 0
+        totalInasistencias:
+          type: integer
+          format: int64
+          example: 2
+        totalRetardos:
+          type: integer
+          format: int64
+          example: 1
+        puestoEnGrupo:
+          type: integer
+          nullable: true
+          example: 3
+        escalaValoracionInfo:
+          type: string
+          example: 'Escala SIEE: Bajo (1.0 - 2.9), Básico (3.0 - 3.9), Alto (4.0 - 4.5), Superior (4.6 - 5.0). Aprobación: 3.0'
+    BoletinPeriodoResponse:
+      type: object
+      properties:
+        codigoVerificacion:
+          type: string
+          example: 550e8400-e29b-41d4-a716-446655440000
+        numeroConsecutivo:
+          type: string
+          example: BOL-2026-00015
+        fechaEmision:
+          type: string
+          format: date-time
+        nombreInstitucion:
+          type: string
+          example: Colegio Integrado San José
+        nitInstitucion:
+          type: string
+          example: 890.123.456-7
+        daneInstitucion:
+          type: string
+          example: '111001012345'
+        resolucionAprobacion:
+          type: string
+          example: Resolución No. 004523 del 15 de Noviembre de 2018 - Secretaría de Educación
+        estudianteId:
+          type: integer
+          format: int64
+          example: 10
+        nombreEstudiante:
+          type: string
+          example: Juan Carlos Pérez López
+        tipoDocumentoEstudiante:
+          type: string
+          example: DOCUMENTO
+        numeroDocumentoEstudiante:
+          type: string
+          example: '1020304050'
+        codigoMatricula:
+          type: string
+          example: MAT-2026-001
+        anioLectivo:
+          type: integer
+          example: 2026
+        grado:
+          type: string
+          example: Sexto
+        grupo:
+          type: string
+          example: '601'
+        jornada:
+          type: string
+          example: MAÑANA
+        periodoEvaluado:
+          type: string
+          example: Primer Periodo
+        numeroPeriodo:
+          type: integer
+          example: 1
+        directorGrupo:
+          type: string
+          example: Profesora María Ramírez
+        areas:
+          type: array
+          items:
+            $ref: '#/components/schemas/AreaBoletinDTO'
+        resumen:
+          $ref: '#/components/schemas/ResumenBoletinDTO'
+    ConstanciaMatriculaResponse:
+      type: object
+      properties:
+        codigoVerificacion:
+          type: string
+          example: 550e8400-e29b-41d4-a716-446655440000
+        numeroConsecutivo:
+          type: string
+          example: CONST-2026-00012
+        fechaEmision:
+          type: string
+          format: date-time
+        nombreInstitucion:
+          type: string
+          example: Colegio Integrado San José
+        nitInstitucion:
+          type: string
+          example: 890.123.456-7
+        daneInstitucion:
+          type: string
+          example: '111001012345'
+        resolucionAprobacion:
+          type: string
+          example: Resolución No. 004523 del 15 de Noviembre de 2018 - Secretaría de Educación
+        estudianteId:
+          type: integer
+          format: int64
+          example: 10
+        nombreEstudiante:
+          type: string
+          example: Juan Carlos Pérez López
+        tipoDocumentoEstudiante:
+          type: string
+          example: DOCUMENTO
+        numeroDocumentoEstudiante:
+          type: string
+          example: '1020304050'
+        codigoMatricula:
+          type: string
+          example: MAT-2026-001
+        anioLectivo:
+          type: integer
+          example: 2026
+        grado:
+          type: string
+          example: Sexto
+        grupo:
+          type: string
+          example: '601'
+        jornada:
+          type: string
+          example: MAÑANA
+        estadoMatricula:
+          type: string
+          example: MATRICULADA
+        destinatario:
+          type: string
+          example: A quien interese
+        motivo:
+          type: string
+          example: Subsidio familiar
+        textoCertificacion:
+          type: string
+          example: La Rectoría y Secretaría certifican que el estudiante se encuentra formalmente matriculado...
+    AsignaturaCertificadoDTO:
+      type: object
+      properties:
+        nombreAsignatura:
+          type: string
+          example: Matemáticas
+        intensidadHoraria:
+          type: integer
+          example: 4
+        calificacionFinal:
+          type: number
+          format: float
+          nullable: true
+          example: 4.2
+        desempenoNacional:
+          $ref: '#/components/schemas/DesempenoNacional'
+        estado:
+          type: string
+          example: APROBADA
+    CertificadoEstudioResponse:
+      type: object
+      properties:
+        codigoVerificacion:
+          type: string
+          example: 550e8400-e29b-41d4-a716-446655440000
+        numeroConsecutivo:
+          type: string
+          example: CERT-2026-00008
+        fechaEmision:
+          type: string
+          format: date-time
+        nombreInstitucion:
+          type: string
+          example: Colegio Integrado San José
+        nitInstitucion:
+          type: string
+          example: 890.123.456-7
+        daneInstitucion:
+          type: string
+          example: '111001012345'
+        resolucionAprobacion:
+          type: string
+          example: Resolución No. 004523 del 15 de Noviembre de 2018 - Secretaría de Educación
+        estudianteId:
+          type: integer
+          format: int64
+          example: 10
+        nombreEstudiante:
+          type: string
+          example: Juan Carlos Pérez López
+        tipoDocumentoEstudiante:
+          type: string
+          example: DOCUMENTO
+        numeroDocumentoEstudiante:
+          type: string
+          example: '1020304050'
+        anioLectivo:
+          type: integer
+          example: 2026
+        grado:
+          type: string
+          example: Sexto
+        jornada:
+          type: string
+          example: MAÑANA
+        asignaturas:
+          type: array
+          items:
+            $ref: '#/components/schemas/AsignaturaCertificadoDTO'
+        promedioFinal:
+          type: number
+          format: float
+          nullable: true
+          example: 4.1
+        desempenoFinal:
+          $ref: '#/components/schemas/DesempenoNacional'
+        resultadoPromocion:
+          type: string
+          example: PROMOVIDO(A)
+        destinatario:
+          type: string
+          example: A quien interese
+        motivo:
+          type: string
+          example: Traslado de colegio
+
 tags:
 - name: Profesores
   description: Gestión de docentes, datos profesionales y vinculación a cuentas de
@@ -5089,3 +5855,5 @@ tags:
   description: Gestión de escalas institucionales (Decreto 1290), actividades evaluativas, registro de notas, definitivas y auditoría
 - name: Control de Asistencia
   description: Registro de asistencia dual (sesión de clase y jornada diaria), justificaciones auditadas y alertas tempranas de ausentismo
+- name: Documentos y Reportes Académicos
+  description: Emisión y auditoría de documentos oficiales (boletines periódicos y finales, certificados de estudio, constancias de matrícula y verificación de autenticidad)

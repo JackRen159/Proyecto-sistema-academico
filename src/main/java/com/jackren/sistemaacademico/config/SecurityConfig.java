@@ -58,6 +58,8 @@ public class SecurityConfig {
                 // Endpoints públicos de autenticación
                 .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
+                // Verificación pública de autenticidad de documentos oficiales emitidos (QR / hash)
+                .requestMatchers(HttpMethod.GET, "/api/documentos/verificar/**").permitAll()
                 // Documentación OpenAPI 3.x y Swagger UI interactiva
                 .requestMatchers(
                     "/v3/api-docs/**",
