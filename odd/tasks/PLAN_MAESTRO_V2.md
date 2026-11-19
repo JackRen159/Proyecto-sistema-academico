@@ -23,7 +23,7 @@
 | **Frente 14** | `odd/tasks/frente-14-frontend-angular-v2.md` | N/A | Regenerar cliente OpenAPI y construir pantallas Angular progresivas por módulo (`features/`) conectadas al contrato oficial. |
 
 ## Estado de seguimiento
-- [ ] Frente 9 — Hardening Seguridad, Configuración Institucional V2 y Auditoría Global
+- [x] Frente 9 — Hardening Seguridad, Configuración Institucional V2 y Auditoría Global
 - [ ] Frente 10 — Módulo Horarios
 - [ ] Frente 11 — Cierre Académico, Promoción y Graduación
 - [ ] Frente 12 — Convivencia Escolar
