@@ -156,38 +156,13 @@ class AcudienteServiceTest {
     }
 
     @Test
-    void eliminarPermanente_SinConfirmacion_DebeLanzarIllegalArgumentException() {
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
-            acudienteService.eliminarPermanente(1L, false);
-        });
-
-        assertTrue(ex.getMessage().contains("Debe confirmar explicitamente"));
-        verify(acudienteRepository, never()).delete(any());
-    }
-
-    @Test
-    void eliminarPermanente_CuandoTieneVinculaciones_DebeLanzarConflictoNegocioException() {
-        Acudiente acudiente = new Acudiente();
-        when(acudienteRepository.findById(1L)).thenReturn(Optional.of(acudiente));
-        when(estudianteAcudienteRepository.existsByAcudiente(acudiente)).thenReturn(true);
-
+    void eliminarPermanente_DebeProhibirBorradoFisicoConConflictoNegocioException() {
         ConflictoNegocioException ex = assertThrows(ConflictoNegocioException.class, () -> {
             acudienteService.eliminarPermanente(1L, true);
         });
 
-        assertTrue(ex.getMessage().contains("cuenta con vinculaciones"));
+        assertTrue(ex.getMessage().contains("Prohibido el borrado físico"));
         verify(acudienteRepository, never()).delete(any());
-    }
-
-    @Test
-    void eliminarPermanente_ConConfirmacionYSinVinculos_DebeEliminar() {
-        Acudiente acudiente = new Acudiente();
-        when(acudienteRepository.findById(1L)).thenReturn(Optional.of(acudiente));
-        when(estudianteAcudienteRepository.existsByAcudiente(acudiente)).thenReturn(false);
-
-        assertDoesNotThrow(() -> acudienteService.eliminarPermanente(1L, true));
-
-        verify(acudienteRepository, times(1)).delete(acudiente);
     }
 
     @Test

@@ -79,6 +79,15 @@ class SecurityConfigTest {
     private EstudianteService estudianteService;
 
     @MockitoBean
+    private com.jackren.sistemaacademico.service.ExpedienteEstudianteService expedienteEstudianteService;
+
+    @MockitoBean
+    private com.jackren.sistemaacademico.service.EvolucionDocumentoService evolucionDocumentoService;
+
+    @MockitoBean
+    private com.jackren.sistemaacademico.service.SolicitudRectificacionService rectificacionService;
+
+    @MockitoBean
     private AcudienteService acudienteService;
 
     @MockitoBean

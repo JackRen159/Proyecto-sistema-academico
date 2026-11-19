@@ -12,6 +12,8 @@ public interface EstudianteRepository extends JpaRepository<Estudiante, Long> {
 
     Optional<Estudiante> findByDocumento(String documento);
 
+    Optional<Estudiante> findByCorreo(String correo);
+
     boolean existsByDocumento(String documento);
 
     boolean existsByCorreo(String correo);

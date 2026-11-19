@@ -166,7 +166,6 @@ class EstudianteAcudienteServiceTest {
         when(estudianteRepository.findByDocumento("10203040")).thenReturn(Optional.of(estudiante));
         when(acudienteRepository.findByDocumento("50607080")).thenReturn(Optional.of(acudiente));
         when(estudianteAcudienteRepository.findByEstudianteAndAcudiente(estudiante, acudiente)).thenReturn(Optional.of(relacionPrincipal));
-        when(estudianteAcudienteRepository.countByEstudiante(estudiante)).thenReturn(2L);
 
         ConflictoNegocioException ex = assertThrows(ConflictoNegocioException.class, () ->
                 estudianteAcudienteService.desvincular("10203040", "50607080"));
@@ -176,7 +175,7 @@ class EstudianteAcudienteServiceTest {
     }
 
     @Test
-    void desvincular_AcudienteSecundario_DebeEliminarExitosamente() {
+    void desvincular_AcudienteSecundario_DebeRevocarVinculoSinBorradoFisico() {
         EstudianteAcudiente relacionSecundaria = new EstudianteAcudiente();
         relacionSecundaria.setEstudiante(estudiante);
         relacionSecundaria.setAcudiente(acudiente);
@@ -187,7 +186,10 @@ class EstudianteAcudienteServiceTest {
         when(estudianteAcudienteRepository.findByEstudianteAndAcudiente(estudiante, acudiente)).thenReturn(Optional.of(relacionSecundaria));
 
         assertDoesNotThrow(() -> estudianteAcudienteService.desvincular("10203040", "50607080"));
-        verify(estudianteAcudienteRepository, times(1)).delete(relacionSecundaria);
+        assertEquals(com.jackren.sistemaacademico.entity.EstadoVinculo.REVOCADO, relacionSecundaria.getEstadoVinculo());
+        assertFalse(relacionSecundaria.getAutorizadoRetiro());
+        verify(estudianteAcudienteRepository, times(1)).save(relacionSecundaria);
+        verify(estudianteAcudienteRepository, never()).delete(any(EstudianteAcudiente.class));
     }
 
     @Test

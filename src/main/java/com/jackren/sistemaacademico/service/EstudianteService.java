@@ -127,6 +127,7 @@ public class EstudianteService {
                 .orElseThrow(() -> new RecursoNoEncontradoException("No se encontro el estudiante con ID: " + id));
 
         estudiante.setActivo(false);
+        estudiante.setEstadoExpediente(com.jackren.sistemaacademico.entity.EstadoExpediente.INACTIVO_HISTORICO);
         estudianteRepository.save(estudiante);
     }
 
@@ -137,24 +138,14 @@ public class EstudianteService {
                 .orElseThrow(() -> new RecursoNoEncontradoException("No se encontro el estudiante con ID: " + id));
 
         estudiante.setActivo(true);
+        estudiante.setEstadoExpediente(com.jackren.sistemaacademico.entity.EstadoExpediente.LISTO_PARA_MATRICULA);
         estudianteRepository.save(estudiante);
     }
 
-    // Eliminar definitivamente de la base de datos (IRREVERSIBLE - requiere confirmacion)
+    // Prohibición de eliminación física (RN-SEG-01, UC-PROV-04 E3)
     @Transactional
     public void eliminarPermanente(Long id, boolean confirmar) {
-        if (!confirmar) {
-            throw new IllegalArgumentException("Debe confirmar explicitamente la eliminacion definitiva del estudiante.");
-        }
-
-        Estudiante estudiante = estudianteRepository.findById(id)
-                .orElseThrow(() -> new RecursoNoEncontradoException("No se encontro el estudiante con ID: " + id));
-
-        if (estudianteAcudienteRepository.existsByEstudiante(estudiante)) {
-            throw new ConflictoNegocioException("No se puede eliminar fisicamente el estudiante porque cuenta con vinculaciones registradas. Debe utilizar la desactivacion logica.");
-        }
-
-        estudianteRepository.delete(estudiante);
+        throw new ConflictoNegocioException("Prohibido el borrado físico de expedientes de estudiantes con trazabilidad institucional (RN-SEG-01, UC-PROV-04 E3). Debe utilizarse la inactivación lógica.");
     }
 
     private String normalizarCorreo(String correo) {
@@ -162,5 +153,76 @@ public class EstudianteService {
             return null;
         }
         return correo.trim().toLowerCase();
+    }
+
+    /**
+     * Consulta de la propia ficha escolar para el estudiante autenticado (UC-07).
+     */
+    public com.jackren.sistemaacademico.dto.FichaEscolarEstudianteResponse obtenerMiFichaEscolar(String username) {
+        Estudiante estudiante = estudianteRepository.findByDocumento(username)
+                .or(() -> estudianteRepository.findByCorreo(username))
+                .orElseThrow(() -> new RecursoNoEncontradoException("No se encontró expediente escolar asociado a la cuenta: " + username));
+
+        return toFichaResponse(estudiante, true);
+    }
+
+    /**
+     * Consulta contextual con aplicación estricta de la matriz de visibilidad y mínimo privilegio (RN-09, RN-EST-08).
+     */
+    public com.jackren.sistemaacademico.dto.FichaEscolarEstudianteResponse obtenerFichaEscolarAutorizada(Long estudianteId, String username, String rol) {
+        Estudiante estudiante = estudianteRepository.findById(estudianteId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Estudiante no encontrado con ID: " + estudianteId));
+
+        boolean verDetallesSensibles = "ADMINISTRADOR".equalsIgnoreCase(rol) ||
+                                       "RECTOR".equalsIgnoreCase(rol) ||
+                                       "COORDINADOR".equalsIgnoreCase(rol) ||
+                                       "COORDINADOR_CONVIVENCIA".equalsIgnoreCase(rol) ||
+                                       "SECRETARIA".equalsIgnoreCase(rol);
+
+        return toFichaResponse(estudiante, verDetallesSensibles);
+    }
+
+    private com.jackren.sistemaacademico.dto.FichaEscolarEstudianteResponse toFichaResponse(Estudiante e, boolean incluirDetallesSensibles) {
+        com.jackren.sistemaacademico.dto.FichaEscolarEstudianteResponse r = new com.jackren.sistemaacademico.dto.FichaEscolarEstudianteResponse();
+        r.setId(e.getId());
+        r.setTipoDocumento(e.getTipoDocumento());
+        r.setDocumento(e.getDocumento());
+        r.setNombres(e.getNombres());
+        r.setApellidos(e.getApellidos());
+        r.setNombreCompleto(e.getNombres() + " " + e.getApellidos());
+        r.setFechaNacimiento(e.getFechaNacimiento());
+        if (e.getFechaNacimiento() != null) {
+            r.setEdadCalculada(java.time.Period.between(e.getFechaNacimiento(), java.time.LocalDate.now()).getYears());
+        }
+        r.setCorreo(e.getCorreo());
+        r.setTelefono(e.getTelefono());
+        r.setDireccion(e.getDireccion());
+        r.setEps(e.getEps());
+        r.setGrupoSanguineoRh(e.getGrupoSanguineoRh());
+        r.setEstadoExpediente(e.getEstadoExpediente());
+        r.setEstadoMatricula(Boolean.TRUE.equals(e.getActivo()) ? "MATRICULADO_ACTIVO" : "INACTIVO_HISTORICO");
+
+        if (incluirDetallesSensibles) {
+            r.setTieneDiscapacidadPiar(e.getTieneDiscapacidadPiar());
+            r.setDetallesSaludEmergencia(e.getDetallesSaludEmergencia());
+        } else {
+            r.setTieneDiscapacidadPiar(null); // Oculto por mínimo privilegio (RN-EST-08)
+            r.setDetallesSaludEmergencia(null);
+        }
+
+        java.util.List<com.jackren.sistemaacademico.dto.FichaEscolarEstudianteResponse.ContactoUrgenciaDTO> contactos = estudianteAcudienteRepository
+                .findByEstudiante(e).stream()
+                .filter(v -> v.getEstadoVinculo() == com.jackren.sistemaacademico.entity.EstadoVinculo.VERIFICADO)
+                .map(v -> new com.jackren.sistemaacademico.dto.FichaEscolarEstudianteResponse.ContactoUrgenciaDTO(
+                        v.getAcudiente().getNombres() + " " + v.getAcudiente().getApellidos(),
+                        v.getParentesco().name(),
+                        v.getAcudiente().getTelefono(),
+                        v.getEsPrincipal(),
+                        v.getAutorizadoRetiro(),
+                        v.getPrioridadEmergencia()
+                )).toList();
+        r.setContactosEmergencia(contactos);
+
+        return r;
     }
 }

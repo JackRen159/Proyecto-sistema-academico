@@ -14,6 +14,10 @@
  */
 export enum TipoDocumento {
 
+    Rc = 'RC',
+
+    Ti = 'TI',
+
     Cc = 'CC',
 
     Ce = 'CE',
@@ -22,6 +26,8 @@ export enum TipoDocumento {
 
     Pep = 'PEP',
 
-    Ppt = 'PPT'
+    Ppt = 'PPT',
+
+    Nes = 'NES'
 }
 

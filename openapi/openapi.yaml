@@ -775,6 +775,183 @@ paths:
                 $ref: '#/components/schemas/PaqueteAuditoriaExportadoResponse'
         '400':
           description: Falta oficio o motivo obligatorio (E3).
+  /api/estudiantes/expediente-completo:
+    post:
+      tags:
+      - Estudiantes
+      summary: Registro atómico del expediente del estudiante, acudiente y consentimiento (UC-12)
+      description: Registra en una sola transacción los datos personales, acudiente principal obligatorio y autorización de datos del menor (RN-EST-01, RN-EST-05).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpedienteCompletoRequest'
+      responses:
+        '201':
+          description: Expediente registrado exitosamente en estado LISTO_PARA_MATRICULA.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpedienteCompletoResponse'
+        '400':
+          description: Campos obligatorios incompletos o inválidos (E1).
+        '409':
+          description: Conflicto de acudiente principal o precondiciones incumplidas (E2, E3).
+  /api/estudiantes/mi-ficha:
+    get:
+      tags:
+      - Estudiantes
+      summary: Consultar propia ficha escolar por el estudiante autenticado (UC-07)
+      responses:
+        '200':
+          description: Ficha escolar recuperada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FichaEscolarEstudianteResponse'
+  /api/estudiantes/{id}/ficha-escolar:
+    get:
+      tags:
+      - Estudiantes
+      summary: Consultar ficha escolar con aplicación de matriz de visibilidad y mínimo privilegio (UC-07, RN-09, RN-EST-08)
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Ficha escolar con proyección de atributos autorizados.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FichaEscolarEstudianteResponse'
+  /api/estudiantes/{id}/evolucion-documento:
+    put:
+      tags:
+      - Estudiantes
+      summary: Registrar cambio de documento por evolución legal por edad o migratoria (UC-PROV-04 A1, RN-EST-03)
+      description: Actualiza el tipo y número de documento del estudiante archivando el anterior en el historial inmutable sin duplicar personas.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvolucionDocumentoRequest'
+      responses:
+        '200':
+          description: Documento actualizado e historial archivado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistorialDocumentoIdentidadResponse'
+        '409':
+          description: El nuevo número de documento ya está registrado en otra persona (E2).
+  /api/estudiantes/{id}/historial-documentos:
+    get:
+      tags:
+      - Estudiantes
+      summary: Listar historial inmutable de documentos de identidad previos (RN-EST-03)
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Lista histórica de identificaciones del estudiante.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HistorialDocumentoIdentidadResponse'
+  /api/estudiantes/{id}/solicitudes-rectificacion:
+    post:
+      tags:
+      - Estudiantes
+      summary: Radicar solicitud de rectificación de datos personales Habeas Data (UC-07 A2, RN-EST-04)
+      description: Asigna radicado y fecha límite perentoria de 15 días hábiles conforme al Art. 15 de la Ley 1581 de 2012.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RadicarSolicitudRectificacionRequest'
+      responses:
+        '201':
+          description: Solicitud de rectificación radicada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SolicitudRectificacionResponse'
+  /api/solicitudes-rectificacion:
+    get:
+      tags:
+      - Estudiantes
+      summary: Bandeja de atención de solicitudes de rectificación Habeas Data en Secretaría (UC-PROV-04)
+      parameters:
+      - name: estado
+        in: query
+        schema:
+          $ref: '#/components/schemas/EstadoSolicitudRectificacion'
+      - name: page
+        in: query
+        schema:
+          type: integer
+          default: 0
+      - name: size
+        in: query
+        schema:
+          type: integer
+          default: 20
+      responses:
+        '200':
+          description: Bandeja de solicitudes.
+  /api/solicitudes-rectificacion/{id}/resolver:
+    post:
+      tags:
+      - Estudiantes
+      summary: Resolver solicitud de rectificación motivadamente (UC-PROV-04)
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResolverSolicitudRectificacionRequest'
+      responses:
+        '200':
+          description: Solicitud resuelta.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SolicitudRectificacionResponse'
   /api/estudiantes:
     get:
       tags:
@@ -1392,6 +1569,44 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
+  /api/vinculaciones/mis-estudiantes:
+    get:
+      tags:
+      - Vinculaciones
+      summary: Consultar estudiantes asociados al acudiente autenticado desde el JWT (UC-06)
+      description: Extrae la identidad del acudiente de la sesión y filtra exclusivamente vínculos verificados sin restricciones legales (RN-EST-02).
+      responses:
+        '200':
+          description: Lista de estudiantes asociados.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EstudianteAsociadoAcudienteResponse'
+  /api/vinculaciones/{id}/restriccion-legal:
+    post:
+      tags:
+      - Vinculaciones
+      summary: Registrar medida cautelar o restricción legal con expulsión inmediata de sesiones (UC-PROV-05 A3, RN-SEG-06)
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistroRestriccionLegalRequest'
+      responses:
+        '200':
+          description: Restricción legal registrada y sesiones del adulto invalidadas.
+        '409':
+          description: Conflicto si el adulto afectado es el acudiente principal sin reemplazo designado (E1).
   /api/grados:
     get:
       tags:
@@ -4878,11 +5093,14 @@ components:
     TipoDocumento:
       type: string
       enum:
+      - RC
+      - TI
       - CC
       - CE
       - PASAPORTE
       - PEP
       - PPT
+      - NES
       description: Tipo de documento de identidad oficial en Colombia
     ProfesorRequest:
       type: object
@@ -7305,6 +7523,405 @@ components:
           format: date-time
         mensaje:
           type: string
+    SexoDocumental:
+      type: string
+      enum:
+      - MASCULINO
+      - FEMENINO
+      - OTRO
+      - NO_ESPECIFICADO
+      example: MASCULINO
+    EstadoExpediente:
+      type: string
+      enum:
+      - BORRADOR_PENDIENTE
+      - LISTO_PARA_MATRICULA
+      - MATRICULADO
+      - INACTIVO_HISTORICO
+      example: LISTO_PARA_MATRICULA
+    EstadoVinculo:
+      type: string
+      enum:
+      - VERIFICADO
+      - PENDIENTE_VERIFICACION
+      - EN_DISPUTA
+      - REVOCADO
+      - BLOQUEADO_RESTRICCION_LEGAL
+      example: VERIFICADO
+    EstadoSolicitudRectificacion:
+      type: string
+      enum:
+      - PENDIENTE
+      - EN_TRAMITE
+      - APROBADA
+      - RECHAZADA_MOTIVADA
+      example: PENDIENTE
+    ExpedienteCompletoRequest:
+      type: object
+      required:
+      - nombres
+      - apellidos
+      - tipoDocumento
+      - documento
+      - fechaNacimiento
+      - direccion
+      - acudienteNombres
+      - acudienteApellidos
+      - acudienteDocumento
+      - acudienteTelefono
+      - parentesco
+      properties:
+        nombres:
+          type: string
+          example: Juan
+        apellidos:
+          type: string
+          example: Pérez
+        tipoDocumento:
+          $ref: '#/components/schemas/TipoDocumento'
+        documento:
+          type: string
+          example: '10203040'
+        fechaNacimiento:
+          type: string
+          format: date
+          example: '2012-05-10'
+        correo:
+          type: string
+        telefono:
+          type: string
+        direccion:
+          type: string
+          example: Carrera 15 # 45-20
+        sexo:
+          $ref: '#/components/schemas/SexoDocumental'
+        eps:
+          type: string
+          example: Sanitas
+        grupoSanguineoRh:
+          type: string
+          example: O+
+        tieneDiscapacidadPiar:
+          type: boolean
+          example: false
+        detallesSaludEmergencia:
+          type: string
+        acudienteNombres:
+          type: string
+          example: María
+        acudienteApellidos:
+          type: string
+          example: López
+        acudienteTipoDocumento:
+          $ref: '#/components/schemas/TipoDocumento'
+        acudienteDocumento:
+          type: string
+          example: '52001002'
+        acudienteTelefono:
+          type: string
+          example: '3001234567'
+        acudienteCorreo:
+          type: string
+        acudienteDireccion:
+          type: string
+        acudienteOcupacion:
+          type: string
+        parentesco:
+          $ref: '#/components/schemas/Parentesco'
+        conviveConEstudiante:
+          type: boolean
+          example: true
+        autorizadoRetiro:
+          type: boolean
+          example: true
+        tieneCustodia:
+          type: boolean
+          example: true
+        representacionLegal:
+          type: boolean
+          example: true
+        autorizaUsoImagenFotografiaOpcional:
+          type: boolean
+          example: false
+    ExpedienteCompletoResponse:
+      type: object
+      properties:
+        estudianteId:
+          type: integer
+          format: int64
+          example: 10
+        estudianteDocumento:
+          type: string
+          example: '10203040'
+        estudianteTipoDocumento:
+          $ref: '#/components/schemas/TipoDocumento'
+        estudianteNombreCompleto:
+          type: string
+          example: Juan Pérez
+        estadoExpediente:
+          $ref: '#/components/schemas/EstadoExpediente'
+        acudientePrincipalId:
+          type: integer
+          format: int64
+          example: 20
+        acudientePrincipalDocumento:
+          type: string
+          example: '52001002'
+        acudientePrincipalNombreCompleto:
+          type: string
+          example: María López
+        autorizacionDatosMenorRegistrada:
+          type: boolean
+          example: true
+        mensaje:
+          type: string
+    EvolucionDocumentoRequest:
+      type: object
+      required:
+      - tipoDocumentoNuevo
+      - numeroDocumentoNuevo
+      - motivoCambio
+      properties:
+        tipoDocumentoNuevo:
+          $ref: '#/components/schemas/TipoDocumento'
+        numeroDocumentoNuevo:
+          type: string
+          example: '10203040'
+        motivoCambio:
+          type: string
+          example: Cumplimiento de 7 años (RC a TI)
+        soporteDocumentoUrl:
+          type: string
+    HistorialDocumentoIdentidadResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        estudianteId:
+          type: integer
+          format: int64
+          example: 10
+        tipoDocumentoAnterior:
+          $ref: '#/components/schemas/TipoDocumento'
+        numeroDocumentoAnterior:
+          type: string
+          example: '12345678'
+        tipoDocumentoNuevo:
+          $ref: '#/components/schemas/TipoDocumento'
+        numeroDocumentoNuevo:
+          type: string
+          example: '10203040'
+        fechaCambio:
+          type: string
+          format: date-time
+        motivoCambio:
+          type: string
+          example: Cumplimiento de 7 años
+        soporteDocumentoUrl:
+          type: string
+        usuarioAutorizador:
+          type: string
+          example: secretaria1
+    RadicarSolicitudRectificacionRequest:
+      type: object
+      required:
+      - camposAModificarJson
+      - motivoSolicitud
+      properties:
+        camposAModificarJson:
+          type: string
+          example: '{"direccion":"Carrera 15 # 45-20"}'
+        motivoSolicitud:
+          type: string
+          example: Cambio de domicilio familiar
+        soporteUrl:
+          type: string
+    ResolverSolicitudRectificacionRequest:
+      type: object
+      required:
+      - estado
+      - respuestaMotivada
+      properties:
+        estado:
+          $ref: '#/components/schemas/EstadoSolicitudRectificacion'
+        respuestaMotivada:
+          type: string
+          example: Rectificación verificada y aprobada con recibo público adjunto
+    SolicitudRectificacionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        numeroRadicado:
+          type: string
+          example: ARCO-2026-0042
+        estudianteId:
+          type: integer
+          format: int64
+          example: 10
+        estudianteDocumento:
+          type: string
+          example: '10203040'
+        estudianteNombreCompleto:
+          type: string
+          example: Juan Pérez
+        solicitanteUsername:
+          type: string
+          example: acudiente1
+        camposAModificarJson:
+          type: string
+        motivoSolicitud:
+          type: string
+        soporteUrl:
+          type: string
+        fechaRadicacion:
+          type: string
+          format: date-time
+        fechaLimiteLegal:
+          type: string
+          format: date
+          description: Fecha límite perentoria de 15 días hábiles (Ley 1581 Art. 15)
+        estado:
+          $ref: '#/components/schemas/EstadoSolicitudRectificacion'
+        respuestaMotivada:
+          type: string
+        fechaResolucion:
+          type: string
+          format: date-time
+        resolutorUsername:
+          type: string
+    RegistroRestriccionLegalRequest:
+      type: object
+      required:
+      - motivoBloqueoLegal
+      properties:
+        motivoBloqueoLegal:
+          type: string
+          example: Medida cautelar Comisaría de Familia Oficio 123-2026
+        soporteMedidaUrl:
+          type: string
+    EstudianteAsociadoAcudienteResponse:
+      type: object
+      properties:
+        estudianteId:
+          type: integer
+          format: int64
+          example: 10
+        tipoDocumento:
+          $ref: '#/components/schemas/TipoDocumento'
+        documento:
+          type: string
+          example: '10203040'
+        nombres:
+          type: string
+          example: Juan
+        apellidos:
+          type: string
+          example: Pérez
+        nombreCompleto:
+          type: string
+          example: Juan Pérez
+        gradoActual:
+          type: string
+          example: Sexto
+        grupoActual:
+          type: string
+          example: '6-A'
+        jornada:
+          type: string
+          example: MAÑANA
+        sede:
+          type: string
+          example: Principal
+        estadoMatricula:
+          type: string
+          example: ACTIVA
+        parentesco:
+          $ref: '#/components/schemas/Parentesco'
+        esPrincipal:
+          type: boolean
+          example: true
+        estadoVinculo:
+          $ref: '#/components/schemas/EstadoVinculo'
+        autorizadoRetiro:
+          type: boolean
+          example: true
+    FichaEscolarEstudianteResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        tipoDocumento:
+          $ref: '#/components/schemas/TipoDocumento'
+        documento:
+          type: string
+          example: '10203040'
+        nombres:
+          type: string
+          example: Juan
+        apellidos:
+          type: string
+          example: Pérez
+        nombreCompleto:
+          type: string
+          example: Juan Pérez
+        fechaNacimiento:
+          type: string
+          format: date
+          example: '2012-05-10'
+        edadCalculada:
+          type: integer
+          example: 14
+        correo:
+          type: string
+        telefono:
+          type: string
+        direccion:
+          type: string
+        eps:
+          type: string
+          example: Sanitas
+        grupoSanguineoRh:
+          type: string
+          example: O+
+        tieneDiscapacidadPiar:
+          type: boolean
+          nullable: true
+          description: Oculto para roles no autorizados por regla de mínimo privilegio (RN-EST-08)
+        detallesSaludEmergencia:
+          type: string
+          nullable: true
+        estadoExpediente:
+          $ref: '#/components/schemas/EstadoExpediente'
+        estadoMatricula:
+          type: string
+          example: MATRICULADO_ACTIVO
+        cursoActual:
+          type: string
+          example: '6-A'
+        contactosEmergencia:
+          type: array
+          items:
+            type: object
+            properties:
+              nombreCompleto:
+                type: string
+              parentesco:
+                type: string
+              telefono:
+                type: string
+              esPrincipal:
+                type: boolean
+              autorizadoRetiro:
+                type: boolean
+              prioridad:
+                type: integer
 
 tags:
 - name: Profesores

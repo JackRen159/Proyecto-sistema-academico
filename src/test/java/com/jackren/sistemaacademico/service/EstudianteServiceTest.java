@@ -93,38 +93,13 @@ class EstudianteServiceTest {
     }
 
     @Test
-    void eliminarPermanente_SinConfirmacion_DebeLanzarIllegalArgumentException() {
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
-            estudianteService.eliminarPermanente(1L, false);
-        });
-
-        assertTrue(ex.getMessage().contains("Debe confirmar explicitamente"));
-        verify(estudianteRepository, never()).delete(any());
-    }
-
-    @Test
-    void eliminarPermanente_CuandoTieneVinculaciones_DebeLanzarConflictoNegocioException() {
-        Estudiante estudiante = new Estudiante();
-        when(estudianteRepository.findById(1L)).thenReturn(Optional.of(estudiante));
-        when(estudianteAcudienteRepository.existsByEstudiante(estudiante)).thenReturn(true);
-
+    void eliminarPermanente_DebeProhibirBorradoFisicoConConflictoNegocioException() {
         ConflictoNegocioException ex = assertThrows(ConflictoNegocioException.class, () -> {
             estudianteService.eliminarPermanente(1L, true);
         });
 
-        assertTrue(ex.getMessage().contains("cuenta con vinculaciones"));
+        assertTrue(ex.getMessage().contains("Prohibido el borrado físico"));
         verify(estudianteRepository, never()).delete(any());
-    }
-
-    @Test
-    void eliminarPermanente_ConConfirmacionYSinVinculos_DebeEliminar() {
-        Estudiante estudiante = new Estudiante();
-        when(estudianteRepository.findById(1L)).thenReturn(Optional.of(estudiante));
-        when(estudianteAcudienteRepository.existsByEstudiante(estudiante)).thenReturn(false);
-
-        assertDoesNotThrow(() -> estudianteService.eliminarPermanente(1L, true));
-
-        verify(estudianteRepository, times(1)).delete(estudiante);
     }
 
     @Test

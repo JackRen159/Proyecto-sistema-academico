@@ -16,6 +16,12 @@ public interface EstudianteAcudienteRepository extends JpaRepository<EstudianteA
     // Lista todos los vinculos de un acudiente (para ver sus estudiantes)
     List<EstudianteAcudiente> findByAcudiente(Acudiente acudiente);
 
+    // Lista estudiantes verificados activos para el acudiente (UC-06)
+    List<EstudianteAcudiente> findByAcudienteAndEstadoVinculo(Acudiente acudiente, com.jackren.sistemaacademico.entity.EstadoVinculo estadoVinculo);
+
+    // Lista acudientes verificados de un estudiante
+    List<EstudianteAcudiente> findByEstudianteAndEstadoVinculo(Estudiante estudiante, com.jackren.sistemaacademico.entity.EstadoVinculo estadoVinculo);
+
     // Verifica si ya existe el vinculo entre un estudiante y un acudiente
     boolean existsByEstudianteAndAcudiente(Estudiante estudiante, Acudiente acudiente);
 

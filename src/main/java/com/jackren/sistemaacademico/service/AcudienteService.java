@@ -146,21 +146,10 @@ public class AcudienteService {
         acudienteRepository.save(acudiente);
     }
 
-    // Eliminar definitivamente de la base de datos (IRREVERSIBLE - requiere confirmacion)
+    // Prohibición de eliminación física (RN-SEG-01, UC-PROV-04 E3)
     @Transactional
     public void eliminarPermanente(Long id, boolean confirmar) {
-        if (!confirmar) {
-            throw new IllegalArgumentException("Debe confirmar explicitamente la eliminacion definitiva del acudiente.");
-        }
-
-        Acudiente acudiente = acudienteRepository.findById(id)
-                .orElseThrow(() -> new RecursoNoEncontradoException("No se encontro el acudiente con ID: " + id));
-
-        if (estudianteAcudienteRepository.existsByAcudiente(acudiente)) {
-            throw new ConflictoNegocioException("No se puede eliminar fisicamente el acudiente porque cuenta con vinculaciones registradas. Debe utilizar la desactivacion logica.");
-        }
-
-        acudienteRepository.delete(acudiente);
+        throw new ConflictoNegocioException("Prohibido el borrado físico de registros de acudientes con trazabilidad institucional (RN-SEG-01, UC-PROV-04 E3). Debe utilizarse la inactivación lógica.");
     }
 
     private String normalizarCorreo(String correo) {

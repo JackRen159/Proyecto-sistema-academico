@@ -22,6 +22,10 @@ import { ErrorResponse } from '../model/error-response';
 import { EstudianteAcudienteRequest } from '../model/estudiante-acudiente-request';
 // @ts-ignore
 import { EstudianteAcudienteResponse } from '../model/estudiante-acudiente-response';
+// @ts-ignore
+import { EstudianteAsociadoAcudienteResponse } from '../model/estudiante-asociado-acudiente-response';
+// @ts-ignore
+import { RegistroRestriccionLegalRequest } from '../model/registro-restriccion-legal-request';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -272,6 +276,134 @@ export class VinculacionesService extends BaseService {
         let localVarPath = `/api/vinculaciones/estudiante/${this.configuration.encodeParam({name: "documentoEstudiante", value: documentoEstudiante, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}/principal/${this.configuration.encodeParam({name: "documentoNuevoPrincipal", value: documentoNuevoPrincipal, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<EstudianteAcudienteResponse>('patch', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Registrar medida cautelar o restricción legal con expulsión inmediata de sesiones (UC-PROV-05 A3, RN-SEG-06)
+     * @endpoint post /api/vinculaciones/{id}/restriccion-legal
+     * @param id 
+     * @param registroRestriccionLegalRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public apiVinculacionesIdRestriccionLegalPost(id: number, registroRestriccionLegalRequest: RegistroRestriccionLegalRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public apiVinculacionesIdRestriccionLegalPost(id: number, registroRestriccionLegalRequest: RegistroRestriccionLegalRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public apiVinculacionesIdRestriccionLegalPost(id: number, registroRestriccionLegalRequest: RegistroRestriccionLegalRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public apiVinculacionesIdRestriccionLegalPost(id: number, registroRestriccionLegalRequest: RegistroRestriccionLegalRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling apiVinculacionesIdRestriccionLegalPost.');
+        }
+        if (registroRestriccionLegalRequest === null || registroRestriccionLegalRequest === undefined) {
+            throw new Error('Required parameter registroRestriccionLegalRequest was null or undefined when calling apiVinculacionesIdRestriccionLegalPost.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (BearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('BearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/vinculaciones/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/restriccion-legal`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: registroRestriccionLegalRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Consultar estudiantes asociados al acudiente autenticado desde el JWT (UC-06)
+     * Extrae la identidad del acudiente de la sesión y filtra exclusivamente vínculos verificados sin restricciones legales (RN-EST-02).
+     * @endpoint get /api/vinculaciones/mis-estudiantes
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public apiVinculacionesMisEstudiantesGet(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<EstudianteAsociadoAcudienteResponse>>;
+    public apiVinculacionesMisEstudiantesGet(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<EstudianteAsociadoAcudienteResponse>>>;
+    public apiVinculacionesMisEstudiantesGet(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<EstudianteAsociadoAcudienteResponse>>>;
+    public apiVinculacionesMisEstudiantesGet(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (BearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('BearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/vinculaciones/mis-estudiantes`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<Array<EstudianteAsociadoAcudienteResponse>>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,

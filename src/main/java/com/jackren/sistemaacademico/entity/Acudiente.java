@@ -1,17 +1,28 @@
 package com.jackren.sistemaacademico.entity;
 
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
+import java.time.LocalDate;
 
 @Entity
-@Table(name = "acudientes")
+@Table(
+    name = "acudientes",
+    indexes = {
+        @Index(name = "idx_acudientes_tipo_doc", columnList = "tipo_documento")
+    }
+)
 @AttributeOverride(
     name = "telefono",
     column = @Column(name = "telefono", nullable = false, length = 20)
 )
 public class Acudiente extends Persona {
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_documento", nullable = false, length = 20)
+    private TipoDocumento tipoDocumento = TipoDocumento.CC;
+
+    @Column(name = "fecha_nacimiento")
+    private LocalDate fechaNacimiento;
 
     @Column(name = "telefono_alternativo", length = 20)
     private String telefonoAlternativo;
@@ -21,6 +32,22 @@ public class Acudiente extends Persona {
 
     public Acudiente() {
         super();
+    }
+
+    public TipoDocumento getTipoDocumento() {
+        return tipoDocumento;
+    }
+
+    public void setTipoDocumento(TipoDocumento tipoDocumento) {
+        this.tipoDocumento = tipoDocumento != null ? tipoDocumento : TipoDocumento.CC;
+    }
+
+    public LocalDate getFechaNacimiento() {
+        return fechaNacimiento;
+    }
+
+    public void setFechaNacimiento(LocalDate fechaNacimiento) {
+        this.fechaNacimiento = fechaNacimiento;
     }
 
     public String getTelefonoAlternativo() {
