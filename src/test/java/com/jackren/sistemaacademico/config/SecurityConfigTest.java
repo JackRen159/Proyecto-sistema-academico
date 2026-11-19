@@ -84,6 +84,9 @@ class SecurityConfigTest {
     private AuthService authService;
 
     @MockitoBean
+    private com.jackren.sistemaacademico.service.RecuperacionPasswordService recuperacionPasswordService;
+
+    @MockitoBean
     private UsuarioRepository usuarioRepository;
 
     @BeforeEach
