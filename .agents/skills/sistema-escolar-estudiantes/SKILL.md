@@ -5,6 +5,15 @@ description: Analiza, diseña, implementa o prueba el módulo Estudiantes del Si
 
 # Módulo Estudiantes
 
+## Fuente funcional vinculante (V2)
+
+Antes de diseñar, implementar o probar este módulo, lee:
+- Especificación del módulo: `docs/especificacion/modulos/02_Estudiantes_y_Acudientes_v2.md`
+- Reglas transversales: `docs/especificacion/00_Guia_General_y_Reglas_Transversales_v2.md`
+- Casos de uso cubiertos: `UC-12`, `UC-07`, `UC-PROV-04`
+- Reglas de negocio aplicables: `RN-09`, `RN-EST-01`, `RN-EST-03`, `RN-EST-04`, `RN-EST-08`
+- Convierte cada fila `A#` y `E#` (y su código HTTP esperado) en criterios de aceptación y pruebas automatizadas.
+
 ## Alcance documentado
 
 - Administrar estudiantes y sus datos personales.

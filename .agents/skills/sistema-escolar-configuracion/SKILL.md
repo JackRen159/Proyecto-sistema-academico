@@ -5,6 +5,15 @@ description: Diseña o implementa parámetros institucionales, años y periodos 
 
 # Módulo Configuración
 
+## Fuente funcional vinculante (V2)
+
+Antes de diseñar, implementar o probar este módulo, lee:
+- Especificación del módulo: `docs/especificacion/modulos/06_Configuracion_Institucional_v2.md`
+- Reglas transversales: `docs/especificacion/00_Guia_General_y_Reglas_Transversales_v2.md`
+- Casos de uso cubiertos: `UC-26`, `UC-PROV-13`, `UC-PROV-14`
+- Reglas de negocio aplicables: `RN-01`, `RN-02`, `RN-CFG-01` a `RN-CFG-08`
+- Convierte cada fila `A#` y `E#` (y su código HTTP esperado) en criterios de aceptación y pruebas automatizadas.
+
 ## Alcance documentado
 
 Administrar parámetros institucionales, años y periodos lectivos, escalas, reglas académicas y configuraciones generales autorizadas.

@@ -5,6 +5,15 @@ description: Diseña, implementa o revisa el módulo Profesores: datos docentes,
 
 # Módulo Profesores
 
+## Fuente funcional vinculante (V2)
+
+Antes de diseñar, implementar o probar este módulo, lee:
+- Especificación del módulo: `docs/especificacion/modulos/05_Profesores_y_Asignaciones_v2.md`
+- Reglas transversales: `docs/especificacion/00_Guia_General_y_Reglas_Transversales_v2.md`
+- Casos de uso cubiertos: `UC-15`, `UC-PROV-11`, `UC-PROV-12`
+- Reglas de negocio aplicables: `RN-09`, `RN-PRO-02` a `RN-PRO-08`
+- Convierte cada fila `A#` y `E#` (y su código HTTP esperado) en criterios de aceptación y pruebas automatizadas.
+
 ## Alcance documentado
 
 - Administrar datos del docente.

@@ -5,6 +5,15 @@ description: Diseña o implementa trazabilidad de operaciones sensibles del Sist
 
 # Módulo Auditoría
 
+## Fuente funcional vinculante (V2)
+
+Antes de diseñar, implementar o probar este módulo, lee:
+- Especificación del módulo: `docs/especificacion/modulos/12_Documentos_Reportes_y_Auditoria_v2.md`
+- Reglas transversales: `docs/especificacion/00_Guia_General_y_Reglas_Transversales_v2.md`
+- Casos de uso cubiertos: `UC-27`, `UC-PROV-29`
+- Reglas de negocio aplicables: `RN-10`, `RN-DOC-06`, `RN-DOC-07`
+- Convierte cada fila `A#` y `E#` (y su código HTTP esperado) en criterios de aceptación y pruebas automatizadas.
+
 ## Objetivo
 
 Registrar evidencia suficiente para diagnóstico y trazabilidad de operaciones sensibles, sin convertir el log de auditoría en un almacén de secretos o datos excesivos.

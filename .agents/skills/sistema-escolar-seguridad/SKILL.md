@@ -5,6 +5,15 @@ description: Implementa o revisa usuarios, autenticación, Spring Security, RBAC
 
 # Usuarios y seguridad
 
+## Fuente funcional vinculante (V2)
+
+Antes de diseñar, implementar o probar este módulo, lee:
+- Especificación del módulo: `docs/especificacion/modulos/01_Seguridad_y_Acceso_v2.md`
+- Reglas transversales: `docs/especificacion/00_Guia_General_y_Reglas_Transversales_v2.md`
+- Casos de uso cubiertos: `UC-01`, `UC-PROV-01` a `UC-PROV-03`
+- Reglas de negocio aplicables: `RN-09`, `RN-10`, `RN-SEG-01` a `RN-SEG-09`
+- Convierte cada fila `A#` y `E#` (y su código HTTP esperado) en criterios de aceptación y pruebas automatizadas.
+
 ## Autoridad de seguridad
 
 - La seguridad efectiva está en Spring Boot/Spring Security. Angular no es una frontera de seguridad.

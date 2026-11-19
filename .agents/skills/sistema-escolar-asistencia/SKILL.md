@@ -5,6 +5,15 @@ description: Diseña, implementa o prueba el registro y consulta de asistencia: 
 
 # Módulo Asistencia
 
+## Fuente funcional vinculante (V2)
+
+Antes de diseñar, implementar o probar este módulo, lee:
+- Especificación del módulo: `docs/especificacion/modulos/08_Asistencia_v2.md`
+- Reglas transversales: `docs/especificacion/00_Guia_General_y_Reglas_Transversales_v2.md`
+- Casos de uso cubiertos: `UC-19`, `UC-03`, `UC-09`, `UC-PROV-18`, `UC-PROV-19`
+- Reglas de negocio aplicables: `RN-04`, `RN-05`, `RN-ASI-01` a `RN-ASI-08`
+- Convierte cada fila `A#` y `E#` (y su código HTTP esperado) en criterios de aceptación y pruebas automatizadas.
+
 ## Alcance documentado
 
 - Registro de asistencia diaria o por sesión.

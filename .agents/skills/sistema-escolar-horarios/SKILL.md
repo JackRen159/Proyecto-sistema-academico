@@ -5,6 +5,15 @@ description: Diseña, implementa o revisa horarios de cursos/grupos y profesores
 
 # Módulo Horarios
 
+## Fuente funcional vinculante (V2)
+
+Antes de diseñar, implementar o probar este módulo, lee:
+- Especificación del módulo: `docs/especificacion/modulos/09_Horarios_v2.md`
+- Reglas transversales: `docs/especificacion/00_Guia_General_y_Reglas_Transversales_v2.md`
+- Casos de uso cubiertos: `UC-04`, `UC-10`, `UC-PROV-20` a `UC-PROV-22`
+- Reglas de negocio aplicables: `RN-04`, `RN-09`, `RN-HOR-01` a `RN-HOR-07`
+- Convierte cada fila `A#` y `E#` (y su código HTTP esperado) en criterios de aceptación y pruebas automatizadas.
+
 ## Alcance documentado
 
 Gestionar horarios de cursos/grupos y profesores, aulas y prevención de cruces.

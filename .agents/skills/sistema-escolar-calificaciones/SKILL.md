@@ -1,9 +1,18 @@
 ---
 name: sistema-escolar-calificaciones
-description: Diseña, implementa o prueba notas, evaluaciones, promedios, ponderaciones, definitivas, recuperaciones, cierre de periodos y promoción dentro del SIEE del Sistema de Gestión Escolar.
+description: Diseña, implementa o prueba notas, evaluaciones, promedios, ponderaciones, definitivas, recuperaciones, reclamaciones, convalidaciones y sábanas dentro del SIEE del Sistema de Gestión Escolar.
 ---
 
 # Módulo Calificaciones
+
+## Fuente funcional vinculante (V2)
+
+Antes de diseñar, implementar o probar este módulo, lee:
+- Especificación del módulo: `docs/especificacion/modulos/07_Calificaciones_y_Evaluacion_v2.md`
+- Reglas transversales: `docs/especificacion/00_Guia_General_y_Reglas_Transversales_v2.md`
+- Casos de uso cubiertos: `UC-16` a `UC-18`, `UC-02`, `UC-08`, `UC-PROV-15` a `UC-PROV-17`
+- Reglas de negocio aplicables: `RN-01` a `RN-03`, `RN-08`, `RN-CAL-01` a `RN-CAL-10`
+- Convierte cada fila `A#` y `E#` (y su código HTTP esperado) en criterios de aceptación y pruebas automatizadas.
 
 ## Flujo conceptual
 

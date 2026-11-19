@@ -5,6 +5,15 @@ description: Diseña o implementa boletines, certificados, constancias, actas, l
 
 # Módulo Documentos y reportes
 
+## Fuente funcional vinculante (V2)
+
+Antes de diseñar, implementar o probar este módulo, lee:
+- Especificación del módulo: `docs/especificacion/modulos/12_Documentos_Reportes_y_Auditoria_v2.md`
+- Reglas transversales: `docs/especificacion/00_Guia_General_y_Reglas_Transversales_v2.md`
+- Casos de uso cubiertos: `UC-05`, `UC-11`, `UC-27`, `UC-PROV-27`, `UC-PROV-28`
+- Reglas de negocio aplicables: `RN-09`, `RN-DOC-01` a `RN-DOC-05`, `RN-DOC-08`
+- Convierte cada fila `A#` y `E#` (y su código HTTP esperado) en criterios de aceptación y pruebas automatizadas.
+
 ## Alcance documentado
 
 Tipos previstos, según prioridad:

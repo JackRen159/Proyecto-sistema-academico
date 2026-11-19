@@ -5,6 +5,15 @@ description: Analiza, diseña, implementa o prueba el módulo Acudientes y el v�
 
 # Módulo Acudientes
 
+## Fuente funcional vinculante (V2)
+
+Antes de diseñar, implementar o probar este módulo, lee:
+- Especificación del módulo: `docs/especificacion/modulos/02_Estudiantes_y_Acudientes_v2.md`
+- Reglas transversales: `docs/especificacion/00_Guia_General_y_Reglas_Transversales_v2.md`
+- Casos de uso cubiertos: `UC-12`, `UC-06`, `UC-07`, `UC-PROV-05`
+- Reglas de negocio aplicables: `RN-09`, `RN-EST-02`, `RN-EST-05`, `RN-EST-06`, `RN-EST-07`
+- Convierte cada fila `A#` y `E#` (y su código HTTP esperado) en criterios de aceptación y pruebas automatizadas.
+
 ## Alcance documentado
 
 - Administrar padres/acudientes y estudiantes asociados.

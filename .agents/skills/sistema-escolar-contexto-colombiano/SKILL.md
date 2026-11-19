@@ -5,6 +5,15 @@ description: Valida reglas escolares frente al contexto colombiano, Decreto 1290
 
 # Contexto colombiano y reglas institucionales
 
+## Fuente funcional vinculante (V2)
+
+Antes de diseñar, implementar o probar este módulo, lee:
+- Especificación del módulo: `docs/especificacion/00_Guia_General_y_Reglas_Transversales_v2.md`
+- Reglas transversales: `docs/especificacion/00_Guia_General_y_Reglas_Transversales_v2.md`
+- Casos de uso cubiertos: Sección 10 (14 normas colombianas)
+- Reglas de negocio aplicables: `RN-01` a `RN-12`
+- Convierte cada fila `A#` y `E#` (y su código HTTP esperado) en criterios de aceptación y pruebas automatizadas.
+
 ## Alcance
 
 Esta skill evita convertir supuestos sobre colegios colombianos en reglas de software. El Documento Maestro orienta el diseño, pero no sustituye validación jurídica ni la aprobación institucional.

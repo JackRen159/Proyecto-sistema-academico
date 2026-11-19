@@ -28,3 +28,19 @@ La API utiliza autenticación stateless basada en **JWT (Bearer token)**.
 ```bash
 ./mvnw test
 ```
+---
+
+## Documentación y Especificación V2
+
+La especificación funcional consolidada (12 módulos, 56 casos de uso y reglas transversales `RN-01` a `RN-12`) y la guía operativa para agentes están centralizadas en formato Markdown:
+
+- **Guía de entrada del repositorio:** `AGENTS.md`
+- **Documento Maestro (arquitectura global):** `docs/arquitectura/Documento_Maestro_Sistema_Escolar_V2.1.md`
+- **Guía general y reglas transversales:** `docs/especificacion/00_Guia_General_y_Reglas_Transversales_v2.md`
+- **Índice y secuencia de desarrollo (56 UCs):** `docs/especificacion/00_Indice_y_Secuencia_de_Desarrollo_v2.md`
+- **Módulos funcionales (`01` a `12`):** `docs/especificacion/modulos/`
+- **Plan maestro de evolución (`V11+`):** `odd/tasks/PLAN_MAESTRO_V2.md`
+
+### Estado base implementado (`V1` – `V10`)
+- Backend Spring Boot + PostgreSQL + Flyway (`V1`–`V10`): Autenticación JWT, Estudiantes, Acudientes y Vínculos, Estructura académica, Profesores y Asignaciones, Matrículas, Calificaciones SIEE, Asistencia y Documentos académicos base.
+- Próximos frentes de evolución V2 (`V11+`): Hardening Seguridad/Configuración/Auditoría global (Frente 9), Horarios (Frente 10), Cierre y Promoción (Frente 11), Convivencia Escolar (Frente 12), cierre de brechas V1→V2 (Frente 13) y Frontend Angular SPA completo (Frente 14).

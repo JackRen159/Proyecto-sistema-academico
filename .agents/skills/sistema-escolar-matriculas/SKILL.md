@@ -5,6 +5,15 @@ description: Analiza, diseña, implementa o prueba el módulo Matrículas: proce
 
 # Módulo Matrículas
 
+## Fuente funcional vinculante (V2)
+
+Antes de diseñar, implementar o probar este módulo, lee:
+- Especificación del módulo: `docs/especificacion/modulos/04_Matricula_v2.md`
+- Reglas transversales: `docs/especificacion/00_Guia_General_y_Reglas_Transversales_v2.md`
+- Casos de uso cubiertos: `UC-13`, `UC-PROV-09`, `UC-PROV-10`
+- Reglas de negocio aplicables: `RN-11`, `RN-MAT-01` a `RN-MAT-09`
+- Convierte cada fila `A#` y `E#` (y su código HTTP esperado) en criterios de aceptación y pruebas automatizadas.
+
 ## Alcance documentado
 
 - Gestionar el proceso de matrícula.
