@@ -25,6 +25,8 @@ import { AsignarRolUsuarioRequest } from '../model/asignar-rol-usuario-request';
 // @ts-ignore
 import { CrearUsuarioRequest } from '../model/crear-usuario-request';
 // @ts-ignore
+import { RestablecimientoPresencialResponse } from '../model/restablecimiento-presencial-response';
+// @ts-ignore
 import { UsuarioResponse } from '../model/usuario-response';
 
 // @ts-ignore
@@ -433,6 +435,79 @@ export class UsuariosYRolesService extends BaseService {
             {
                 context: localVarHttpContext,
                 body: asignarOrganoColegiadoRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Restablecimiento presencial asistido en ventanilla de Secretaría (UC-PROV-03 A2)
+     * Genera credencial temporal de un solo uso, coloca cuenta en PENDIENTE_ACTIVACION e invalida sesiones activas en servidor (RN-SEG-06).
+     * @endpoint post /api/usuarios/{id}/restablecer-presencial
+     * @param id 
+     * @param motivo 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public apiUsuariosIdRestablecerPresencialPost(id: number, motivo?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<RestablecimientoPresencialResponse>;
+    public apiUsuariosIdRestablecerPresencialPost(id: number, motivo?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<RestablecimientoPresencialResponse>>;
+    public apiUsuariosIdRestablecerPresencialPost(id: number, motivo?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<RestablecimientoPresencialResponse>>;
+    public apiUsuariosIdRestablecerPresencialPost(id: number, motivo?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling apiUsuariosIdRestablecerPresencialPost.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'motivo',
+            <any>motivo,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (BearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('BearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/usuarios/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/restablecer-presencial`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<RestablecimientoPresencialResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

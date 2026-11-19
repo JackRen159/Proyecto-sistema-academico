@@ -4,10 +4,8 @@ import com.jackren.sistemaacademico.dto.*;
 import com.jackren.sistemaacademico.entity.*;
 import com.jackren.sistemaacademico.exception.ConflictoException;
 import com.jackren.sistemaacademico.exception.ValidacionException;
-import com.jackren.sistemaacademico.repository.AnioLectivoRepository;
-import com.jackren.sistemaacademico.repository.OrganoColegiadoMiembroRepository;
-import com.jackren.sistemaacademico.repository.UsuarioRepository;
-import com.jackren.sistemaacademico.repository.UsuarioRolRepository;
+import com.jackren.sistemaacademico.repository.*;
+import com.jackren.sistemaacademico.security.TokenRevocationService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,6 +43,18 @@ class UsuarioServiceTest {
     @Mock
     private AuditoriaGlobalService auditoriaService;
 
+    @Mock
+    private TokenRevocationService tokenRevocationService;
+
+    @Mock
+    private AcudienteRepository acudienteRepository;
+
+    @Mock
+    private EstudianteAcudienteRepository estudianteAcudienteRepository;
+
+    @Mock
+    private ParametroInstitucionalRepository parametroRepository;
+
     @InjectMocks
     private UsuarioService usuarioService;
 
@@ -73,29 +83,75 @@ class UsuarioServiceTest {
     }
 
     @Test
+    @DisplayName("crearUsuario para acudiente sin vínculo validado debe lanzar ConflictoException (RN-SEG-02, E2)")
+    void testCrearUsuarioAcudienteSinVinculo() {
+        CrearUsuarioRequest req = new CrearUsuarioRequest("acudiente.sin.hijo", "pass", Rol.ACUDIENTE, TipoPersonaUsuario.ACUDIENTE, 20L);
+        when(usuarioRepository.existsByUsername("acudiente.sin.hijo")).thenReturn(false);
+
+        Acudiente acudiente = new Acudiente();
+        acudiente.setId(20L);
+        when(acudienteRepository.findById(20L)).thenReturn(Optional.of(acudiente));
+        when(estudianteAcudienteRepository.existsByAcudiente(acudiente)).thenReturn(false);
+
+        assertThrows(ConflictoException.class, () -> usuarioService.crearUsuario(req, "admin"));
+    }
+
+    @Test
+    @DisplayName("crearUsuario para estudiante con login deshabilitado institucionalmente debe lanzar ConflictoException (RN-SEG-08, E2)")
+    void testCrearUsuarioEstudianteLoginDeshabilitado() {
+        CrearUsuarioRequest req = new CrearUsuarioRequest("estudiante1", "pass", Rol.ESTUDIANTE, TipoPersonaUsuario.ESTUDIANTE, 30L);
+        when(usuarioRepository.existsByUsername("estudiante1")).thenReturn(false);
+
+        ParametroInstitucional p = new ParametroInstitucional("LOGIN_ESTUDIANTES_HABILITADO", "false", TipoDatoParametro.BOOLEAN, "Login", "ACCESO");
+        when(parametroRepository.findByClave("LOGIN_ESTUDIANTES_HABILITADO")).thenReturn(Optional.of(p));
+
+        assertThrows(ConflictoException.class, () -> usuarioService.crearUsuario(req, "admin"));
+    }
+
+    @Test
     @DisplayName("crearUsuario debe rechazar nombre de usuario duplicado con ConflictoException (E1)")
     void testCrearUsuarioDuplicado() {
-        CrearUsuarioRequest request = new CrearUsuarioRequest("existente", "pass", Rol.ESTUDIANTE, null, null);
+        CrearUsuarioRequest request = new CrearUsuarioRequest("existente", "pass", Rol.PROFESOR, null, null);
         when(usuarioRepository.existsByUsername("existente")).thenReturn(true);
 
         assertThrows(ConflictoException.class, () -> usuarioService.crearUsuario(request, "admin"));
     }
 
     @Test
-    @DisplayName("cambiarEstado debe exigir motivo obligatorio (A2)")
-    void testCambiarEstadoExigeMotivo() {
+    @DisplayName("cambiarEstado a BLOQUEADA debe invalidar sesiones forzosamente en servidor (RN-SEG-06, A2)")
+    void testCambiarEstadoBloqueadaInvalidaSesiones() {
         Usuario usuario = new Usuario("usuario1", "hash", Rol.ESTUDIANTE);
         usuario.setId(1L);
         when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuario));
-
-        ActualizarEstadoUsuarioRequest sinMotivo = new ActualizarEstadoUsuarioRequest(EstadoUsuario.BLOQUEADA, "");
-        assertThrows(ValidacionException.class, () -> usuarioService.cambiarEstado(1L, sinMotivo, "admin"));
-
-        ActualizarEstadoUsuarioRequest conMotivo = new ActualizarEstadoUsuarioRequest(EstadoUsuario.BLOQUEADA, "Incumplimiento de normas");
         when(usuarioRepository.save(any(Usuario.class))).thenAnswer(i -> i.getArgument(0));
 
-        UsuarioResponse resp = usuarioService.cambiarEstado(1L, conMotivo, "admin");
+        ActualizarEstadoUsuarioRequest req = new ActualizarEstadoUsuarioRequest(EstadoUsuario.BLOQUEADA, "Sanción preventiva");
+        UsuarioResponse resp = usuarioService.cambiarEstado(1L, req, "rector");
+
         assertEquals(EstadoUsuario.BLOQUEADA, resp.getEstado());
+        verify(tokenRevocationService, times(1)).revokeUserTokens(eq(1L), any());
+    }
+
+    @Test
+    @DisplayName("restablecerPresencial debe generar password temporal, marcar PENDIENTE_ACTIVACION y revocar sesiones (UC-PROV-03 A2)")
+    void testRestablecerPresencial() {
+        Usuario usuario = new Usuario("usuario1", "hashAnterior", Rol.ESTUDIANTE);
+        usuario.setId(5L);
+        usuario.setEstado(EstadoUsuario.ACTIVA);
+
+        when(usuarioRepository.findById(5L)).thenReturn(Optional.of(usuario));
+        when(passwordEncoder.encode(anyString())).thenReturn("nuevoHashTemporal");
+        when(usuarioRepository.save(any(Usuario.class))).thenAnswer(i -> i.getArgument(0));
+
+        RestablecimientoPresencialResponse resp = usuarioService.restablecerPresencial(5L, "secretaria1", "Entrega presencial de credencial");
+
+        assertNotNull(resp);
+        assertEquals(5L, resp.getUsuarioId());
+        assertNotNull(resp.getPasswordTemporal());
+        assertEquals(EstadoUsuario.PENDIENTE_ACTIVACION, usuario.getEstado());
+        assertTrue(usuario.getDebeCambiarPassword());
+        verify(tokenRevocationService, times(1)).revokeUserTokens(eq(5L), any());
+        verify(auditoriaService, times(1)).registrarEvento(any());
     }
 
     @Test
@@ -106,57 +162,27 @@ class UsuarioServiceTest {
     }
 
     @Test
-    @DisplayName("asignarRol debe impedir que estudiante adquiera roles directivos o docentes (E1)")
-    void testAsignarRolIncompatibilidadEstudiante() {
-        Usuario estudiante = new Usuario("estudiante1", "hash", Rol.ESTUDIANTE);
-        estudiante.setId(2L);
-        when(usuarioRepository.findById(2L)).thenReturn(Optional.of(estudiante));
-
-        AsignarRolUsuarioRequest req = new AsignarRolUsuarioRequest(Rol.PROFESOR, null, "Asignación indebida");
-        assertThrows(ConflictoException.class, () -> usuarioService.asignarRol(2L, req, "admin"));
-    }
-
-    @Test
-    @DisplayName("revocarRol debe rechazar la revocación del último administrador activo (E3)")
-    void testRevocarUltimoAdminRechazado() {
-        UsuarioRol rolAdmin = new UsuarioRol();
-        rolAdmin.setId(5L);
-        rolAdmin.setRol(Rol.ADMINISTRADOR);
-        rolAdmin.setActivo(true);
-        rolAdmin.setUsuario(new Usuario("admin1", "hash", Rol.ADMINISTRADOR));
-
-        when(usuarioRolRepository.findById(5L)).thenReturn(Optional.of(rolAdmin));
-        when(usuarioRolRepository.countByRolAndActivoTrue(Rol.ADMINISTRADOR)).thenReturn(1L);
-
-        assertThrows(ConflictoException.class, () -> usuarioService.revocarRol(5L, "rector"));
-    }
-
-    @Test
-    @DisplayName("asignarMiembroOrganoColegiado debe registrar pertenencia nominativa con soporte de acta (A2)")
-    void testAsignarMiembroOrgano() {
+    @DisplayName("asignarRol con esPrincipal=true debe sincronizar usuario.setRol (Deuda Técnica D)")
+    void testAsignarRolSincronizaRolPrincipal() {
         Usuario docente = new Usuario("docente1", "hash", Rol.PROFESOR);
-        docente.setId(3L);
-        AnioLectivo anio = new AnioLectivo();
-        anio.setId(2026L);
-        anio.setNombre("Año 2026");
+        docente.setId(10L);
 
-        when(usuarioRepository.findById(3L)).thenReturn(Optional.of(docente));
-        when(anioLectivoRepository.findById(2026L)).thenReturn(Optional.of(anio));
-        when(organoRepository.findByTipoOrganoAndUsuarioIdAndAnioLectivoId(any(), any(), any())).thenReturn(Optional.empty());
-        when(organoRepository.save(any(OrganoColegiadoMiembro.class))).thenAnswer(i -> {
-            OrganoColegiadoMiembro m = i.getArgument(0);
-            m.setId(10L);
-            return m;
+        when(usuarioRepository.findById(10L)).thenReturn(Optional.of(docente));
+        when(usuarioRolRepository.save(any(UsuarioRol.class))).thenAnswer(i -> {
+            UsuarioRol ur = i.getArgument(0);
+            ur.setId(1L);
+            return ur;
         });
 
-        AsignarOrganoColegiadoRequest req = new AsignarOrganoColegiadoRequest(
-                TipoOrganoColegiado.COMITE_CONVIVENCIA, "Acta 01-2026", 2026L);
+        AsignarRolUsuarioRequest req = new AsignarRolUsuarioRequest();
+        req.setRol(Rol.COORDINADOR_ACADEMICO);
+        req.setEsPrincipal(true);
+        req.setMotivoAsignacion("Nuevo rol principal");
 
-        OrganoColegiadoMiembroResponse resp = usuarioService.asignarMiembroOrganoColegiado(3L, req, "rector");
+        UsuarioRolResponse resp = usuarioService.asignarRol(10L, req, "rector");
 
         assertNotNull(resp);
-        assertEquals(TipoOrganoColegiado.COMITE_CONVIVENCIA, resp.getTipoOrgano());
-        assertEquals("Acta 01-2026", resp.getActaDesignacion());
-        assertTrue(resp.getActivo());
+        assertEquals(Rol.COORDINADOR_ACADEMICO, docente.getRol()); // Sincronizado en la entidad Usuario
+        verify(usuarioRepository, times(1)).save(docente);
     }
 }

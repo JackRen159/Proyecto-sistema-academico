@@ -25,6 +25,8 @@ import { CambioPasswordRequest } from '../model/cambio-password-request';
 // @ts-ignore
 import { ConfirmacionRecuperacionPasswordRequest } from '../model/confirmacion-recuperacion-password-request';
 // @ts-ignore
+import { ConmutarRolRequest } from '../model/conmutar-rol-request';
+// @ts-ignore
 import { ErrorResponse } from '../model/error-response';
 // @ts-ignore
 import { LoginRequest } from '../model/login-request';
@@ -111,6 +113,76 @@ export class AutenticacinService extends BaseService {
             {
                 context: localVarHttpContext,
                 body: cambioPasswordRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Conmutar rol activo en sesión (UC-01 A2, RN-SEG-04)
+     * Emite un nuevo token con los permisos mínimos del rol seleccionado sin acumular privilegios.
+     * @endpoint post /api/auth/conmutar-rol
+     * @param conmutarRolRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public apiAuthConmutarRolPost(conmutarRolRequest: ConmutarRolRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<LoginResponse>;
+    public apiAuthConmutarRolPost(conmutarRolRequest: ConmutarRolRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<LoginResponse>>;
+    public apiAuthConmutarRolPost(conmutarRolRequest: ConmutarRolRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<LoginResponse>>;
+    public apiAuthConmutarRolPost(conmutarRolRequest: ConmutarRolRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (conmutarRolRequest === null || conmutarRolRequest === undefined) {
+            throw new Error('Required parameter conmutarRolRequest was null or undefined when calling apiAuthConmutarRolPost.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (BearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('BearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/auth/conmutar-rol`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<LoginResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: conmutarRolRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

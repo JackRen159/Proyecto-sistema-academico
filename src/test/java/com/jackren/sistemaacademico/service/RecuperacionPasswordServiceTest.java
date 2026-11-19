@@ -41,6 +41,9 @@ class RecuperacionPasswordServiceTest {
     @Mock
     private AuditoriaGlobalService auditoriaService;
 
+    @Mock
+    private com.jackren.sistemaacademico.security.TokenRevocationService tokenRevocationService;
+
     @InjectMocks
     private RecuperacionPasswordService recuperacionService;
 

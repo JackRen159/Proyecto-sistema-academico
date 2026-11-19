@@ -1,6 +1,7 @@
 package com.jackren.sistemaacademico.security;
 
 import com.jackren.sistemaacademico.entity.EstadoUsuario;
+import com.jackren.sistemaacademico.entity.Rol;
 import com.jackren.sistemaacademico.entity.Usuario;
 import com.jackren.sistemaacademico.repository.UsuarioRepository;
 import org.springframework.security.authentication.DisabledException;
@@ -27,16 +28,18 @@ public class CustomUserDetailsService implements UserDetailsService {
         Usuario usuario = usuarioRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
 
-        if (!Boolean.TRUE.equals(usuario.getActivo()) ||
-                usuario.getEstado() == EstadoUsuario.BLOQUEADA ||
-                usuario.getEstado() == EstadoUsuario.INACTIVA) {
+        if (usuario.getEstado() == EstadoUsuario.BLOQUEADA || usuario.getEstado() == EstadoUsuario.INACTIVA) {
             throw new DisabledException("La cuenta de usuario se encuentra inactiva o bloqueada (E2)");
         }
+
+        String roleName = (usuario.getEstado() == EstadoUsuario.INACTIVA_HISTORICA)
+                ? Rol.HISTORICO_RESTRINGIDO.name()
+                : usuario.getRol().name();
 
         return new User(
                 usuario.getUsername(),
                 usuario.getPasswordHash(),
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + usuario.getRol().name()))
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + roleName))
         );
     }
 }

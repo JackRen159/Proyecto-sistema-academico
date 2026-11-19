@@ -140,6 +140,27 @@ paths:
           description: Datos inválidos o incumplimiento de política de complejidad (E3).
         '401':
           description: Contraseña actual incorrecta (E1).
+  /api/auth/conmutar-rol:
+    post:
+      tags:
+      - Autenticación
+      summary: Conmutar rol activo en sesión (UC-01 A2, RN-SEG-04)
+      description: Emite un nuevo token con los permisos mínimos del rol seleccionado sin acumular privilegios.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConmutarRolRequest'
+      responses:
+        '200':
+          description: Rol activo conmutado exitosamente. Retorna nuevo token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '409':
+          description: El rol solicitado no está vigente para el usuario (E3).
   /api/auth/recuperar-password/solicitar:
     post:
       tags:
@@ -283,6 +304,31 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UsuarioResponse'
+  /api/usuarios/{id}/restablecer-presencial:
+    post:
+      tags:
+      - Usuarios y Roles
+      summary: Restablecimiento presencial asistido en ventanilla de Secretaría (UC-PROV-03 A2)
+      description: Genera credencial temporal de un solo uso, coloca cuenta en PENDIENTE_ACTIVACION e invalida sesiones activas en servidor (RN-SEG-06).
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: motivo
+        in: query
+        schema:
+          type: string
+          default: Trámite presencial en Secretaría Académica
+      responses:
+        '200':
+          description: Credencial temporal generada con constancia auditada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestablecimientoPresencialResponse'
   /api/usuarios/{id}/roles:
     get:
       tags:
@@ -4033,6 +4079,7 @@ components:
       - ESTUDIANTE
       - ACUDIENTE
       - SECRETARIA
+      - HISTORICO_RESTRINGIDO
       example: ADMINISTRADOR
     Parentesco:
       type: string
@@ -7233,6 +7280,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AuditoriaEventoResponse'
+    ConmutarRolRequest:
+      type: object
+      required:
+      - rol
+      properties:
+        rol:
+          $ref: '#/components/schemas/Rol'
+    RestablecimientoPresencialResponse:
+      type: object
+      properties:
+        usuarioId:
+          type: integer
+          format: int64
+          example: 10
+        username:
+          type: string
+          example: acudiente1
+        passwordTemporal:
+          type: string
+          example: Abc123XY!
+        fechaGeneracion:
+          type: string
+          format: date-time
+        mensaje:
+          type: string
 
 tags:
 - name: Profesores

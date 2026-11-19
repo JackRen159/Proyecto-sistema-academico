@@ -68,6 +68,16 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioService.cambiarEstado(id, request, jwt.getSubject()));
     }
 
+    @PostMapping("/{id}/restablecer-presencial")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'SECRETARIA')")
+    public ResponseEntity<RestablecimientoPresencialResponse> restablecerPresencial(
+            @PathVariable Long id,
+            @RequestParam(required = false, defaultValue = "Trámite presencial en Secretaría Académica") String motivo,
+            @AuthenticationPrincipal Jwt jwt) {
+        RestablecimientoPresencialResponse response = usuarioService.restablecerPresencial(id, jwt.getSubject(), motivo);
+        return ResponseEntity.ok(response);
+    }
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR')")
     public ResponseEntity<Void> eliminarUsuario(

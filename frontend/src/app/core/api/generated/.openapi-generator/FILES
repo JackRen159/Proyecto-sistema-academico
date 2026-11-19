@@ -71,6 +71,7 @@ model/configuracion-escala-siee-response.ts
 model/configuracion-manual-convivencia-response.ts
 model/configuracion-siee-response.ts
 model/confirmacion-recuperacion-password-request.ts
+model/conmutar-rol-request.ts
 model/constancia-matricula-response.ts
 model/crear-politica-datos-request.ts
 model/crear-siee-borrador-request.ts
@@ -125,6 +126,7 @@ model/registro-asistencia-response.ts
 model/registro-calificacion-request.ts
 model/registro-calificaciones-lote-request.ts
 model/registro-emision-response.ts
+model/restablecimiento-presencial-response.ts
 model/resultado-auditoria.ts
 model/resumen-asistencia-estudiante-response.ts
 model/resumen-boletin-dto.ts

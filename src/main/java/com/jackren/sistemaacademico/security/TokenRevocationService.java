@@ -6,20 +6,15 @@ import java.time.Instant;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Servicio en memoria para la gestion de revocacion de tokens JWT (Blacklist local).
- * Permite invalidar tokens tras la invocacion de logout mediante el identificador unico (jti).
+ * Servicio en memoria para la gestión de revocación de tokens JWT (Blacklist local).
+ * Permite invalidar tokens individuales tras logout (jti) o masivamente por usuario (RN-SEG-06).
  */
 @Service
 public class TokenRevocationService {
 
     private final ConcurrentHashMap<String, Instant> revokedTokens = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Long, Instant> userRevocations = new ConcurrentHashMap<>();
 
-    /**
-     * Registra un token como revocado hasta su fecha de expiracion.
-     *
-     * @param jti Identificador unico del token JWT.
-     * @param expiresAt Fecha y hora de expiracion del token.
-     */
     public void revokeToken(String jti, Instant expiresAt) {
         if (jti != null && !jti.isBlank()) {
             Instant expiration = expiresAt != null ? expiresAt : Instant.now().plusSeconds(8 * 3600);
@@ -28,12 +23,6 @@ public class TokenRevocationService {
         }
     }
 
-    /**
-     * Verifica si un token ha sido revocado.
-     *
-     * @param jti Identificador unico del token JWT.
-     * @return true si el token se encuentra en la lista de revocados y no ha expirado aun; false en caso contrario.
-     */
     public boolean isRevoked(String jti) {
         if (jti == null || jti.isBlank()) {
             return false;
@@ -49,19 +38,30 @@ public class TokenRevocationService {
         return true;
     }
 
-    /**
-     * Limpia todos los tokens revocados (util para pruebas y reinicios).
-     */
-    public void clear() {
-        revokedTokens.clear();
+    public void revokeUserTokens(Long usuarioId, Instant revokedBefore) {
+        if (usuarioId != null) {
+            userRevocations.put(usuarioId, revokedBefore != null ? revokedBefore : Instant.now());
+        }
     }
 
-    /**
-     * Limpieza perezosa de entradas cuya fecha de expiracion ya transcurrio.
-     */
+    public boolean isUserTokenRevoked(Long usuarioId, Instant tokenIssuedAt) {
+        if (usuarioId == null || tokenIssuedAt == null) {
+            return false;
+        }
+        Instant revokedBefore = userRevocations.get(usuarioId);
+        if (revokedBefore == null) {
+            return false;
+        }
+        return tokenIssuedAt.isBefore(revokedBefore);
+    }
+
+    public void clear() {
+        revokedTokens.clear();
+        userRevocations.clear();
+    }
+
     private void cleanupExpired() {
         Instant now = Instant.now();
         revokedTokens.entrySet().removeIf(entry -> now.isAfter(entry.getValue()));
     }
 }
-

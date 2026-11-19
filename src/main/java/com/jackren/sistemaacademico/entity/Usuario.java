@@ -120,7 +120,9 @@ public class Usuario {
 
     public void setEstado(EstadoUsuario estado) {
         this.estado = estado;
-        this.activo = (estado == EstadoUsuario.ACTIVA || estado == EstadoUsuario.PENDIENTE_ACTIVACION);
+        this.activo = (estado == EstadoUsuario.ACTIVA ||
+                       estado == EstadoUsuario.PENDIENTE_ACTIVACION ||
+                       estado == EstadoUsuario.INACTIVA_HISTORICA);
     }
 
     public Boolean getDebeCambiarPassword() {

@@ -41,6 +41,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -302,5 +303,20 @@ class SecurityConfigTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"username\":\"admin\",\"password\":\"ClaveErronea123*\"}"))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void conmutarRol_ConTokenAutenticado_DebeRetornar200() throws Exception {
+        LoginResponse resp = new LoginResponse("nuevo.token", "Bearer", "docente1", Rol.COORDINADOR_ACADEMICO, 28800L);
+        when(authService.conmutarRol(any(), eq("docente1"), any())).thenReturn(resp);
+
+        mockMvc.perform(post("/api/auth/conmutar-rol")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"rol\":\"COORDINADOR_ACADEMICO\"}")
+                        .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_PROFESOR"))
+                                .jwt(b -> b.subject("docente1").claim("rol", "PROFESOR").claim("jti", "jti-123"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").value("nuevo.token"))
+                .andExpect(jsonPath("$.rol").value("COORDINADOR_ACADEMICO"));
     }
 }

@@ -73,6 +73,14 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("mensaje", "Contraseña actualizada exitosamente."));
     }
 
+    @PostMapping("/conmutar-rol")
+    public ResponseEntity<LoginResponse> conmutarRol(
+            @Valid @RequestBody ConmutarRolRequest request,
+            @AuthenticationPrincipal Jwt jwt) {
+        LoginResponse response = authService.conmutarRol(request, jwt.getSubject(), jwt != null ? jwt.getId() : null);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/recuperar-password/solicitar")
     public ResponseEntity<Map<String, String>> solicitarRecuperacion(
             @Valid @RequestBody SolicitudRecuperacionPasswordRequest request) {

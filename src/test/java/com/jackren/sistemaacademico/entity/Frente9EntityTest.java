@@ -19,7 +19,8 @@ class Frente9EntityTest {
         assertNotNull(Rol.valueOf("COORDINADOR_CONVIVENCIA"));
         assertNotNull(Rol.valueOf("ORIENTADOR_ESCOLAR"));
         assertNotNull(Rol.valueOf("COORDINADOR"));
-        assertEquals(10, Rol.values().length);
+        assertNotNull(Rol.valueOf("HISTORICO_RESTRINGIDO"));
+        assertEquals(11, Rol.values().length);
     }
 
     @Test

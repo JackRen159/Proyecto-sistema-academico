@@ -29,6 +29,8 @@ export enum Rol {
 
     Acudiente = 'ACUDIENTE',
 
-    Secretaria = 'SECRETARIA'
+    Secretaria = 'SECRETARIA',
+
+    HistoricoRestringido = 'HISTORICO_RESTRINGIDO'
 }
 

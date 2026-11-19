@@ -127,4 +127,20 @@ class UsuarioSecurityTest {
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.status").value(409));
     }
+
+    @Test
+    @DisplayName("POST /api/usuarios/{id}/restablecer-presencial con rol SECRETARIA debe retornar 200 OK (UC-PROV-03 A2)")
+    void postRestablecerPresencial_RolSecretaria_DebeRetornar200() throws Exception {
+        com.jackren.sistemaacademico.dto.RestablecimientoPresencialResponse resp =
+                new com.jackren.sistemaacademico.dto.RestablecimientoPresencialResponse(2L, "estudiante1", "Temp123*");
+        when(usuarioService.restablecerPresencial(eq(2L), any(), any())).thenReturn(resp);
+
+        mockMvc.perform(post("/api/usuarios/2/restablecer-presencial")
+                        .param("motivo", "Atención presencial en Secretaría")
+                        .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_SECRETARIA"))
+                                .jwt(b -> b.subject("secretaria1").claim("rol", "SECRETARIA"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value("estudiante1"))
+                .andExpect(jsonPath("$.passwordTemporal").value("Temp123*"));
+    }
 }

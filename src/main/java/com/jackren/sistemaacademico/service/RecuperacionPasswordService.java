@@ -31,15 +31,18 @@ public class RecuperacionPasswordService {
     private final TokenRecuperacionPasswordRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuditoriaGlobalService auditoriaService;
+    private final com.jackren.sistemaacademico.security.TokenRevocationService tokenRevocationService;
 
     public RecuperacionPasswordService(UsuarioRepository usuarioRepository,
                                        TokenRecuperacionPasswordRepository tokenRepository,
                                        PasswordEncoder passwordEncoder,
-                                       AuditoriaGlobalService auditoriaService) {
+                                       AuditoriaGlobalService auditoriaService,
+                                       com.jackren.sistemaacademico.security.TokenRevocationService tokenRevocationService) {
         this.usuarioRepository = usuarioRepository;
         this.tokenRepository = tokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.auditoriaService = auditoriaService;
+        this.tokenRevocationService = tokenRevocationService;
     }
 
     /**
@@ -132,6 +135,9 @@ public class RecuperacionPasswordService {
             usuario.setEstado(EstadoUsuario.ACTIVA);
         }
         usuarioRepository.save(usuario);
+
+        // Invalidar forzosamente todas las sesiones previas en servidor (RN-SEG-06)
+        tokenRevocationService.revokeUserTokens(usuario.getId(), java.time.Instant.now());
 
         token.setUsado(true);
         token.setFechaUso(LocalDateTime.now());
