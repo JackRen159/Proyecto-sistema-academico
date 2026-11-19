@@ -47,6 +47,9 @@ class OpenApiSecurityTest {
     private com.jackren.sistemaacademico.service.AuthService authService;
 
     @MockitoBean
+    private com.jackren.sistemaacademico.service.RecuperacionPasswordService recuperacionPasswordService;
+
+    @MockitoBean
     private UsuarioRepository usuarioRepository;
 
     @Test

@@ -1,12 +1,11 @@
 package com.jackren.sistemaacademico.controller;
 
-import com.jackren.sistemaacademico.dto.LoginRequest;
-import com.jackren.sistemaacademico.dto.LoginResponse;
-import com.jackren.sistemaacademico.dto.UsuarioResponse;
+import com.jackren.sistemaacademico.dto.*;
 import com.jackren.sistemaacademico.exception.DemasiadasPeticionesException;
 import com.jackren.sistemaacademico.security.LoginRateLimiterService;
 import com.jackren.sistemaacademico.security.TokenRevocationService;
 import com.jackren.sistemaacademico.service.AuthService;
+import com.jackren.sistemaacademico.service.RecuperacionPasswordService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -17,33 +16,23 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 /**
- * Controlador REST para operaciones de autenticacion, cierre de sesion y consulta de perfil.
- *
- * <h3>Stateless Tradeoff y Ciclo de Vida JWT:</h3>
- * <p>
- * Los tokens emitidos son completamente stateless con una vigencia de 8 horas en la aplicacion
- * cliente SPA. El cierre de sesion ({@code /api/auth/logout}) registra el identificador unico
- * ({@code jti}) del token en {@link TokenRevocationService} para denegar peticiones subsecuentes
- * en el servidor, mientras que el cliente descarta las credenciales en memoria.
- * </p>
- * <p>
- * La proteccion contra fuerza bruta en {@code /api/auth/login} restringe a un maximo de 5 intentos
- * por minuto por direccion IP, respondiendo HTTP 429 Too Many Requests con la cabecera
- * {@code Retry-After: 60}.
- * </p>
+ * Controlador REST para operaciones de autenticación, cierre de sesión, cambio y recuperación de contraseñas.
  */
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
     private final AuthService authService;
+    private final RecuperacionPasswordService recuperacionService;
     private final LoginRateLimiterService loginRateLimiterService;
     private final TokenRevocationService tokenRevocationService;
 
     public AuthController(AuthService authService,
+                          RecuperacionPasswordService recuperacionService,
                           LoginRateLimiterService loginRateLimiterService,
                           TokenRevocationService tokenRevocationService) {
         this.authService = authService;
+        this.recuperacionService = recuperacionService;
         this.loginRateLimiterService = loginRateLimiterService;
         this.tokenRevocationService = tokenRevocationService;
     }
@@ -74,5 +63,27 @@ public class AuthController {
     public ResponseEntity<UsuarioResponse> me(@AuthenticationPrincipal Jwt jwt) {
         UsuarioResponse response = authService.obtenerUsuarioActual(jwt.getSubject());
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/cambiar-password")
+    public ResponseEntity<Map<String, String>> cambiarPassword(
+            @Valid @RequestBody CambioPasswordRequest request,
+            @AuthenticationPrincipal Jwt jwt) {
+        authService.cambiarPassword(request, jwt.getSubject());
+        return ResponseEntity.ok(Map.of("mensaje", "Contraseña actualizada exitosamente."));
+    }
+
+    @PostMapping("/recuperar-password/solicitar")
+    public ResponseEntity<Map<String, String>> solicitarRecuperacion(
+            @Valid @RequestBody SolicitudRecuperacionPasswordRequest request) {
+        String mensaje = recuperacionService.solicitarRecuperacion(request);
+        return ResponseEntity.ok(Map.of("mensaje", mensaje));
+    }
+
+    @PostMapping("/recuperar-password/confirmar")
+    public ResponseEntity<Map<String, String>> confirmarRecuperacion(
+            @Valid @RequestBody ConfirmacionRecuperacionPasswordRequest request) {
+        recuperacionService.confirmarRecuperacion(request);
+        return ResponseEntity.ok(Map.of("mensaje", "Contraseña restablecida exitosamente. Puede iniciar sesión con sus nuevas credenciales."));
     }
 }

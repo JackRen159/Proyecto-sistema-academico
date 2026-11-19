@@ -114,6 +114,621 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /api/auth/cambiar-password:
+    post:
+      tags:
+      - Autenticación
+      summary: Cambiar contraseña voluntariamente o en primer ingreso (UC-PROV-03 A1)
+      description: Permite actualizar la contraseña verificando la credencial actual y aplicando la política de complejidad. Invalida sesiones activas en otros dispositivos.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CambioPasswordRequest'
+      responses:
+        '200':
+          description: Contraseña actualizada exitosamente.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensaje:
+                    type: string
+        '400':
+          description: Datos inválidos o incumplimiento de política de complejidad (E3).
+        '401':
+          description: Contraseña actual incorrecta (E1).
+  /api/auth/recuperar-password/solicitar:
+    post:
+      tags:
+      - Autenticación
+      summary: Solicitar recuperación de contraseña por autoservicio (UC-PROV-03)
+      description: Procesa la solicitud pública en tiempo constante respondiendo con mensaje neutro para prevenir enumeración de cuentas (E1).
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SolicitudRecuperacionPasswordRequest'
+      responses:
+        '200':
+          description: Solicitud procesada uniformemente.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mensaje:
+                    type: string
+  /api/auth/recuperar-password/confirmar:
+    post:
+      tags:
+      - Autenticación
+      summary: Confirmar restablecimiento de contraseña mediante token (UC-PROV-03)
+      description: Valida el token de un solo uso y su vigencia para registrar la nueva contraseña (E2, E3).
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfirmacionRecuperacionPasswordRequest'
+      responses:
+        '200':
+          description: Contraseña restablecida exitosamente.
+        '400':
+          description: Token inválido, expirado o contraseña no cumple requisitos (E2, E3).
+  /api/usuarios:
+    get:
+      tags:
+      - Usuarios y Roles
+      summary: Listar cuentas de usuario paginadas (UC-PROV-01)
+      description: Consulta administrativa de usuarios. Requiere rol ADMINISTRADOR, RECTOR o SECRETARIA.
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          default: 0
+      - name: size
+        in: query
+        schema:
+          type: integer
+          default: 20
+      responses:
+        '200':
+          description: Listado paginado de usuarios.
+    post:
+      tags:
+      - Usuarios y Roles
+      summary: Aprovisionar cuenta de usuario con credencial temporal (UC-PROV-01)
+      description: Crea la cuenta en estado PENDIENTE_ACTIVACION. Secretaría solo puede crear Estudiantes y Acudientes (E3).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrearUsuarioRequest'
+      responses:
+        '201':
+          description: Cuenta creada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsuarioResponse'
+        '409':
+          description: Conflicto de unicidad de username o cuenta ya existente (E1).
+  /api/usuarios/{id}:
+    get:
+      tags:
+      - Usuarios y Roles
+      summary: Obtener detalle de cuenta de usuario
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Detalle del usuario.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsuarioResponse'
+        '404':
+          description: Usuario no encontrado.
+    delete:
+      tags:
+      - Usuarios y Roles
+      summary: Intento de eliminación física (prohibido por norma) (UC-PROV-01 E4)
+      description: Siempre responde HTTP 409 Conflicto por regla de inmutabilidad y no borrado físico (RN-SEG-01).
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '409':
+          description: Prohibición absoluta de borrado físico. Debe inactivarse.
+  /api/usuarios/{id}/estado:
+    patch:
+      tags:
+      - Usuarios y Roles
+      summary: Modificar estado de cuenta con motivo obligatorio (UC-PROV-01 A2)
+      description: Permite bloquear, inactivar o pasar a estado histórico restringido.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActualizarEstadoUsuarioRequest'
+      responses:
+        '200':
+          description: Estado actualizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsuarioResponse'
+  /api/usuarios/{id}/roles:
+    get:
+      tags:
+      - Usuarios y Roles
+      summary: Listar roles asignados al usuario (UC-PROV-02)
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Lista de roles del usuario.
+    post:
+      tags:
+      - Usuarios y Roles
+      summary: Asignar rol compatible con vigencia temporal (UC-PROV-02 A1)
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AsignarRolUsuarioRequest'
+      responses:
+        '201':
+          description: Rol asignado exitosamente.
+        '409':
+          description: Incompatibilidad de roles o segregación de funciones (E1).
+  /api/usuarios/{id}/roles/{rolId}:
+    delete:
+      tags:
+      - Usuarios y Roles
+      summary: Revocar rol asignado (UC-PROV-02)
+      description: Revoca rol protegiendo el último administrador activo (E3).
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: rolId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Rol revocado exitosamente.
+        '409':
+          description: Rechazado si es el último administrador activo (E3).
+  /api/usuarios/{id}/organos-colegiados:
+    get:
+      tags:
+      - Usuarios y Roles
+      summary: Listar designaciones en órganos colegiados (UC-PROV-02 A2)
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Lista de membresías.
+    post:
+      tags:
+      - Usuarios y Roles
+      summary: Registrar miembro nominativo en órgano colegiado (UC-PROV-02 A2)
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AsignarOrganoColegiadoRequest'
+      responses:
+        '201':
+          description: Membresía registrada con soporte de acta institucional.
+  /api/usuarios/organos-colegiados/{miembroId}:
+    delete:
+      tags:
+      - Usuarios y Roles
+      summary: Remover membresía de órgano colegiado (UC-PROV-02)
+      parameters:
+      - name: miembroId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Membresía revocada exitosamente.
+  /api/configuracion/institucion:
+    get:
+      tags:
+      - Configuración Institucional
+      summary: Consultar identificación legal oficial y firmas vigentes (UC-PROV-14)
+      description: Endpoint público / comunitario para consultar código DANE, NIT, resoluciones y firmantes autorizados.
+      security: []
+      responses:
+        '200':
+          description: Datos legales vigentes del establecimiento.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstitucionDatosLegalesResponse'
+    put:
+      tags:
+      - Configuración Institucional
+      summary: Actualizar datos oficiales y firmas autorizadas de Rectoría y Secretaría (UC-PROV-13)
+      description: Requiere rol ADMINISTRADOR o RECTOR. Valida código DANE de 12 dígitos.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActualizarInstitucionRequest'
+      responses:
+        '200':
+          description: Datos institucionales actualizados.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstitucionDatosLegalesResponse'
+        '400':
+          description: Código DANE inválido u otros campos incompletos.
+  /api/configuracion/parametros:
+    get:
+      tags:
+      - Configuración Institucional
+      summary: Listar parámetros institucionales transversales (UC-PROV-13)
+      responses:
+        '200':
+          description: Lista de parámetros.
+  /api/configuracion/parametros/{clave}:
+    get:
+      tags:
+      - Configuración Institucional
+      summary: Consultar un parámetro institucional por su clave
+      parameters:
+      - name: clave
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Detalle del parámetro.
+    put:
+      tags:
+      - Configuración Institucional
+      summary: Modificar valor de parámetro institucional con control de límites (UC-PROV-13 E1)
+      description: Aplica límites legales obligatorios como PLAZO_ARCO_DIAS_HABILES <= 15 días (E1).
+      parameters:
+      - name: clave
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActualizarParametroRequest'
+      responses:
+        '200':
+          description: Parámetro actualizado.
+        '400':
+          description: Valor supera límite legal o parámetro no es editable (E1).
+  /api/configuracion/politica-datos/vigente:
+    get:
+      tags:
+      - Configuración Institucional
+      summary: Consultar versión vigente de la Política de Tratamiento de Datos Personales (UC-PROV-14 A2)
+      description: Lectura pública de Habeas Data (Ley 1581 de 2012 / Decreto 1377 de 2013).
+      security: []
+      responses:
+        '200':
+          description: Versión vigente de la política y aviso de privacidad.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PoliticaDatosResponse'
+  /api/configuracion/politica-datos:
+    get:
+      tags:
+      - Configuración Institucional
+      summary: Listar versiones históricas y vigentes de la Política de Datos (UC-PROV-14)
+      responses:
+        '200':
+          description: Listado de versiones.
+    post:
+      tags:
+      - Configuración Institucional
+      summary: Publicar nueva versión inmutable de la Política de Datos (UC-PROV-13 A1)
+      description: No sobrescribe versiones históricas previamente aceptadas (E2).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrearPoliticaDatosRequest'
+      responses:
+        '201':
+          description: Nueva versión publicada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PoliticaDatosResponse'
+  /api/configuracion/politica-datos/consentimiento:
+    post:
+      tags:
+      - Configuración Institucional
+      summary: Registrar consentimiento informado de usuario autenticado (UC-01 A1, UC-PROV-13)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistrarConsentimientoRequest'
+      responses:
+        '200':
+          description: Consentimiento registrado de forma auditable.
+  /api/configuracion/siee/vigente:
+    get:
+      tags:
+      - Configuración Institucional
+      summary: Consultar versión vigente del SIEE y tabla de equivalencias (UC-PROV-14)
+      security: []
+      responses:
+        '200':
+          description: SIEE oficial vigente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfiguracionSieeResponse'
+  /api/configuracion/siee:
+    get:
+      tags:
+      - Configuración Institucional
+      summary: Listar versiones del SIEE (borradores, vigentes e históricas) (UC-26)
+      responses:
+        '200':
+          description: Historial de versiones del SIEE.
+  /api/configuracion/siee/borrador:
+    post:
+      tags:
+      - Configuración Institucional
+      summary: Crear propuesta o borrador de versión del SIEE (UC-26 A1)
+      description: Valida matemáticamente escalas sin vacíos ni traslapes (E1).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrearSieeBorradorRequest'
+      responses:
+        '201':
+          description: Borrador creado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfiguracionSieeResponse'
+        '400':
+          description: Inconsistencia matemática en escala o ponderaciones (E1).
+  /api/configuracion/siee/{id}/aprobar:
+    post:
+      tags:
+      - Configuración Institucional
+      summary: Formalizar y publicar versión aprobada del SIEE con actas colegiadas (UC-26)
+      description: Exige actas de Consejo Académico y Consejo Directivo (E2). No aplica retroactivamente a periodos cerrados (E3).
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AprobarSieeRequest'
+      responses:
+        '200':
+          description: Versión del SIEE publicada como VIGENTE.
+        '409':
+          description: Faltan actas obligatorias (E2), intenta alterar versión histórica (E5) o aplicar a año cerrado (E3).
+  /api/configuracion/manual-convivencia/vigente:
+    get:
+      tags:
+      - Configuración Institucional
+      summary: Consultar versión vigente del Manual de Convivencia (UC-PROV-14)
+      security: []
+      responses:
+        '200':
+          description: Manual de convivencia vigente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfiguracionManualConvivenciaResponse'
+  /api/configuracion/manual-convivencia/{id}/aprobar:
+    post:
+      tags:
+      - Configuración Institucional
+      summary: Aprobar y publicar Manual de Convivencia con actas colegiadas (UC-26)
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AprobarManualConvivenciaRequest'
+      responses:
+        '200':
+          description: Manual publicado como VIGENTE.
+        '409':
+          description: Faltan actas de Comité de Convivencia y Consejo Directivo (E2).
+  /api/auditoria/eventos:
+    get:
+      tags:
+      - Auditoría Global
+      summary: Consultar bitácora transversal inmutable con filtros y paginación (UC-27)
+      description: Requiere rol ADMINISTRADOR o RECTOR. Consulta de solo lectura (RN-10).
+      parameters:
+      - name: modulo
+        in: query
+        schema:
+          type: string
+      - name: desde
+        in: query
+        schema:
+          type: string
+          format: date-time
+      - name: hasta
+        in: query
+        schema:
+          type: string
+          format: date-time
+      - name: page
+        in: query
+        schema:
+          type: integer
+          default: 0
+      - name: size
+        in: query
+        schema:
+          type: integer
+          default: 20
+      responses:
+        '200':
+          description: Página de eventos de auditoría.
+  /api/auditoria/eventos/correlation/{correlationId}:
+    get:
+      tags:
+      - Auditoría Global
+      summary: Reconstrucción cronológica de trazabilidad por correlationId (UC-27 A4)
+      parameters:
+      - name: correlationId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Secuencia cronológica de eventos.
+  /api/auditoria/eventos/entidad/{entidad}/{entidadId}:
+    get:
+      tags:
+      - Auditoría Global
+      summary: Reconstrucción cronológica de cambios sobre una entidad específica (UC-27 A4)
+      parameters:
+      - name: entidad
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: entidadId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Historial de eventos de la entidad.
+  /api/auditoria/verificar-integridad:
+    get:
+      tags:
+      - Auditoría Global
+      summary: Ejecutar verificación criptográfica de integridad de la cadena SHA-256 (UC-PROV-29)
+      description: Recalcula matemáticamente la cadena completa de hashes para detectar inserciones, modificaciones o supresiones directas en base de datos.
+      responses:
+        '200':
+          description: Resultado de la verificación técnica (CADENA_INTEGRA_VERIFICADA o ALERTA_CRITICA_INTEGRIDAD_AUDITORIA).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerificacionIntegridadResponse'
+  /api/auditoria/exportar:
+    post:
+      tags:
+      - Auditoría Global
+      summary: Exportar paquete regulatorio de auditoría firmado con manifiesto SHA-256 (UC-PROV-29 paso 5-6)
+      description: Requiere rol RECTOR y número de requerimiento oficial de autoridad competente (E3).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExportacionAuditoriaRequest'
+      responses:
+        '200':
+          description: Paquete oficial de auditoría con manifiesto SHA-256 generado y auditado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaqueteAuditoriaExportadoResponse'
+        '400':
+          description: Falta oficio o motivo obligatorio (E3).
   /api/estudiantes:
     get:
       tags:
@@ -3411,6 +4026,9 @@ components:
       - ADMINISTRADOR
       - RECTOR
       - COORDINADOR
+      - COORDINADOR_ACADEMICO
+      - COORDINADOR_CONVIVENCIA
+      - ORIENTADOR_ESCOLAR
       - PROFESOR
       - ESTUDIANTE
       - ACUDIENTE
@@ -3464,6 +4082,16 @@ components:
           format: int64
           description: Tiempo de expiración en segundos (ej. 28800 = 8 horas).
           example: 28800
+        debeCambiarPassword:
+          type: boolean
+          example: false
+        politicaAceptada:
+          type: boolean
+          example: true
+        rolesDisponibles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Rol'
     UsuarioResponse:
       type: object
       properties:
@@ -3479,6 +4107,15 @@ components:
         activo:
           type: boolean
           example: true
+        estado:
+          $ref: '#/components/schemas/EstadoUsuario'
+        debeCambiarPassword:
+          type: boolean
+          example: false
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Rol'
     EstudianteRequest:
       type: object
       required:
@@ -5842,6 +6479,760 @@ components:
         motivo:
           type: string
           example: Traslado de colegio
+    EstadoUsuario:
+      type: string
+      enum:
+      - ACTIVA
+      - PENDIENTE_ACTIVACION
+      - BLOQUEADA
+      - INACTIVA
+      - INACTIVA_HISTORICA
+      example: ACTIVA
+    TipoOrganoColegiado:
+      type: string
+      enum:
+      - COMISION_EVALUACION_PROMOCION
+      - COMITE_CONVIVENCIA
+      - CONSEJO_ACADEMICO
+      - CONSEJO_DIRECTIVO
+      example: CONSEJO_ACADEMICO
+    EstadoVersionConfiguracion:
+      type: string
+      enum:
+      - BORRADOR
+      - LISTA_PARA_APROBACION
+      - APROBADA_VIGENCIA_FUTURA
+      - VIGENTE
+      - HISTORICA
+      example: VIGENTE
+    CaracterInstitucion:
+      type: string
+      enum:
+      - OFICIAL
+      - PRIVADO
+      example: OFICIAL
+    TipoDatoParametro:
+      type: string
+      enum:
+      - STRING
+      - INTEGER
+      - DECIMAL
+      - BOOLEAN
+      - JSON
+      example: INTEGER
+    ResultadoAuditoria:
+      type: string
+      enum:
+      - EXITO
+      - FALLO
+      - DENEGADO
+      example: EXITO
+    CrearUsuarioRequest:
+      type: object
+      required:
+      - username
+      - rol
+      properties:
+        username:
+          type: string
+          example: docente.perez
+        password:
+          type: string
+          example: Temporal123*
+        rol:
+          $ref: '#/components/schemas/Rol'
+        personaTipo:
+          type: string
+          example: PROFESOR
+        personaId:
+          type: integer
+          format: int64
+          example: 10
+        debeCambiarPassword:
+          type: boolean
+          example: true
+    ActualizarEstadoUsuarioRequest:
+      type: object
+      required:
+      - estado
+      - motivo
+      properties:
+        estado:
+          $ref: '#/components/schemas/EstadoUsuario'
+        motivo:
+          type: string
+          example: Suspensión administrativa por retiro laboral
+    AsignarRolUsuarioRequest:
+      type: object
+      required:
+      - rol
+      properties:
+        rol:
+          $ref: '#/components/schemas/Rol'
+        anioLectivoId:
+          type: integer
+          format: int64
+          example: 2026
+        fechaInicio:
+          type: string
+          format: date
+          example: '2026-01-15'
+        fechaFin:
+          type: string
+          format: date
+          example: '2026-11-30'
+        motivoAsignacion:
+          type: string
+          example: Encargo de coordinación académica anual
+        esPrincipal:
+          type: boolean
+          example: false
+    UsuarioRolResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        usuarioId:
+          type: integer
+          format: int64
+          example: 5
+        username:
+          type: string
+          example: docente.perez
+        rol:
+          $ref: '#/components/schemas/Rol'
+        activo:
+          type: boolean
+          example: true
+        esPrincipal:
+          type: boolean
+          example: false
+        fechaInicio:
+          type: string
+          format: date
+          example: '2026-01-15'
+        fechaFin:
+          type: string
+          format: date
+          example: '2026-11-30'
+        anioLectivoId:
+          type: integer
+          format: int64
+          example: 2026
+        motivoAsignacion:
+          type: string
+          example: Encargo anual
+    AsignarOrganoColegiadoRequest:
+      type: object
+      required:
+      - tipoOrgano
+      - actaDesignacion
+      - anioLectivoId
+      properties:
+        tipoOrgano:
+          $ref: '#/components/schemas/TipoOrganoColegiado'
+        actaDesignacion:
+          type: string
+          example: Acta No. 001 de 2026
+        anioLectivoId:
+          type: integer
+          format: int64
+          example: 2026
+        motivo:
+          type: string
+          example: Designación anual del Consejo Directivo
+    OrganoColegiadoMiembroResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        usuarioId:
+          type: integer
+          format: int64
+          example: 5
+        username:
+          type: string
+          example: docente.perez
+        tipoOrgano:
+          $ref: '#/components/schemas/TipoOrganoColegiado'
+        actaDesignacion:
+          type: string
+          example: Acta No. 001 de 2026
+        anioLectivoId:
+          type: integer
+          format: int64
+          example: 2026
+        anioLectivoNombre:
+          type: string
+          example: Año Lectivo 2026
+        fechaInicio:
+          type: string
+          format: date
+        fechaFin:
+          type: string
+          format: date
+        activo:
+          type: boolean
+          example: true
+        motivo:
+          type: string
+    CambioPasswordRequest:
+      type: object
+      required:
+      - passwordActual
+      - passwordNuevo
+      - confirmacionPassword
+      properties:
+        passwordActual:
+          type: string
+          example: Temporal123*
+        passwordNuevo:
+          type: string
+          example: NuevoPasswordSeguro2026*
+        confirmacionPassword:
+          type: string
+          example: NuevoPasswordSeguro2026*
+    SolicitudRecuperacionPasswordRequest:
+      type: object
+      required:
+      - identificador
+      properties:
+        identificador:
+          type: string
+          example: admin@iedejemplo.edu.co
+    ConfirmacionRecuperacionPasswordRequest:
+      type: object
+      required:
+      - token
+      - passwordNuevo
+      - confirmacionPassword
+      properties:
+        token:
+          type: string
+          example: 550e8400-e29b-41d4-a716-446655440000
+        passwordNuevo:
+          type: string
+          example: NuevaContrasena2026*
+        confirmacionPassword:
+          type: string
+          example: NuevaContrasena2026*
+    InstitucionDatosLegalesResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        nombreOficial:
+          type: string
+          example: Institución Educativa Departamental Ejemplo
+        codigoDane:
+          type: string
+          example: '123456789012'
+        nit:
+          type: string
+          example: 900123456-7
+        resolucionAprobacion:
+          type: string
+          example: Resolución No. 1234 de 2018
+        caracter:
+          $ref: '#/components/schemas/CaracterInstitucion'
+        correoInstitucional:
+          type: string
+          example: rectoria@iedejemplo.edu.co
+        telefono:
+          type: string
+          example: (+57) 601 2345678
+        direccion:
+          type: string
+          example: Carrera 10 No. 20-30
+        municipio:
+          type: string
+          example: Bogotá D.C.
+        departamento:
+          type: string
+          example: Cundinamarca
+        nombreRectorFirmante:
+          type: string
+          example: Dr. Carlos Alberto Morales Gómez
+        cargoRectorFirmante:
+          type: string
+          example: Rector
+        documentoRectorFirmante:
+          type: string
+          example: CC 79123456
+        nombreSecretarioFirmante:
+          type: string
+          example: Lic. Martha Lucía Peña Silva
+        cargoSecretarioFirmante:
+          type: string
+          example: Secretaria Académica
+        documentoSecretarioFirmante:
+          type: string
+          example: CC 52987654
+        lema:
+          type: string
+          example: Educando con calidad para la paz
+        activo:
+          type: boolean
+          example: true
+    ActualizarInstitucionRequest:
+      type: object
+      required:
+      - nombreOficial
+      - codigoDane
+      - nit
+      - resolucionAprobacion
+      - caracter
+      - nombreRectorFirmante
+      - nombreSecretarioFirmante
+      properties:
+        nombreOficial:
+          type: string
+          example: Institución Educativa Departamental Ejemplo
+        codigoDane:
+          type: string
+          example: '123456789012'
+        nit:
+          type: string
+          example: 900123456-7
+        resolucionAprobacion:
+          type: string
+          example: Resolución No. 1234 de 2018
+        caracter:
+          $ref: '#/components/schemas/CaracterInstitucion'
+        correoInstitucional:
+          type: string
+        telefono:
+          type: string
+        direccion:
+          type: string
+        municipio:
+          type: string
+        departamento:
+          type: string
+        nombreRectorFirmante:
+          type: string
+        cargoRectorFirmante:
+          type: string
+        documentoRectorFirmante:
+          type: string
+        nombreSecretarioFirmante:
+          type: string
+        cargoSecretarioFirmante:
+          type: string
+        documentoSecretarioFirmante:
+          type: string
+        lema:
+          type: string
+    ParametroInstitucionalResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        clave:
+          type: string
+          example: PLAZO_ARCO_DIAS_HABILES
+        valor:
+          type: string
+          example: '15'
+        tipoDato:
+          $ref: '#/components/schemas/TipoDatoParametro'
+        descripcion:
+          type: string
+          example: Plazo máximo legal en días hábiles para atender reclamos ARCO
+        categoria:
+          type: string
+          example: SEGURIDAD_DATOS
+        limiteMinimoNumerico:
+          type: number
+          nullable: true
+          example: 1
+        limiteMaximoNumerico:
+          type: number
+          nullable: true
+          example: 15
+        editablePorUsuario:
+          type: boolean
+          example: true
+    ActualizarParametroRequest:
+      type: object
+      required:
+      - valor
+      properties:
+        valor:
+          type: string
+          example: '10'
+        motivo:
+          type: string
+          example: Reducción institucional del plazo de atención
+    PoliticaDatosResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        numeroVersion:
+          type: integer
+          example: 1
+        titulo:
+          type: string
+          example: Política de Tratamiento de Datos Personales
+        contenidoPolitica:
+          type: string
+        avisoPrivacidad:
+          type: string
+        fechaVigencia:
+          type: string
+          format: date
+        esVigente:
+          type: boolean
+          example: true
+        cambiosSustanciales:
+          type: boolean
+          example: false
+        actaAprobacion:
+          type: string
+        soporteDocumentoUrl:
+          type: string
+    CrearPoliticaDatosRequest:
+      type: object
+      required:
+      - titulo
+      - contenidoPolitica
+      - avisoPrivacidad
+      - fechaVigencia
+      properties:
+        titulo:
+          type: string
+          example: Política Institucional de Datos V2
+        contenidoPolitica:
+          type: string
+        avisoPrivacidad:
+          type: string
+        fechaVigencia:
+          type: string
+          format: date
+        esVigente:
+          type: boolean
+          default: true
+        cambiosSustanciales:
+          type: boolean
+          default: false
+        actaAprobacion:
+          type: string
+        soporteDocumentoUrl:
+          type: string
+    RegistrarConsentimientoRequest:
+      type: object
+      required:
+      - politicaId
+      properties:
+        politicaId:
+          type: integer
+          format: int64
+          example: 1
+        origen:
+          type: string
+          example: LOGIN_PRIMER_INGRESO
+    ConfiguracionSieeResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        numeroVersion:
+          type: integer
+          example: 1
+        nombreVersion:
+          type: string
+          example: SIEE Institucional 2026
+        estado:
+          $ref: '#/components/schemas/EstadoVersionConfiguracion'
+        anioLectivoVigenciaId:
+          type: integer
+          format: int64
+          nullable: true
+        anioLectivoNombre:
+          type: string
+          nullable: true
+        fechaInicioVigencia:
+          type: string
+          format: date
+        escalaMinima:
+          type: number
+          example: 1.00
+        escalaMaxima:
+          type: number
+          example: 5.00
+        escalaAprobatoria:
+          type: number
+          example: 3.00
+        decimales:
+          type: integer
+          example: 2
+        modoRedondeo:
+          type: string
+          example: HALF_UP
+        rangosEquivalenciaJson:
+          type: string
+        ponderacionPeriodosJson:
+          type: string
+        criteriosPromocionJson:
+          type: string
+        umbralAsistenciaReprobacion:
+          type: number
+          nullable: true
+          example: 25.00
+        plazoReclamacionesDias:
+          type: integer
+          example: 3
+        actaConsejoAcademico:
+          type: string
+        actaConsejoDirectivo:
+          type: string
+        soportePdfUrl:
+          type: string
+    CrearSieeBorradorRequest:
+      type: object
+      required:
+      - nombreVersion
+      - escalaMinima
+      - escalaMaxima
+      - escalaAprobatoria
+      - rangosEquivalenciaJson
+      properties:
+        nombreVersion:
+          type: string
+          example: SIEE Propuesta 2027
+        anioLectivoVigenciaId:
+          type: integer
+          format: int64
+        escalaMinima:
+          type: number
+          example: 1.00
+        escalaMaxima:
+          type: number
+          example: 5.00
+        escalaAprobatoria:
+          type: number
+          example: 3.00
+        decimales:
+          type: integer
+          default: 2
+        modoRedondeo:
+          type: string
+          default: HALF_UP
+        rangosEquivalenciaJson:
+          type: string
+        ponderacionPeriodosJson:
+          type: string
+        criteriosPromocionJson:
+          type: string
+        umbralAsistenciaReprobacion:
+          type: number
+          example: 25.00
+        plazoReclamacionesDias:
+          type: integer
+          default: 3
+    AprobarSieeRequest:
+      type: object
+      required:
+      - actaConsejoAcademico
+      - actaConsejoDirectivo
+      - fechaInicioVigencia
+      properties:
+        actaConsejoAcademico:
+          type: string
+          example: Acta Consejo Académico No. 01 de 2026
+        actaConsejoDirectivo:
+          type: string
+          example: Acta Consejo Directivo No. 01 de 2026
+        fechaInicioVigencia:
+          type: string
+          format: date
+          example: '2026-01-15'
+        soportePdfUrl:
+          type: string
+    ConfiguracionManualConvivenciaResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        numeroVersion:
+          type: integer
+          example: 1
+        nombreVersion:
+          type: string
+          example: Manual de Convivencia V1
+        estado:
+          $ref: '#/components/schemas/EstadoVersionConfiguracion'
+        fechaInicioVigencia:
+          type: string
+          format: date
+        actaComiteConvivencia:
+          type: string
+        actaConsejoDirectivo:
+          type: string
+        situacionesTipo1Json:
+          type: string
+        situacionesTipo2Json:
+          type: string
+        situacionesTipo3Json:
+          type: string
+        plazosDebidoProcesoJson:
+          type: string
+    AprobarManualConvivenciaRequest:
+      type: object
+      required:
+      - actaComiteConvivencia
+      - actaConsejoDirectivo
+      - fechaInicioVigencia
+      properties:
+        actaComiteConvivencia:
+          type: string
+          example: Acta Comité Convivencia No. 01 de 2026
+        actaConsejoDirectivo:
+          type: string
+          example: Acta Consejo Directivo No. 01 de 2026
+        fechaInicioVigencia:
+          type: string
+          format: date
+    AuditoriaEventoResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        usuarioId:
+          type: integer
+          format: int64
+          nullable: true
+        username:
+          type: string
+          example: admin
+        rolActivo:
+          type: string
+          example: ADMINISTRADOR
+        modulo:
+          type: string
+          example: SEGURIDAD
+        accion:
+          type: string
+          example: LOGIN
+        entidad:
+          type: string
+          example: Usuario
+        entidadId:
+          type: string
+          example: '1'
+        valorAnterior:
+          type: string
+          nullable: true
+        valorNuevo:
+          type: string
+          nullable: true
+        motivo:
+          type: string
+          nullable: true
+        resultado:
+          $ref: '#/components/schemas/ResultadoAuditoria'
+        correlationId:
+          type: string
+          example: corr-12345
+        direccionIp:
+          type: string
+          example: 192.168.1.1
+        userAgent:
+          type: string
+          nullable: true
+        fechaEvento:
+          type: string
+          format: date-time
+        hashAnterior:
+          type: string
+          example: '0000000000000000000000000000000000000000000000000000000000000000'
+        hashEvento:
+          type: string
+          example: a1b2c3d4e5f6...
+    VerificacionIntegridadResponse:
+      type: object
+      properties:
+        estado:
+          type: string
+          example: CADENA_INTEGRA_VERIFICADA
+        totalEventosVerificados:
+          type: integer
+          format: int64
+          example: 150
+        idEventoDiscrepancia:
+          type: integer
+          format: int64
+          nullable: true
+        detalle:
+          type: string
+          example: Cadena completa verificada matemáticamente sin alteraciones
+        fechaVerificacion:
+          type: string
+          format: date-time
+    ExportacionAuditoriaRequest:
+      type: object
+      required:
+      - numeroOficioRequerimiento
+      - motivo
+      - autoridadSolicitante
+      properties:
+        numeroOficioRequerimiento:
+          type: string
+          example: OFICIO-2026-042
+        motivo:
+          type: string
+          example: Requerimiento oficial de supervisión
+        autoridadSolicitante:
+          type: string
+          example: Secretaría de Educación Distrital
+        modulo:
+          type: string
+          nullable: true
+        correlationId:
+          type: string
+          nullable: true
+    PaqueteAuditoriaExportadoResponse:
+      type: object
+      properties:
+        numeroOficioRequerimiento:
+          type: string
+          example: OFICIO-2026-042
+        autoridadSolicitante:
+          type: string
+          example: Secretaría de Educación Distrital
+        motivo:
+          type: string
+          example: Requerimiento oficial
+        totalRegistrosExportados:
+          type: integer
+          example: 250
+        manifiestoSha256:
+          type: string
+          example: f3b4c1...
+        fechaGeneracion:
+          type: string
+          format: date-time
+        eventos:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditoriaEventoResponse'
 
 tags:
 - name: Profesores
@@ -5857,3 +7248,9 @@ tags:
   description: Registro de asistencia dual (sesión de clase y jornada diaria), justificaciones auditadas y alertas tempranas de ausentismo
 - name: Documentos y Reportes Académicos
   description: Emisión y auditoría de documentos oficiales (boletines periódicos y finales, certificados de estudio, constancias de matrícula y verificación de autenticidad)
+- name: Usuarios y Roles
+  description: Ciclo de vida de cuentas, asignación de roles múltiples con vigencia y miembros de órganos colegiados (UC-PROV-01, UC-PROV-02)
+- name: Configuración Institucional
+  description: Identificación legal DANE, firmas oficiales, Política de Datos inmutable Ley 1581 y versionamiento colegiado del SIEE y Manual (UC-26, UC-PROV-13, UC-PROV-14)
+- name: Auditoría Global
+  description: Bitácora transversal append-only con encadenamiento criptográfico SHA-256, verificación de integridad y exportación regulada (UC-27, UC-PROV-29)

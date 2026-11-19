@@ -55,11 +55,17 @@ public class SecurityConfig {
                 .accessDeniedHandler(accessDeniedHandler)
             )
             .authorizeHttpRequests(auth -> auth
-                // Endpoints públicos de autenticación
+                // Endpoints públicos de autenticación y recuperación de contraseña
                 .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/auth/recuperar-password/**").permitAll()
                 // Verificación pública de autenticidad de documentos oficiales emitidos (QR / hash)
                 .requestMatchers(HttpMethod.GET, "/api/documentos/verificar/**").permitAll()
+                // Consulta pública de configuración institucional vigente (UC-PROV-14)
+                .requestMatchers(HttpMethod.GET, "/api/configuracion/institucion").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/configuracion/politica-datos/vigente").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/configuracion/siee/vigente").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/configuracion/manual-convivencia/vigente").permitAll()
                 // Documentación OpenAPI 3.x y Swagger UI interactiva
                 .requestMatchers(
                     "/v3/api-docs/**",

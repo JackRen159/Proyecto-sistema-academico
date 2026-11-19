@@ -7,6 +7,7 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { EstadoUsuario } from './estado-usuario';
 import { Rol } from './rol';
 
 
@@ -15,6 +16,9 @@ export interface UsuarioResponse {
     username?: string;
     rol?: Rol;
     activo?: boolean;
+    estado?: EstadoUsuario;
+    debeCambiarPassword?: boolean;
+    roles?: Array<Rol>;
 }
 
 

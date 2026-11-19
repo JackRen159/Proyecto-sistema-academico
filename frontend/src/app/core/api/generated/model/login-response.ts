@@ -19,6 +19,9 @@ export interface LoginResponse {
      * Tiempo de expiración en segundos (ej. 28800 = 8 horas).
      */
     expiresIn?: number;
+    debeCambiarPassword?: boolean;
+    politicaAceptada?: boolean;
+    rolesDisponibles?: Array<Rol>;
 }
 
 

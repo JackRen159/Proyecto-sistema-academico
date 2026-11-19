@@ -17,13 +17,21 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
+import { ApiAuthCambiarPasswordPost200Response } from '../model/api-auth-cambiar-password-post200-response';
+// @ts-ignore
 import { ApiAuthLogoutPost200Response } from '../model/api-auth-logout-post200-response';
+// @ts-ignore
+import { CambioPasswordRequest } from '../model/cambio-password-request';
+// @ts-ignore
+import { ConfirmacionRecuperacionPasswordRequest } from '../model/confirmacion-recuperacion-password-request';
 // @ts-ignore
 import { ErrorResponse } from '../model/error-response';
 // @ts-ignore
 import { LoginRequest } from '../model/login-request';
 // @ts-ignore
 import { LoginResponse } from '../model/login-response';
+// @ts-ignore
+import { SolicitudRecuperacionPasswordRequest } from '../model/solicitud-recuperacion-password-request';
 // @ts-ignore
 import { UsuarioResponse } from '../model/usuario-response';
 
@@ -41,6 +49,76 @@ export class AutenticacinService extends BaseService {
 
     constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string|string[], @Optional() configuration?: Configuration) {
         super(basePath, configuration);
+    }
+
+    /**
+     * Cambiar contraseña voluntariamente o en primer ingreso (UC-PROV-03 A1)
+     * Permite actualizar la contraseña verificando la credencial actual y aplicando la política de complejidad. Invalida sesiones activas en otros dispositivos.
+     * @endpoint post /api/auth/cambiar-password
+     * @param cambioPasswordRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public apiAuthCambiarPasswordPost(cambioPasswordRequest: CambioPasswordRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiAuthCambiarPasswordPost200Response>;
+    public apiAuthCambiarPasswordPost(cambioPasswordRequest: CambioPasswordRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiAuthCambiarPasswordPost200Response>>;
+    public apiAuthCambiarPasswordPost(cambioPasswordRequest: CambioPasswordRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiAuthCambiarPasswordPost200Response>>;
+    public apiAuthCambiarPasswordPost(cambioPasswordRequest: CambioPasswordRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (cambioPasswordRequest === null || cambioPasswordRequest === undefined) {
+            throw new Error('Required parameter cambioPasswordRequest was null or undefined when calling apiAuthCambiarPasswordPost.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (BearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('BearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/auth/cambiar-password`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<ApiAuthCambiarPasswordPost200Response>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: cambioPasswordRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
     }
 
     /**
@@ -212,6 +290,139 @@ export class AutenticacinService extends BaseService {
         return this.httpClient.request<UsuarioResponse>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Confirmar restablecimiento de contraseña mediante token (UC-PROV-03)
+     * Valida el token de un solo uso y su vigencia para registrar la nueva contraseña (E2, E3).
+     * @endpoint post /api/auth/recuperar-password/confirmar
+     * @param confirmacionRecuperacionPasswordRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public apiAuthRecuperarPasswordConfirmarPost(confirmacionRecuperacionPasswordRequest: ConfirmacionRecuperacionPasswordRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public apiAuthRecuperarPasswordConfirmarPost(confirmacionRecuperacionPasswordRequest: ConfirmacionRecuperacionPasswordRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public apiAuthRecuperarPasswordConfirmarPost(confirmacionRecuperacionPasswordRequest: ConfirmacionRecuperacionPasswordRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public apiAuthRecuperarPasswordConfirmarPost(confirmacionRecuperacionPasswordRequest: ConfirmacionRecuperacionPasswordRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (confirmacionRecuperacionPasswordRequest === null || confirmacionRecuperacionPasswordRequest === undefined) {
+            throw new Error('Required parameter confirmacionRecuperacionPasswordRequest was null or undefined when calling apiAuthRecuperarPasswordConfirmarPost.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/auth/recuperar-password/confirmar`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<any>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: confirmacionRecuperacionPasswordRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Solicitar recuperación de contraseña por autoservicio (UC-PROV-03)
+     * Procesa la solicitud pública en tiempo constante respondiendo con mensaje neutro para prevenir enumeración de cuentas (E1).
+     * @endpoint post /api/auth/recuperar-password/solicitar
+     * @param solicitudRecuperacionPasswordRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public apiAuthRecuperarPasswordSolicitarPost(solicitudRecuperacionPasswordRequest: SolicitudRecuperacionPasswordRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiAuthCambiarPasswordPost200Response>;
+    public apiAuthRecuperarPasswordSolicitarPost(solicitudRecuperacionPasswordRequest: SolicitudRecuperacionPasswordRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiAuthCambiarPasswordPost200Response>>;
+    public apiAuthRecuperarPasswordSolicitarPost(solicitudRecuperacionPasswordRequest: SolicitudRecuperacionPasswordRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiAuthCambiarPasswordPost200Response>>;
+    public apiAuthRecuperarPasswordSolicitarPost(solicitudRecuperacionPasswordRequest: SolicitudRecuperacionPasswordRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (solicitudRecuperacionPasswordRequest === null || solicitudRecuperacionPasswordRequest === undefined) {
+            throw new Error('Required parameter solicitudRecuperacionPasswordRequest was null or undefined when calling apiAuthRecuperarPasswordSolicitarPost.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/auth/recuperar-password/solicitar`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<ApiAuthCambiarPasswordPost200Response>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: solicitudRecuperacionPasswordRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

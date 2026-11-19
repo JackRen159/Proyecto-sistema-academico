@@ -17,6 +17,12 @@ export enum Rol {
 
     Coordinador = 'COORDINADOR',
 
+    CoordinadorAcademico = 'COORDINADOR_ACADEMICO',
+
+    CoordinadorConvivencia = 'COORDINADOR_CONVIVENCIA',
+
+    OrientadorEscolar = 'ORIENTADOR_ESCOLAR',
+
     Profesor = 'PROFESOR',
 
     Estudiante = 'ESTUDIANTE',
