@@ -14,8 +14,8 @@ Dominio: Ciclo de vida de usuarios, credenciales temporales, múltiples roles co
 - [x] T3: Implementar componente de Auditoría Global (AuditoriaGlobalService y repositorio) con encadenamiento SHA-256 atómico, verificación criptográfica de integridad y exportación regulada (S1, S4) | route: inline | commit: 005d444
 - [x] T4: Implementar servicios de Seguridad V2 (UsuarioService, AuthService y RecuperacionPasswordService) con ciclo de vida de cuentas, login con primer ingreso, conmutación de rol activo, membresía en órganos colegiados y recuperación de credenciales (S1, S2) | route: inline | commit: 0f84caf
 - [x] T5: Implementar servicios de Configuración Institucional V2 (ConfiguracionInstitucionalService, PoliticaDatosService y SieeConfiguracionService) con identificación legal DANE/firmas, Habeas Data inmutable y validación matemática de SIEE/Manual (S1, S3) | route: inline | commit: 7b290c2
-- [x] T6: Implementar DTOs con validaciones Jakarta, mappers desacoplados, controladores REST protegidos con RBAC contextual y actualizar contrato openapi/openapi.yaml (S1, S2, S3, S4) | route: inline | commit: pending
-- [x] T7: Implementar suite exhaustiva de pruebas unitarias y de integración para A# y E#, regenerar cliente Angular tipado y verificar build limpio (S1, S2, S3, S4) | route: inline | commit: pending
+- [x] T6: Implementar DTOs con validaciones Jakarta, mappers desacoplados, controladores REST protegidos con RBAC contextual y actualizar contrato openapi/openapi.yaml (S1, S2, S3, S4) | route: inline | commit: 23dbe0f
+- [x] T7: Implementar suite exhaustiva de pruebas unitarias y de integración para A# y E#, regenerar cliente Angular tipado y verificar build limpio (S1, S2, S3, S4) | route: inline | commit: 23dbe0f
 
 ## Criterios de Aceptación Derivados de Flujos Alternos (A#) y Excepciones (E#)
 
