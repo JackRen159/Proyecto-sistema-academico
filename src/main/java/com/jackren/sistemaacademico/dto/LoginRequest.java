@@ -1,5 +1,6 @@
 package com.jackren.sistemaacademico.dto;
 
+import com.jackren.sistemaacademico.entity.Rol;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -12,12 +13,20 @@ public class LoginRequest {
     @NotBlank(message = "La contrasena es obligatoria")
     private String password;
 
+    private Rol rolSolicitado;
+
     public LoginRequest() {
     }
 
     public LoginRequest(String username, String password) {
         this.username = username;
         this.password = password;
+    }
+
+    public LoginRequest(String username, String password, Rol rolSolicitado) {
+        this.username = username;
+        this.password = password;
+        this.rolSolicitado = rolSolicitado;
     }
 
     public String getUsername() {
@@ -35,5 +44,12 @@ public class LoginRequest {
     public void setPassword(String password) {
         this.password = password;
     }
-}
 
+    public Rol getRolSolicitado() {
+        return rolSolicitado;
+    }
+
+    public void setRolSolicitado(Rol rolSolicitado) {
+        this.rolSolicitado = rolSolicitado;
+    }
+}

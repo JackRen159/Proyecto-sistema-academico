@@ -1,6 +1,9 @@
 package com.jackren.sistemaacademico.dto;
 
+import com.jackren.sistemaacademico.entity.EstadoUsuario;
 import com.jackren.sistemaacademico.entity.Rol;
+
+import java.util.List;
 
 public class UsuarioResponse {
 
@@ -8,6 +11,9 @@ public class UsuarioResponse {
     private String username;
     private Rol rol;
     private Boolean activo;
+    private EstadoUsuario estado;
+    private Boolean debeCambiarPassword;
+    private List<Rol> roles;
 
     public UsuarioResponse() {
     }
@@ -17,6 +23,18 @@ public class UsuarioResponse {
         this.username = username;
         this.rol = rol;
         this.activo = activo;
+        this.estado = Boolean.TRUE.equals(activo) ? EstadoUsuario.ACTIVA : EstadoUsuario.INACTIVA;
+        this.debeCambiarPassword = false;
+    }
+
+    public UsuarioResponse(Long id, String username, Rol rol, Boolean activo, EstadoUsuario estado, Boolean debeCambiarPassword, List<Rol> roles) {
+        this.id = id;
+        this.username = username;
+        this.rol = rol;
+        this.activo = activo;
+        this.estado = estado;
+        this.debeCambiarPassword = debeCambiarPassword;
+        this.roles = roles;
     }
 
     public Long getId() {
@@ -50,5 +68,28 @@ public class UsuarioResponse {
     public void setActivo(Boolean activo) {
         this.activo = activo;
     }
-}
 
+    public EstadoUsuario getEstado() {
+        return estado;
+    }
+
+    public void setEstado(EstadoUsuario estado) {
+        this.estado = estado;
+    }
+
+    public Boolean getDebeCambiarPassword() {
+        return debeCambiarPassword;
+    }
+
+    public void setDebeCambiarPassword(Boolean debeCambiarPassword) {
+        this.debeCambiarPassword = debeCambiarPassword;
+    }
+
+    public List<Rol> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<Rol> roles) {
+        this.roles = roles;
+    }
+}

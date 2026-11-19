@@ -37,6 +37,17 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
+    // Manejo de validaciones explícitas de negocio (HTTP 400)
+    @ExceptionHandler(ValidacionException.class)
+    public ResponseEntity<ErrorResponse> manejarValidacion(ValidacionException ex) {
+        ErrorResponse response = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "Solicitud invalida",
+                ex.getMessage()
+        );
+        return ResponseEntity.badRequest().body(response);
+    }
+
     // Manejo de errores de autenticacion (credenciales invalidas, cuenta deshabilitada)
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> manejarAutenticacion(AuthenticationException ex) {

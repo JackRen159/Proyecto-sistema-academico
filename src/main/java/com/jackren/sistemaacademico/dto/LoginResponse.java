@@ -2,6 +2,8 @@ package com.jackren.sistemaacademico.dto;
 
 import com.jackren.sistemaacademico.entity.Rol;
 
+import java.util.List;
+
 public class LoginResponse {
 
     private String token;
@@ -9,6 +11,9 @@ public class LoginResponse {
     private String username;
     private Rol rol;
     private Long expiresIn;
+    private Boolean debeCambiarPassword = false;
+    private Boolean politicaAceptada = true;
+    private List<Rol> rolesDisponibles;
 
     public LoginResponse() {
     }
@@ -19,6 +24,20 @@ public class LoginResponse {
         this.username = username;
         this.rol = rol;
         this.expiresIn = expiresIn;
+        this.debeCambiarPassword = false;
+        this.politicaAceptada = true;
+    }
+
+    public LoginResponse(String token, String tokenType, String username, Rol rol, Long expiresIn,
+                         Boolean debeCambiarPassword, Boolean politicaAceptada, List<Rol> rolesDisponibles) {
+        this.token = token;
+        this.tokenType = tokenType;
+        this.username = username;
+        this.rol = rol;
+        this.expiresIn = expiresIn;
+        this.debeCambiarPassword = debeCambiarPassword != null ? debeCambiarPassword : false;
+        this.politicaAceptada = politicaAceptada != null ? politicaAceptada : true;
+        this.rolesDisponibles = rolesDisponibles;
     }
 
     public String getToken() {
@@ -60,5 +79,28 @@ public class LoginResponse {
     public void setExpiresIn(Long expiresIn) {
         this.expiresIn = expiresIn;
     }
-}
 
+    public Boolean getDebeCambiarPassword() {
+        return debeCambiarPassword;
+    }
+
+    public void setDebeCambiarPassword(Boolean debeCambiarPassword) {
+        this.debeCambiarPassword = debeCambiarPassword;
+    }
+
+    public Boolean getPoliticaAceptada() {
+        return politicaAceptada;
+    }
+
+    public void setPoliticaAceptada(Boolean politicaAceptada) {
+        this.politicaAceptada = politicaAceptada;
+    }
+
+    public List<Rol> getRolesDisponibles() {
+        return rolesDisponibles;
+    }
+
+    public void setRolesDisponibles(List<Rol> rolesDisponibles) {
+        this.rolesDisponibles = rolesDisponibles;
+    }
+}

@@ -5,7 +5,9 @@ import com.jackren.sistemaacademico.dto.LoginResponse;
 import com.jackren.sistemaacademico.dto.UsuarioResponse;
 import com.jackren.sistemaacademico.entity.Rol;
 import com.jackren.sistemaacademico.entity.Usuario;
+import com.jackren.sistemaacademico.repository.ConsentimientoPoliticaDatosRepository;
 import com.jackren.sistemaacademico.repository.UsuarioRepository;
+import com.jackren.sistemaacademico.repository.UsuarioRolRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,13 +19,13 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.time.Instant;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -41,6 +43,18 @@ class AuthServiceTest {
 
     @Mock
     private UsuarioRepository usuarioRepository;
+
+    @Mock
+    private UsuarioRolRepository usuarioRolRepository;
+
+    @Mock
+    private ConsentimientoPoliticaDatosRepository consentimientoRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private AuditoriaGlobalService auditoriaService;
 
     @InjectMocks
     private AuthService authService;
@@ -62,6 +76,8 @@ class AuthServiceTest {
         when(authMock.getName()).thenReturn("admin");
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(authMock);
         when(usuarioRepository.findByUsername("admin")).thenReturn(Optional.of(usuarioMock));
+        when(usuarioRolRepository.findByUsuarioIdAndActivoTrue(1L)).thenReturn(Collections.emptyList());
+        when(consentimientoRepository.findByUsuarioIdOrderByFechaAceptacionDesc(1L)).thenReturn(Collections.emptyList());
 
         Jwt jwtMock = mock(Jwt.class);
         when(jwtMock.getTokenValue()).thenReturn("mock.jwt.token");
@@ -92,6 +108,7 @@ class AuthServiceTest {
     @Test
     void obtenerUsuarioActual_CuandoExiste_DebeRetornarUsuarioResponse() {
         when(usuarioRepository.findByUsername("admin")).thenReturn(Optional.of(usuarioMock));
+        when(usuarioRolRepository.findByUsuarioIdAndActivoTrue(1L)).thenReturn(Collections.emptyList());
 
         UsuarioResponse response = authService.obtenerUsuarioActual("admin");
 
@@ -109,4 +126,3 @@ class AuthServiceTest {
         assertThrows(UsernameNotFoundException.class, () -> authService.obtenerUsuarioActual("desconocido"));
     }
 }
-
