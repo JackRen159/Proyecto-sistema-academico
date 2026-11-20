@@ -6156,6 +6156,363 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '403':
           $ref: '#/components/responses/ForbiddenError'
+  /api/cierre-promocion/periodos/{periodoId}/diagnostico:
+    get:
+      tags:
+      - Cierre Académico y Promoción
+      summary: Diagnóstico de validación integral de pre-cierre de periodo (UC-20)
+      description: Comprueba que notas, ponderaciones, nivelaciones, reclamos, excusas y firmas estén completos antes de permitir el cierre.
+      operationId: diagnosticarPreCierre
+      parameters:
+      - name: periodoId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Diagnóstico de pre-cierre obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiagnosticoPreCierreResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  /api/cierre-promocion/periodos/cerrar:
+    post:
+      tags:
+      - Cierre Académico y Promoción
+      summary: Cerrar periodo académico y emitir snapshots de boletines versionados (UC-20)
+      description: Cierra transaccionalmente el periodo bloqueando escrituras ordinarias y genera los boletines versionados (V1).
+      operationId: cerrarPeriodo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CierrePeriodoRequest'
+      responses:
+        '200':
+          description: Periodo cerrado y boletines generados exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BoletinPublicadoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/cierre-promocion/periodos/reabrir:
+    post:
+      tags:
+      - Cierre Académico y Promoción
+      summary: Reapertura excepcional de periodo cerrado por autorización rectoral (UC-20 A3)
+      description: Requiere justificación motivada y resolución rectoral, pasando boletines previos a RECTIFICADO_HISTORICO.
+      operationId: reabrirPeriodo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReaperturaPeriodoRequest'
+      responses:
+        '200':
+          description: Periodo reabierto excepcionalmente.
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/cierre-promocion/boletines/matricula/{matriculaId}/periodo/{periodoId}:
+    get:
+      tags:
+      - Cierre Académico y Promoción
+      summary: Listar versiones publicadas de boletín para un estudiante y periodo
+      description: Retorna las versiones históricas y vigentes del boletín oficial.
+      operationId: listarBoletinesMatricula
+      parameters:
+      - name: matriculaId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: periodoId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Versiones de boletín obtenidas exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BoletinPublicadoResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  /api/cierre-promocion/observaciones-boletin:
+    post:
+      tags:
+      - Cierre Académico y Promoción
+      summary: Registrar observaciones de dirección de grupo para el boletín (UC-PROV-23)
+      description: Permite al Director de Grupo registrar recomendaciones formativas para el boletín del estudiante.
+      operationId: registrarObservacionGrupo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ObservacionBoletinGrupoRequest'
+      responses:
+        '200':
+          description: Observación formativa registrada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObservacionBoletinGrupoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  /api/cierre-promocion/observaciones-boletin/matricula/{matriculaId}/periodo/{periodoId}:
+    get:
+      tags:
+      - Cierre Académico y Promoción
+      summary: Consultar observación formativa del estudiante en un periodo
+      description: Retorna la observación y recomendaciones pedagógicas emitidas por la dirección de grupo.
+      operationId: obtenerObservacionEstudiante
+      parameters:
+      - name: matriculaId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: periodoId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Observación obtenida exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObservacionBoletinGrupoResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  /api/cierre-promocion/comisiones-periodicas:
+    post:
+      tags:
+      - Cierre Académico y Promoción
+      summary: Registrar Acta Periódica de Comisión de Evaluación (UC-PROV-23)
+      description: Formaliza las decisiones y compromisos pedagógicos acordados por grado al cierre del periodo.
+      operationId: registrarActaComisionPeriodica
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActaComisionPeriodicaRequest'
+      responses:
+        '200':
+          description: Acta periódica de comisión registrada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActaComisionPeriodicaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  /api/cierre-promocion/promocion/preclasificacion/grupo/{grupoId}:
+    get:
+      tags:
+      - Cierre Académico y Promoción
+      summary: Preclasificar promoción anual del grupo según SIEE (UC-21)
+      description: Simula y sugiere la clasificación de promoción, habilitación o repitencia para insumo de la comisión colegiada.
+      operationId: preclasificarPromocionGrupo
+      parameters:
+      - name: grupoId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Preclasificación de promoción anual obtenida.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PreclasificacionPromocionResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  /api/cierre-promocion/promocion/actas:
+    post:
+      tags:
+      - Cierre Académico y Promoción
+      summary: Emitir Acta Colegiada de Promoción Anual (UC-21)
+      description: Asienta de forma definitiva en firme las decisiones de promoción de los estudiantes con integrantes nominativos.
+      operationId: registrarActaPromocionAnual
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActaPromocionAnualRequest'
+      responses:
+        '200':
+          description: Acta de promoción anual emitida y registrada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActaPromocionAnualResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/cierre-promocion/promocion/anticipada:
+    post:
+      tags:
+      - Cierre Académico y Promoción
+      summary: Tramitar Promoción Anticipada de Grado - Decreto 1290 Art. 7 (UC-21 A3)
+      description: Aplica el ascenso de grado durante el primer periodo con concepto de Consejo Académico y aprobación de Consejo Directivo.
+      operationId: tramitarPromocionAnticipada
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PromocionAnticipadaRequest'
+      responses:
+        '200':
+          description: Promoción anticipada aprobada y asentada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromocionEstudianteResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/cierre-promocion/graduacion/requisitos:
+    post:
+      tags:
+      - Cierre Académico y Promoción
+      summary: Registrar y validar requisitos legales de titulación de Media (UC-PROV-24)
+      description: Registra horas de Servicio Social Estudiantil (>= 80h), código Saber 11 y documento de identidad verificado.
+      operationId: registrarRequisitosTitulacion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TitulacionMediaRequest'
+      responses:
+        '200':
+          description: Requisitos de graduación registrados exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TitulacionGraduandoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  /api/cierre-promocion/graduacion/aprobar:
+    post:
+      tags:
+      - Cierre Académico y Promoción
+      summary: Aprobar Acta General de Graduación y asignar diplomas de bachilleres (UC-PROV-24)
+      description: Aprueba la titulación masiva de graduandos de 11.° asignando libro, folios y diplomas oficiales.
+      operationId: aprobarGraduacionMedia
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AprobarGraduacionRequest'
+      responses:
+        '200':
+          description: Graduación aprobada y egresados titulados exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TitulacionGraduandoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/cierre-promocion/anio-lectivo/{anioLectivoId}/cerrar-definitivo:
+    post:
+      tags:
+      - Cierre Académico y Promoción
+      summary: Cierre definitivo del año lectivo escolar (UC-PROV-24)
+      description: Transiciona el año escolar a CERRADO_HISTORICO verificando que todos los periodos y promociones estén en firme.
+      operationId: cerrarAnioLectivoEscolar
+      parameters:
+      - name: anioLectivoId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Año lectivo cerrado definitivamente.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
   /api/documentos/consecutivos:
     post:
       tags:
@@ -10943,6 +11300,673 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/HorarioBloqueResponse'
+    EstadoBoletinVersion:
+      type: string
+      enum:
+      - PUBLICADO_OFICIAL
+      - APLAZADO_POR_EXCUSA_JUSTIFICADA
+      - RECTIFICADO_HISTORICO
+      example: PUBLICADO_OFICIAL
+    TipoActaPromocion:
+      type: string
+      enum:
+      - ORDINARIA_COMISION
+      - HABILITACION_FINAL
+      - RECTIFICATORIA
+      - CONSEJO_DIRECTIVO_ANTICIPADA
+      example: ORDINARIA_COMISION
+    EstadoPromocionEstudiante:
+      type: string
+      enum:
+      - PROMOVIDO_DIRECTO
+      - PROMOVIDO_PREESCOLAR
+      - PENDIENTE_RECUPERACION_FINAL
+      - PROMOVIDO_POR_RECUPERACION_FINAL
+      - NO_PROMOVIDO_REPROBADO
+      - PROMOCION_ANTICIPADA_APROBADA
+      example: PROMOVIDO_DIRECTO
+    ModalidadTituloBachiller:
+      type: string
+      enum:
+      - BACHILLER_ACADEMICO
+      - BACHILLER_TECNICO
+      example: BACHILLER_ACADEMICO
+    EstadoTitulacionGraduando:
+      type: string
+      enum:
+      - APTO_GRADUACION
+      - GRADUADO_EGRESADO
+      - APROBADO_PENDIENTE_TITULACION
+      example: APTO_GRADUACION
+    DiagnosticoPreCierreResponse:
+      type: object
+      properties:
+        periodoId:
+          type: integer
+          format: int64
+          example: 10
+        periodoNombre:
+          type: string
+          example: Primer Periodo
+        anioLectivo:
+          type: integer
+          example: 2026
+        aptoParaCierre:
+          type: boolean
+          example: true
+        bloqueosCriticos:
+          type: array
+          items:
+            type: string
+            example: 'Existen notas pendientes en la asignatura Física'
+        totalGruposValidados:
+          type: integer
+          example: 12
+        totalEstudiantesEvaluados:
+          type: integer
+          example: 380
+    CierrePeriodoRequest:
+      type: object
+      required:
+      - periodoId
+      properties:
+        periodoId:
+          type: integer
+          format: int64
+          example: 10
+        motivoCierre:
+          type: string
+          example: Cierre oficial del primer periodo académico 2026
+        permitirEstudiantesAplazadosIncapacidad:
+          type: boolean
+          example: true
+    ReaperturaPeriodoRequest:
+      type: object
+      required:
+      - periodoId
+      - motivoReapertura
+      properties:
+        periodoId:
+          type: integer
+          format: int64
+          example: 10
+        motivoReapertura:
+          type: string
+          example: Reapertura excepcional autorizada por fallo de reclamación
+        resolucionRectoralUrl:
+          type: string
+          example: https://colegio.edu.co/resoluciones/res-015.pdf
+    BoletinPublicadoResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        numeroMatricula:
+          type: string
+          example: MAT-2026-0001
+        estudianteId:
+          type: integer
+          format: int64
+          example: 7
+        estudianteNombreCompleto:
+          type: string
+          example: Isaac Newton
+        periodoId:
+          type: integer
+          format: int64
+          example: 10
+        periodoNombre:
+          type: string
+          example: Primer Periodo
+        numeroVersion:
+          type: integer
+          example: 1
+        estadoBoletin:
+          $ref: '#/components/schemas/EstadoBoletinVersion'
+        datosJson:
+          type: string
+          example: '{"promedio":4.5}'
+        usuarioPublicadorNombre:
+          type: string
+          example: rectoria
+        fechaPublicacion:
+          type: string
+          format: date-time
+        fechaReapertura:
+          type: string
+          format: date-time
+        motivoReapertura:
+          type: string
+    ObservacionBoletinGrupoRequest:
+      type: object
+      required:
+      - matriculaId
+      - periodoAcademicoId
+      - observacionFormativa
+      properties:
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        periodoAcademicoId:
+          type: integer
+          format: int64
+          example: 10
+        observacionFormativa:
+          type: string
+          example: Demuestra alto sentido de responsabilidad y liderazgo en el curso
+        recomendacionesPedagogicas:
+          type: string
+          example: Continuar con el plan de lectura en ciencias
+    ObservacionBoletinGrupoResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        numeroMatricula:
+          type: string
+          example: MAT-2026-0001
+        estudianteId:
+          type: integer
+          format: int64
+          example: 7
+        estudianteNombreCompleto:
+          type: string
+          example: Isaac Newton
+        periodoId:
+          type: integer
+          format: int64
+          example: 10
+        periodoNombre:
+          type: string
+          example: Primer Periodo
+        docenteDirectorId:
+          type: integer
+          format: int64
+          example: 20
+        docenteDirectorNombre:
+          type: string
+          example: Albert Einstein
+        observacionFormativa:
+          type: string
+          example: Excelente desempeño integral
+        recomendacionesPedagogicas:
+          type: string
+          example: Mantener constancia
+        fechaRegistro:
+          type: string
+          format: date-time
+    ActaComisionPeriodicaRequest:
+      type: object
+      required:
+      - periodoAcademicoId
+      - gradoId
+      - numeroActa
+      - integrantesNominativos
+      properties:
+        periodoAcademicoId:
+          type: integer
+          format: int64
+          example: 10
+        gradoId:
+          type: integer
+          format: int64
+          example: 5
+        numeroActa:
+          type: string
+          example: ACT-COM-2026-P1-09
+        fechaSesion:
+          type: string
+          format: date
+          example: '2026-04-20'
+        integrantesNominativos:
+          type: array
+          items:
+            type: string
+            example: 'Lic. Gómez (Coordinador Académico)'
+        conclusionesGenerales:
+          type: string
+          example: Se evidencia superación general de debilidades en el grado noveno
+        compromisosPedagogicosJson:
+          type: string
+          example: '[]'
+    ActaComisionPeriodicaResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        periodoId:
+          type: integer
+          format: int64
+          example: 10
+        periodoNombre:
+          type: string
+          example: Primer Periodo
+        gradoId:
+          type: integer
+          format: int64
+          example: 5
+        gradoNombre:
+          type: string
+          example: Noveno
+        numeroActa:
+          type: string
+          example: ACT-COM-2026-P1-09
+        fechaSesion:
+          type: string
+          format: date
+          example: '2026-04-20'
+        integrantesNominativosJson:
+          type: string
+          example: '[]'
+        conclusionesGenerales:
+          type: string
+          example: Sesión exitosa
+        compromisosPedagogicosJson:
+          type: string
+          example: '[]'
+        usuarioSecretarioNombre:
+          type: string
+          example: secretaria_academica
+        fechaRegistro:
+          type: string
+          format: date-time
+    PreclasificacionPromocionResponse:
+      type: object
+      properties:
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        numeroMatricula:
+          type: string
+          example: MAT-2026-0001
+        estudianteId:
+          type: integer
+          format: int64
+          example: 7
+        estudianteNombreCompleto:
+          type: string
+          example: Isaac Newton
+        promedioGeneral:
+          type: number
+          format: float
+          example: 4.35
+        areasReprobadas:
+          type: integer
+          example: 0
+        asignaturasReprobadas:
+          type: integer
+          example: 0
+        porcentajeInasistenciaAnual:
+          type: number
+          format: float
+          example: 2.5
+        clasificacionSugerida:
+          $ref: '#/components/schemas/EstadoPromocionEstudiante'
+        gradoDestinoSugeridoId:
+          type: integer
+          format: int64
+          example: 6
+        gradoDestinoSugeridoNombre:
+          type: string
+          example: Décimo
+        motivoSugerido:
+          type: string
+          example: 'Promoción directa: todas las áreas aprobadas'
+    DecisionPromocionEstudianteItemRequest:
+      type: object
+      required:
+      - matriculaId
+      - estadoPromocion
+      - promedioGeneral
+      properties:
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        estadoPromocion:
+          $ref: '#/components/schemas/EstadoPromocionEstudiante'
+        promedioGeneral:
+          type: number
+          format: float
+          example: 4.35
+        areasReprobadas:
+          type: integer
+          example: 0
+        asignaturasReprobadas:
+          type: integer
+          example: 0
+        porcentajeInasistenciaAnual:
+          type: number
+          format: float
+          example: 2.5
+        gradoDestinoId:
+          type: integer
+          format: int64
+          example: 6
+        motivoDecision:
+          type: string
+          example: Promovido por unanimidad
+    PromocionEstudianteResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        actaPromocionId:
+          type: integer
+          format: int64
+          example: 10
+        numeroActa:
+          type: string
+          example: ACT-PROM-2026-09A
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        numeroMatricula:
+          type: string
+          example: MAT-2026-0001
+        estudianteId:
+          type: integer
+          format: int64
+          example: 7
+        estudianteNombreCompleto:
+          type: string
+          example: Isaac Newton
+        estadoPromocion:
+          $ref: '#/components/schemas/EstadoPromocionEstudiante'
+        promedioGeneral:
+          type: number
+          format: float
+          example: 4.35
+        areasReprobadas:
+          type: integer
+          example: 0
+        asignaturasReprobadas:
+          type: integer
+          example: 0
+        porcentajeInasistenciaAnual:
+          type: number
+          format: float
+          example: 2.5
+        gradoDestinoId:
+          type: integer
+          format: int64
+          example: 6
+        gradoDestinoNombre:
+          type: string
+          example: Décimo
+        motivoDecision:
+          type: string
+          example: Promovido directo
+        fechaRegistro:
+          type: string
+          format: date-time
+    ActaPromocionAnualRequest:
+      type: object
+      required:
+      - anioLectivoId
+      - gradoId
+      - numeroActa
+      - integrantesNominativos
+      - decisionesEstudiantes
+      properties:
+        anioLectivoId:
+          type: integer
+          format: int64
+          example: 1
+        gradoId:
+          type: integer
+          format: int64
+          example: 5
+        grupoId:
+          type: integer
+          format: int64
+          example: 20
+        numeroActa:
+          type: string
+          example: ACT-PROM-2026-09A
+        tipoActa:
+          $ref: '#/components/schemas/TipoActaPromocion'
+        fechaActa:
+          type: string
+          format: date
+          example: '2026-11-28'
+        integrantesNominativos:
+          type: array
+          items:
+            type: string
+            example: 'Rector: Dr. López'
+        soporteActaUrl:
+          type: string
+          example: https://colegio.edu.co/actas/promocion-09.pdf
+        observaciones:
+          type: string
+          example: Promoción ordinaria de grado noveno
+        decisionesEstudiantes:
+          type: array
+          items:
+            $ref: '#/components/schemas/DecisionPromocionEstudianteItemRequest'
+    ActaPromocionAnualResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        anioLectivoId:
+          type: integer
+          format: int64
+          example: 1
+        anioLectivo:
+          type: integer
+          example: 2026
+        gradoId:
+          type: integer
+          format: int64
+          example: 5
+        gradoNombre:
+          type: string
+          example: Noveno
+        grupoId:
+          type: integer
+          format: int64
+          example: 20
+        grupoNombre:
+          type: string
+          example: 9-A
+        numeroActa:
+          type: string
+          example: ACT-PROM-2026-09A
+        tipoActa:
+          $ref: '#/components/schemas/TipoActaPromocion'
+        fechaActa:
+          type: string
+          format: date
+          example: '2026-11-28'
+        integrantesNominativosJson:
+          type: string
+          example: '[]'
+        soporteActaUrl:
+          type: string
+          example: https://colegio.edu.co/actas/promocion.pdf
+        observaciones:
+          type: string
+          example: Acta ordinaria
+        usuarioRegistroNombre:
+          type: string
+          example: rectoria
+        fechaRegistro:
+          type: string
+          format: date-time
+        decisiones:
+          type: array
+          items:
+            $ref: '#/components/schemas/PromocionEstudianteResponse'
+    PromocionAnticipadaRequest:
+      type: object
+      required:
+      - matriculaId
+      - actaConsejoAcademico
+      - actaConsejoDirectivo
+      - consentimientoAcudienteUrl
+      - gradoDestinoId
+      properties:
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        actaConsejoAcademico:
+          type: string
+          example: ACT-ACAD-2026-004
+        actaConsejoDirectivo:
+          type: string
+          example: ACT-DIR-2026-008
+        consentimientoAcudienteUrl:
+          type: string
+          example: https://colegio.edu.co/consentimientos/anticipada-1000.pdf
+        gradoDestinoId:
+          type: integer
+          format: int64
+          example: 6
+        motivo:
+          type: string
+          example: Estudiante con desempeño superior y madurez cognitiva acreditada
+    TitulacionMediaRequest:
+      type: object
+      required:
+      - matriculaId
+      - horasServicioSocial
+      properties:
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        modalidadTitulo:
+          $ref: '#/components/schemas/ModalidadTituloBachiller'
+        especialidad:
+          type: string
+          example: Ciencias Naturales
+        horasServicioSocial:
+          type: integer
+          example: 80
+        soporteServicioSocialUrl:
+          type: string
+          example: https://colegio.edu.co/soportes/servicio-social.pdf
+        codigoRegistroIcfes:
+          type: string
+          example: AC202641234567
+        documentoIdentidadVerificado:
+          type: boolean
+          example: true
+    AprobarGraduacionRequest:
+      type: object
+      required:
+      - anioLectivoId
+      - numeroActaGeneral
+      properties:
+        anioLectivoId:
+          type: integer
+          format: int64
+          example: 1
+        numeroActaGeneral:
+          type: string
+          example: ACT-GRAD-GEN-2026-01
+        fechaGraduacion:
+          type: string
+          format: date
+          example: '2026-12-05'
+        numeroLibro:
+          type: string
+          example: '01'
+        folioInicial:
+          type: string
+          example: '001'
+    TitulacionGraduandoResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        numeroMatricula:
+          type: string
+          example: MAT-2026-0001
+        estudianteId:
+          type: integer
+          format: int64
+          example: 7
+        estudianteNombreCompleto:
+          type: string
+          example: Isaac Newton
+        estudianteDocumento:
+          type: string
+          example: '10203040'
+        modalidadTitulo:
+          $ref: '#/components/schemas/ModalidadTituloBachiller'
+        especialidad:
+          type: string
+          example: Ciencias Naturales
+        horasServicioSocial:
+          type: integer
+          example: 80
+        soporteServicioSocialUrl:
+          type: string
+          example: https://colegio.edu.co/soportes/servicio-social.pdf
+        codigoRegistroIcfes:
+          type: string
+          example: AC202641234567
+        documentoIdentidadVerificado:
+          type: boolean
+          example: true
+        estadoTitulacion:
+          $ref: '#/components/schemas/EstadoTitulacionGraduando'
+        numeroActaGeneral:
+          type: string
+          example: ACT-GRAD-GEN-2026-01
+        numeroActaIndividual:
+          type: string
+          example: IND-2026-001
+        numeroDiploma:
+          type: string
+          example: DIP-2026-0001
+        numeroLibro:
+          type: string
+          example: '01'
+        numeroFolio:
+          type: string
+          example: '001'
+        fechaGraduacion:
+          type: string
+          format: date
+          example: '2026-12-05'
+        usuarioAutorizadorNombre:
+          type: string
+          example: rectoria
+        fechaRegistro:
+          type: string
+          format: date-time
     TipoDocumentoAcademico:
       type: string
       enum:
@@ -12760,6 +13784,8 @@ tags:
   description: Registro de asistencia dual (sesión de clase y jornada diaria), justificaciones auditadas y alertas tempranas de ausentismo
 - name: Horarios Escolares
   description: Configuración de aulas, franjas horarias, estructuración con Triple No-Colisión, cumplimiento de IHS, novedades y consultas contextuales (UC-04, UC-10, UC-PROV-20, UC-PROV-21, UC-PROV-22)
+- name: Cierre Académico y Promoción
+  description: Cierre de periodos, boletines versionados, comisiones periódicas, promoción anual conforme al SIEE, habilitaciones, titulación de media y cierre definitivo del año lectivo (UC-20, UC-21, UC-PROV-23, UC-PROV-24)
 - name: Documentos y Reportes Académicos
   description: Emisión y auditoría de documentos oficiales (boletines periódicos y finales, certificados de estudio, constancias de matrícula y verificación de autenticidad)
 - name: Usuarios y Roles

@@ -1,0 +1,10 @@
+package com.jackren.sistemaacademico.entity;
+
+public enum EstadoPromocionEstudiante {
+    PROMOVIDO_DIRECTO,
+    PROMOVIDO_PREESCOLAR,
+    PENDIENTE_RECUPERACION_FINAL,
+    PROMOVIDO_POR_RECUPERACION_FINAL,
+    NO_PROMOVIDO_REPROBADO,
+    PROMOCION_ANTICIPADA_APROBADA
+}
