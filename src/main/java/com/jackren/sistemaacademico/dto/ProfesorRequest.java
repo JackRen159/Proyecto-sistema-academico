@@ -1,10 +1,14 @@
 package com.jackren.sistemaacademico.dto;
 
+import com.jackren.sistemaacademico.entity.EstadoAdministrativoDocente;
 import com.jackren.sistemaacademico.entity.TipoDocumento;
+import com.jackren.sistemaacademico.entity.TipoVinculacionDocente;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
+import java.time.LocalDate;
 
 public class ProfesorRequest {
 
@@ -39,6 +43,28 @@ public class ProfesorRequest {
 
     @Size(max = 100, message = "La especialidad no puede superar 100 caracteres")
     private String especialidad;
+
+    private EstadoAdministrativoDocente estadoAdministrativo = EstadoAdministrativoDocente.ACTIVO;
+
+    private TipoVinculacionDocente tipoVinculacion = TipoVinculacionDocente.PROPIEDAD_ESTATUTO_1278;
+
+    private Integer horasSemanalesOrdinarias = 22;
+
+    private Integer horasExtrasPermitidas = 0;
+
+    private Boolean verificadoInhabilidades = true;
+
+    private LocalDate fechaVerificacionInhabilidades;
+
+    @Size(max = 50, message = "El certificado de inhabilidades no puede superar 50 caracteres")
+    private String numeroCertificadoInhabilidades;
+
+    private LocalDate fechaInicioSituacion;
+
+    private LocalDate fechaFinSituacion;
+
+    @Size(max = 255, message = "El motivo no puede superar 255 caracteres")
+    private String motivoSituacion;
 
     private Long usuarioId;
 
@@ -123,5 +149,85 @@ public class ProfesorRequest {
 
     public void setUsuarioId(Long usuarioId) {
         this.usuarioId = usuarioId;
+    }
+
+    public EstadoAdministrativoDocente getEstadoAdministrativo() {
+        return estadoAdministrativo;
+    }
+
+    public void setEstadoAdministrativo(EstadoAdministrativoDocente estadoAdministrativo) {
+        this.estadoAdministrativo = estadoAdministrativo;
+    }
+
+    public TipoVinculacionDocente getTipoVinculacion() {
+        return tipoVinculacion;
+    }
+
+    public void setTipoVinculacion(TipoVinculacionDocente tipoVinculacion) {
+        this.tipoVinculacion = tipoVinculacion;
+    }
+
+    public Integer getHorasSemanalesOrdinarias() {
+        return horasSemanalesOrdinarias;
+    }
+
+    public void setHorasSemanalesOrdinarias(Integer horasSemanalesOrdinarias) {
+        this.horasSemanalesOrdinarias = horasSemanalesOrdinarias;
+    }
+
+    public Integer getHorasExtrasPermitidas() {
+        return horasExtrasPermitidas;
+    }
+
+    public void setHorasExtrasPermitidas(Integer horasExtrasPermitidas) {
+        this.horasExtrasPermitidas = horasExtrasPermitidas;
+    }
+
+    public Boolean getVerificadoInhabilidades() {
+        return verificadoInhabilidades;
+    }
+
+    public void setVerificadoInhabilidades(Boolean verificadoInhabilidades) {
+        this.verificadoInhabilidades = verificadoInhabilidades;
+    }
+
+    public LocalDate getFechaVerificacionInhabilidades() {
+        return fechaVerificacionInhabilidades;
+    }
+
+    public void setFechaVerificacionInhabilidades(LocalDate fechaVerificacionInhabilidades) {
+        this.fechaVerificacionInhabilidades = fechaVerificacionInhabilidades;
+    }
+
+    public String getNumeroCertificadoInhabilidades() {
+        return numeroCertificadoInhabilidades;
+    }
+
+    public void setNumeroCertificadoInhabilidades(String numeroCertificadoInhabilidades) {
+        this.numeroCertificadoInhabilidades = numeroCertificadoInhabilidades;
+    }
+
+    public LocalDate getFechaInicioSituacion() {
+        return fechaInicioSituacion;
+    }
+
+    public void setFechaInicioSituacion(LocalDate fechaInicioSituacion) {
+        this.fechaInicioSituacion = fechaInicioSituacion;
+    }
+
+    public LocalDate getFechaFinSituacion() {
+        return fechaFinSituacion;
+    }
+
+    public void setFechaFinSituacion(LocalDate fechaFinSituacion) {
+        this.fechaFinSituacion = fechaFinSituacion;
+    }
+
+    public String getMotivoSituacion() {
+        return motivoSituacion;
+    }
+
+    public void setMotivoSituacion(String motivoSituacion) {
+        this.motivoSituacion = motivoSituacion;
     }
 }

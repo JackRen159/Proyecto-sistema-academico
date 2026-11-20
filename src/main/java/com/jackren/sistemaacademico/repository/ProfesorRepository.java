@@ -24,5 +24,7 @@ public interface ProfesorRepository extends JpaRepository<Profesor, Long> {
 
     List<Profesor> findByActivoTrue();
 
+    List<Profesor> findByEstadoAdministrativo(com.jackren.sistemaacademico.entity.EstadoAdministrativoDocente estadoAdministrativo);
+
     Page<Profesor> findByActivoTrue(Pageable pageable);
 }

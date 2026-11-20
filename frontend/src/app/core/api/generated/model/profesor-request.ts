@@ -8,6 +8,8 @@
  * Do not edit the class manually.
  */
 import { TipoDocumento } from './tipo-documento';
+import { TipoVinculacionDocente } from './tipo-vinculacion-docente';
+import { EstadoAdministrativoDocente } from './estado-administrativo-docente';
 
 
 export interface ProfesorRequest { 
@@ -20,6 +22,16 @@ export interface ProfesorRequest {
     direccion?: string;
     tituloAcademico?: string;
     especialidad?: string;
+    estadoAdministrativo?: EstadoAdministrativoDocente;
+    tipoVinculacion?: TipoVinculacionDocente;
+    horasSemanalesOrdinarias?: number;
+    horasExtrasPermitidas?: number;
+    verificadoInhabilidades?: boolean;
+    fechaVerificacionInhabilidades?: string;
+    numeroCertificadoInhabilidades?: string;
+    fechaInicioSituacion?: string | null;
+    fechaFinSituacion?: string | null;
+    motivoSituacion?: string | null;
     usuarioId?: number | null;
 }
 

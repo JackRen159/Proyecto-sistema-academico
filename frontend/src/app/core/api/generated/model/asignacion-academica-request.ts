@@ -7,6 +7,7 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { EstadoAsignacionAcademica } from './estado-asignacion-academica';
 
 
 export interface AsignacionAcademicaRequest { 
@@ -15,5 +16,14 @@ export interface AsignacionAcademicaRequest {
     asignaturaId: number;
     intensidadHorariaSemanal?: number;
     esDirectorGrupo?: boolean;
+    estadoAsignacion?: EstadoAsignacionAcademica;
+    fechaInicioVigencia?: string;
+    fechaFinVigencia?: string | null;
+    esReemplazoTemporal?: boolean;
+    docenteTitularRelevadoId?: number | null;
+    motivoRelevo?: string | null;
+    actaRectoralHorasExtras?: string | null;
 }
+
+
 

@@ -34,5 +34,10 @@ public interface AsignacionAcademicaRepository extends JpaRepository<AsignacionA
 
     boolean existsByProfesorUsuarioIdAndGrupoIdAndActivoTrue(Long usuarioId, Long grupoId);
 
+    boolean existsByProfesorIdAndActivoTrue(Long profesorId);
+
+    @Query("SELECT COALESCE(SUM(a.intensidadHorariaSemanal), 0) FROM AsignacionAcademica a WHERE a.profesor.id = :profesorId AND a.activo = true AND a.estadoAsignacion != 'FINALIZADA_POR_RELEVO'")
+    Integer sumHorasAsignadasPorProfesor(@Param("profesorId") Long profesorId);
+
     boolean existsByProfesorIdAndGrupoIdAndAsignaturaIdAndActivoTrue(Long profesorId, Long grupoId, Long asignaturaId);
 }

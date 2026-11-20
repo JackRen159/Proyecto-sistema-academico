@@ -22,6 +22,14 @@ public class AsignacionAcademicaMapper {
         asignacion.setAsignatura(asignatura);
         asignacion.setIntensidadHorariaSemanal(request.getIntensidadHorariaSemanal() != null ? request.getIntensidadHorariaSemanal() : 1);
         asignacion.setEsDirectorGrupo(request.getEsDirectorGrupo() != null ? request.getEsDirectorGrupo() : false);
+        if (request.getEstadoAsignacion() != null) {
+            asignacion.setEstadoAsignacion(request.getEstadoAsignacion());
+        }
+        asignacion.setFechaInicioVigencia(request.getFechaInicioVigencia());
+        asignacion.setFechaFinVigencia(request.getFechaFinVigencia());
+        asignacion.setEsReemplazoTemporal(Boolean.TRUE.equals(request.getEsReemplazoTemporal()));
+        asignacion.setMotivoRelevo(request.getMotivoRelevo());
+        asignacion.setActaRectoralHorasExtras(request.getActaRectoralHorasExtras());
         asignacion.setActivo(true);
         return asignacion;
     }
@@ -39,6 +47,24 @@ public class AsignacionAcademicaMapper {
         }
         if (request.getEsDirectorGrupo() != null) {
             asignacion.setEsDirectorGrupo(request.getEsDirectorGrupo());
+        }
+        if (request.getEstadoAsignacion() != null) {
+            asignacion.setEstadoAsignacion(request.getEstadoAsignacion());
+        }
+        if (request.getFechaInicioVigencia() != null) {
+            asignacion.setFechaInicioVigencia(request.getFechaInicioVigencia());
+        }
+        if (request.getFechaFinVigencia() != null) {
+            asignacion.setFechaFinVigencia(request.getFechaFinVigencia());
+        }
+        if (request.getEsReemplazoTemporal() != null) {
+            asignacion.setEsReemplazoTemporal(request.getEsReemplazoTemporal());
+        }
+        if (request.getMotivoRelevo() != null) {
+            asignacion.setMotivoRelevo(request.getMotivoRelevo());
+        }
+        if (request.getActaRectoralHorasExtras() != null) {
+            asignacion.setActaRectoralHorasExtras(request.getActaRectoralHorasExtras());
         }
     }
 
@@ -76,6 +102,18 @@ public class AsignacionAcademicaMapper {
 
         response.setIntensidadHorariaSemanal(asignacion.getIntensidadHorariaSemanal());
         response.setEsDirectorGrupo(asignacion.getEsDirectorGrupo());
+        response.setEstadoAsignacion(asignacion.getEstadoAsignacion());
+        response.setFechaInicioVigencia(asignacion.getFechaInicioVigencia());
+        response.setFechaFinVigencia(asignacion.getFechaFinVigencia());
+        response.setEsReemplazoTemporal(asignacion.getEsReemplazoTemporal());
+
+        if (asignacion.getDocenteTitularRelevado() != null) {
+            response.setDocenteTitularRelevadoId(asignacion.getDocenteTitularRelevado().getId());
+            response.setDocenteTitularRelevadoNombre(asignacion.getDocenteTitularRelevado().getNombres() + " " + asignacion.getDocenteTitularRelevado().getApellidos());
+        }
+
+        response.setMotivoRelevo(asignacion.getMotivoRelevo());
+        response.setActaRectoralHorasExtras(asignacion.getActaRectoralHorasExtras());
         response.setActivo(asignacion.getActivo());
         response.setFechaCreacion(asignacion.getFechaCreacion());
         response.setFechaActualizacion(asignacion.getFechaActualizacion());

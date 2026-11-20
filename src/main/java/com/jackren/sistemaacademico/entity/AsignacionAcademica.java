@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -31,6 +32,33 @@ public class AsignacionAcademica {
 
     @Column(name = "es_director_grupo", nullable = false)
     private Boolean esDirectorGrupo = false;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado_asignacion", nullable = false, length = 30)
+    private EstadoAsignacionAcademica estadoAsignacion = EstadoAsignacionAcademica.TITULAR;
+
+    @Column(name = "fecha_inicio_vigencia")
+    private LocalDate fechaInicioVigencia;
+
+    @Column(name = "fecha_fin_vigencia")
+    private LocalDate fechaFinVigencia;
+
+    @Column(name = "es_reemplazo_temporal", nullable = false)
+    private Boolean esReemplazoTemporal = false;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "docente_titular_relevado_id")
+    private Profesor docenteTitularRelevado;
+
+    @Column(name = "motivo_relevo")
+    private String motivoRelevo;
+
+    @Column(name = "acta_rectoral_horas_extras", length = 50)
+    private String actaRectoralHorasExtras;
+
+    @Version
+    @Column(nullable = false)
+    private Long version = 0L;
 
     @Column(nullable = false)
     private Boolean activo = true;
@@ -100,6 +128,70 @@ public class AsignacionAcademica {
 
     public void setEsDirectorGrupo(Boolean esDirectorGrupo) {
         this.esDirectorGrupo = esDirectorGrupo;
+    }
+
+    public EstadoAsignacionAcademica getEstadoAsignacion() {
+        return estadoAsignacion;
+    }
+
+    public void setEstadoAsignacion(EstadoAsignacionAcademica estadoAsignacion) {
+        this.estadoAsignacion = estadoAsignacion;
+    }
+
+    public LocalDate getFechaInicioVigencia() {
+        return fechaInicioVigencia;
+    }
+
+    public void setFechaInicioVigencia(LocalDate fechaInicioVigencia) {
+        this.fechaInicioVigencia = fechaInicioVigencia;
+    }
+
+    public LocalDate getFechaFinVigencia() {
+        return fechaFinVigencia;
+    }
+
+    public void setFechaFinVigencia(LocalDate fechaFinVigencia) {
+        this.fechaFinVigencia = fechaFinVigencia;
+    }
+
+    public Boolean getEsReemplazoTemporal() {
+        return esReemplazoTemporal;
+    }
+
+    public void setEsReemplazoTemporal(Boolean esReemplazoTemporal) {
+        this.esReemplazoTemporal = esReemplazoTemporal;
+    }
+
+    public Profesor getDocenteTitularRelevado() {
+        return docenteTitularRelevado;
+    }
+
+    public void setDocenteTitularRelevado(Profesor docenteTitularRelevado) {
+        this.docenteTitularRelevado = docenteTitularRelevado;
+    }
+
+    public String getMotivoRelevo() {
+        return motivoRelevo;
+    }
+
+    public void setMotivoRelevo(String motivoRelevo) {
+        this.motivoRelevo = motivoRelevo;
+    }
+
+    public String getActaRectoralHorasExtras() {
+        return actaRectoralHorasExtras;
+    }
+
+    public void setActaRectoralHorasExtras(String actaRectoralHorasExtras) {
+        this.actaRectoralHorasExtras = actaRectoralHorasExtras;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     public Boolean getActivo() {

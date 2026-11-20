@@ -1,7 +1,10 @@
 package com.jackren.sistemaacademico.dto;
 
+import com.jackren.sistemaacademico.entity.EstadoAdministrativoDocente;
 import com.jackren.sistemaacademico.entity.TipoDocumento;
+import com.jackren.sistemaacademico.entity.TipoVinculacionDocente;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class ProfesorResponse {
@@ -17,6 +20,17 @@ public class ProfesorResponse {
     private String direccion;
     private String tituloAcademico;
     private String especialidad;
+    private EstadoAdministrativoDocente estadoAdministrativo;
+    private TipoVinculacionDocente tipoVinculacion;
+    private Integer horasSemanalesOrdinarias;
+    private Integer horasExtrasPermitidas;
+    private Integer horasAsignadasActuales;
+    private Boolean verificadoInhabilidades;
+    private LocalDate fechaVerificacionInhabilidades;
+    private String numeroCertificadoInhabilidades;
+    private LocalDate fechaInicioSituacion;
+    private LocalDate fechaFinSituacion;
+    private String motivoSituacion;
     private Long usuarioId;
     private String username;
     private Boolean activo;
@@ -112,6 +126,94 @@ public class ProfesorResponse {
 
     public void setEspecialidad(String especialidad) {
         this.especialidad = especialidad;
+    }
+
+    public EstadoAdministrativoDocente getEstadoAdministrativo() {
+        return estadoAdministrativo;
+    }
+
+    public void setEstadoAdministrativo(EstadoAdministrativoDocente estadoAdministrativo) {
+        this.estadoAdministrativo = estadoAdministrativo;
+    }
+
+    public TipoVinculacionDocente getTipoVinculacion() {
+        return tipoVinculacion;
+    }
+
+    public void setTipoVinculacion(TipoVinculacionDocente tipoVinculacion) {
+        this.tipoVinculacion = tipoVinculacion;
+    }
+
+    public Integer getHorasSemanalesOrdinarias() {
+        return horasSemanalesOrdinarias;
+    }
+
+    public void setHorasSemanalesOrdinarias(Integer horasSemanalesOrdinarias) {
+        this.horasSemanalesOrdinarias = horasSemanalesOrdinarias;
+    }
+
+    public Integer getHorasExtrasPermitidas() {
+        return horasExtrasPermitidas;
+    }
+
+    public void setHorasExtrasPermitidas(Integer horasExtrasPermitidas) {
+        this.horasExtrasPermitidas = horasExtrasPermitidas;
+    }
+
+    public Integer getHorasAsignadasActuales() {
+        return horasAsignadasActuales;
+    }
+
+    public void setHorasAsignadasActuales(Integer horasAsignadasActuales) {
+        this.horasAsignadasActuales = horasAsignadasActuales;
+    }
+
+    public Boolean getVerificadoInhabilidades() {
+        return verificadoInhabilidades;
+    }
+
+    public void setVerificadoInhabilidades(Boolean verificadoInhabilidades) {
+        this.verificadoInhabilidades = verificadoInhabilidades;
+    }
+
+    public LocalDate getFechaVerificacionInhabilidades() {
+        return fechaVerificacionInhabilidades;
+    }
+
+    public void setFechaVerificacionInhabilidades(LocalDate fechaVerificacionInhabilidades) {
+        this.fechaVerificacionInhabilidades = fechaVerificacionInhabilidades;
+    }
+
+    public String getNumeroCertificadoInhabilidades() {
+        return numeroCertificadoInhabilidades;
+    }
+
+    public void setNumeroCertificadoInhabilidades(String numeroCertificadoInhabilidades) {
+        this.numeroCertificadoInhabilidades = numeroCertificadoInhabilidades;
+    }
+
+    public LocalDate getFechaInicioSituacion() {
+        return fechaInicioSituacion;
+    }
+
+    public void setFechaInicioSituacion(LocalDate fechaInicioSituacion) {
+        this.fechaInicioSituacion = fechaInicioSituacion;
+    }
+
+    public LocalDate getFechaFinSituacion() {
+        return fechaFinSituacion;
+    }
+
+    public void setFechaFinSituacion(LocalDate fechaFinSituacion) {
+        this.fechaFinSituacion = fechaFinSituacion;
+    }
+
+    public String getMotivoSituacion() {
+        return motivoSituacion;
+    }
+
+    public void setMotivoSituacion(String motivoSituacion) {
+        this.motivoSituacion = motivoSituacion;
     }
 
     public Long getUsuarioId() {

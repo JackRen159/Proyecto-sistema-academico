@@ -1,5 +1,8 @@
 package com.jackren.sistemaacademico.dto;
 
+import com.jackren.sistemaacademico.entity.EstadoAsignacionAcademica;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class AsignacionAcademicaResponse {
@@ -18,6 +21,14 @@ public class AsignacionAcademicaResponse {
     private String asignaturaCodigo;
     private Integer intensidadHorariaSemanal;
     private Boolean esDirectorGrupo;
+    private EstadoAsignacionAcademica estadoAsignacion;
+    private LocalDate fechaInicioVigencia;
+    private LocalDate fechaFinVigencia;
+    private Boolean esReemplazoTemporal;
+    private Long docenteTitularRelevadoId;
+    private String docenteTitularRelevadoNombre;
+    private String motivoRelevo;
+    private String actaRectoralHorasExtras;
     private Boolean activo;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaActualizacion;
@@ -135,6 +146,70 @@ public class AsignacionAcademicaResponse {
 
     public void setEsDirectorGrupo(Boolean esDirectorGrupo) {
         this.esDirectorGrupo = esDirectorGrupo;
+    }
+
+    public EstadoAsignacionAcademica getEstadoAsignacion() {
+        return estadoAsignacion;
+    }
+
+    public void setEstadoAsignacion(EstadoAsignacionAcademica estadoAsignacion) {
+        this.estadoAsignacion = estadoAsignacion;
+    }
+
+    public LocalDate getFechaInicioVigencia() {
+        return fechaInicioVigencia;
+    }
+
+    public void setFechaInicioVigencia(LocalDate fechaInicioVigencia) {
+        this.fechaInicioVigencia = fechaInicioVigencia;
+    }
+
+    public LocalDate getFechaFinVigencia() {
+        return fechaFinVigencia;
+    }
+
+    public void setFechaFinVigencia(LocalDate fechaFinVigencia) {
+        this.fechaFinVigencia = fechaFinVigencia;
+    }
+
+    public Boolean getEsReemplazoTemporal() {
+        return esReemplazoTemporal;
+    }
+
+    public void setEsReemplazoTemporal(Boolean esReemplazoTemporal) {
+        this.esReemplazoTemporal = esReemplazoTemporal;
+    }
+
+    public Long getDocenteTitularRelevadoId() {
+        return docenteTitularRelevadoId;
+    }
+
+    public void setDocenteTitularRelevadoId(Long docenteTitularRelevadoId) {
+        this.docenteTitularRelevadoId = docenteTitularRelevadoId;
+    }
+
+    public String getDocenteTitularRelevadoNombre() {
+        return docenteTitularRelevadoNombre;
+    }
+
+    public void setDocenteTitularRelevadoNombre(String docenteTitularRelevadoNombre) {
+        this.docenteTitularRelevadoNombre = docenteTitularRelevadoNombre;
+    }
+
+    public String getMotivoRelevo() {
+        return motivoRelevo;
+    }
+
+    public void setMotivoRelevo(String motivoRelevo) {
+        this.motivoRelevo = motivoRelevo;
+    }
+
+    public String getActaRectoralHorasExtras() {
+        return actaRectoralHorasExtras;
+    }
+
+    public void setActaRectoralHorasExtras(String actaRectoralHorasExtras) {
+        this.actaRectoralHorasExtras = actaRectoralHorasExtras;
     }
 
     public Boolean getActivo() {

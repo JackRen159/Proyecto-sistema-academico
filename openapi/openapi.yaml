@@ -3083,6 +3083,57 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
+  /api/profesores/{id}/situacion-administrativa:
+    patch:
+      tags:
+      - Profesores - Situación Administrativa
+      summary: Registrar novedad administrativa de profesor (incapacidad, licencia, suspensión o reintegro) (UC-PROV-11)
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: nuevoEstado
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/EstadoAdministrativoDocente'
+      - name: fechaInicio
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: fechaFin
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      - name: motivo
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Situación administrativa registrada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfesorResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
   /api/asignaciones-academicas:
     get:
       tags:
@@ -3225,6 +3276,129 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '403':
           $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/asignaciones-academicas/{id}/relevo:
+    post:
+      tags:
+      - Asignaciones Académicas - Relevos y Suplencias
+      summary: Ejecutar relevo o suplencia temporal/definitiva sobre asignación docente (UC-15 A3)
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RelevoDocenteRequest'
+      responses:
+        '200':
+          description: Relevo docente formalizado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AsignacionAcademicaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/asignaciones-academicas/bloque-curricular:
+    post:
+      tags:
+      - Asignaciones Académicas - Primaria y Preescolar
+      summary: Asignación masiva en bloque curricular para modelo unidocente (UC-15 A2)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BloqueCurricularAsignacionRequest'
+      responses:
+        '200':
+          description: Materias del bloque asignadas exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AsignacionAcademicaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/asignaciones-academicas/grupo/{grupoId}/matriz-vacantes:
+    get:
+      tags:
+      - Asignaciones Académicas - Consultas y Cobertura
+      summary: Consultar matriz directiva de cobertura y asignaturas vacantes (UC-PROV-12 A1)
+      parameters:
+      - name: grupoId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: anioLectivoId
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Matriz de cobertura obtenida exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MateriaVacanteResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/asignaciones-academicas/grupo/{grupoId}/equipo-docente:
+    get:
+      tags:
+      - Asignaciones Académicas - Consultas y Cobertura
+      summary: Consultar equipo docente y director de grupo para estudiantes y familias (UC-PROV-12 A2)
+      parameters:
+      - name: grupoId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Cuadro de profesores del curso obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AsignacionAcademicaResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
         '404':
           $ref: '#/components/responses/NotFoundError'
   /api/matriculas:
@@ -5855,6 +6029,126 @@ components:
       - PPT
       - NES
       description: Tipo de documento de identidad oficial en Colombia
+    EstadoAdministrativoDocente:
+      type: string
+      enum:
+      - ACTIVO
+      - EN_LICENCIA_O_INCAPACIDAD
+      - SUSPENDIDO
+      - RETIRADO_INACTIVO
+      example: ACTIVO
+    TipoVinculacionDocente:
+      type: string
+      enum:
+      - PROPIEDAD_ESTATUTO_2277
+      - PROPIEDAD_ESTATUTO_1278
+      - PROVISIONAL_VACANTE_DEFINITIVA
+      - PROVISIONAL_VACANTE_TEMPORAL
+      - CONTRATO_TERMINO_FIJO_PRIVADO
+      - CONTRATO_TERMINO_INDEFINIDO_PRIVADO
+      - HORA_CATEDRA
+      example: PROPIEDAD_ESTATUTO_1278
+    EstadoAsignacionAcademica:
+      type: string
+      enum:
+      - TITULAR
+      - PROPUESTA_EN_PLANEACION
+      - REEMPLAZO_TEMPORAL
+      - SUSPENDIDA_POR_LICENCIA
+      - FINALIZADA_POR_RELEVO
+      example: TITULAR
+    RelevoDocenteRequest:
+      type: object
+      required:
+      - docenteReemplazoId
+      - tipoRelevo
+      - motivo
+      properties:
+        docenteReemplazoId:
+          type: integer
+          format: int64
+          example: 2
+        tipoRelevo:
+          $ref: '#/components/schemas/EstadoAsignacionAcademica'
+        fechaInicioVigencia:
+          type: string
+          format: date
+          example: '2026-03-01'
+        fechaFinVigencia:
+          type: string
+          format: date
+          example: '2026-05-30'
+        motivo:
+          type: string
+          maxLength: 255
+          example: Licencia médica de maternidad
+    BloqueCurricularAsignacionRequest:
+      type: object
+      required:
+      - profesorId
+      - grupoId
+      properties:
+        profesorId:
+          type: integer
+          format: int64
+          example: 1
+        grupoId:
+          type: integer
+          format: int64
+          example: 10
+        asignaturasExcluidasIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+        esDirectorGrupo:
+          type: boolean
+          default: true
+          example: true
+    MateriaVacanteResponse:
+      type: object
+      properties:
+        grupoId:
+          type: integer
+          format: int64
+          example: 10
+        grupoNombre:
+          type: string
+          example: 10-A
+        gradoId:
+          type: integer
+          format: int64
+          example: 2
+        gradoNombre:
+          type: string
+          example: Décimo
+        asignaturaId:
+          type: integer
+          format: int64
+          example: 100
+        asignaturaNombre:
+          type: string
+          example: Física
+        asignaturaCodigo:
+          type: string
+          example: FIS10
+        intensidadHoraria:
+          type: integer
+          example: 4
+        tieneDocenteAsignado:
+          type: boolean
+          example: false
+        profesorId:
+          type: integer
+          format: int64
+          nullable: true
+          example: null
+        profesorNombre:
+          type: string
+          example: VACANTE / PENDIENTE
+        estadoAsignacion:
+          type: string
+          example: VACANTE
     ProfesorRequest:
       type: object
       required:
@@ -5898,6 +6192,49 @@ components:
           type: string
           maxLength: 100
           example: Álgebra y Trigonometría
+        estadoAdministrativo:
+          $ref: '#/components/schemas/EstadoAdministrativoDocente'
+        tipoVinculacion:
+          $ref: '#/components/schemas/TipoVinculacionDocente'
+        horasSemanalesOrdinarias:
+          type: integer
+          minimum: 1
+          maximum: 40
+          default: 22
+          example: 22
+        horasExtrasPermitidas:
+          type: integer
+          minimum: 0
+          maximum: 20
+          default: 0
+          example: 4
+        verificadoInhabilidades:
+          type: boolean
+          default: true
+          example: true
+        fechaVerificacionInhabilidades:
+          type: string
+          format: date
+          example: '2026-01-15'
+        numeroCertificadoInhabilidades:
+          type: string
+          maxLength: 50
+          example: CERT-LEY1918-001
+        fechaInicioSituacion:
+          type: string
+          format: date
+          nullable: true
+          example: null
+        fechaFinSituacion:
+          type: string
+          format: date
+          nullable: true
+          example: null
+        motivoSituacion:
+          type: string
+          maxLength: 255
+          nullable: true
+          example: null
         usuarioId:
           type: integer
           format: int64
@@ -5939,6 +6276,43 @@ components:
         especialidad:
           type: string
           example: Álgebra y Trigonometría
+        estadoAdministrativo:
+          $ref: '#/components/schemas/EstadoAdministrativoDocente'
+        tipoVinculacion:
+          $ref: '#/components/schemas/TipoVinculacionDocente'
+        horasSemanalesOrdinarias:
+          type: integer
+          example: 22
+        horasExtrasPermitidas:
+          type: integer
+          example: 4
+        horasAsignadasActuales:
+          type: integer
+          example: 18
+        verificadoInhabilidades:
+          type: boolean
+          example: true
+        fechaVerificacionInhabilidades:
+          type: string
+          format: date
+          example: '2026-01-15'
+        numeroCertificadoInhabilidades:
+          type: string
+          example: CERT-LEY1918-001
+        fechaInicioSituacion:
+          type: string
+          format: date
+          nullable: true
+          example: null
+        fechaFinSituacion:
+          type: string
+          format: date
+          nullable: true
+          example: null
+        motivoSituacion:
+          type: string
+          nullable: true
+          example: null
         usuarioId:
           type: integer
           format: int64
@@ -5985,6 +6359,36 @@ components:
           type: boolean
           default: false
           example: false
+        estadoAsignacion:
+          $ref: '#/components/schemas/EstadoAsignacionAcademica'
+        fechaInicioVigencia:
+          type: string
+          format: date
+          example: '2026-02-01'
+        fechaFinVigencia:
+          type: string
+          format: date
+          nullable: true
+          example: null
+        esReemplazoTemporal:
+          type: boolean
+          default: false
+          example: false
+        docenteTitularRelevadoId:
+          type: integer
+          format: int64
+          nullable: true
+          example: null
+        motivoRelevo:
+          type: string
+          maxLength: 255
+          nullable: true
+          example: null
+        actaRectoralHorasExtras:
+          type: string
+          maxLength: 50
+          nullable: true
+          example: null
     AsignacionAcademicaResponse:
       type: object
       properties:
@@ -6001,6 +6405,7 @@ components:
           example: Carlos Gómez
         profesorDocumento:
           type: string
+          nullable: true
           example: '1020304050'
         grupoId:
           type: integer
@@ -6035,6 +6440,38 @@ components:
         esDirectorGrupo:
           type: boolean
           example: false
+        estadoAsignacion:
+          $ref: '#/components/schemas/EstadoAsignacionAcademica'
+        fechaInicioVigencia:
+          type: string
+          format: date
+          nullable: true
+          example: '2026-02-01'
+        fechaFinVigencia:
+          type: string
+          format: date
+          nullable: true
+          example: null
+        esReemplazoTemporal:
+          type: boolean
+          example: false
+        docenteTitularRelevadoId:
+          type: integer
+          format: int64
+          nullable: true
+          example: null
+        docenteTitularRelevadoNombre:
+          type: string
+          nullable: true
+          example: null
+        motivoRelevo:
+          type: string
+          nullable: true
+          example: null
+        actaRectoralHorasExtras:
+          type: string
+          nullable: true
+          example: null
         activo:
           type: boolean
           example: true

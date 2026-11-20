@@ -4,6 +4,9 @@ api.base.service.ts
 api.module.ts
 api/acudientes.service.ts
 api/api.ts
+api/asignaciones-acadmicas-consultas-y-cobertura.service.ts
+api/asignaciones-acadmicas-primaria-y-preescolar.service.ts
+api/asignaciones-acadmicas-relevos-y-suplencias.service.ts
 api/asignaciones-acadmicas.service.ts
 api/auditora-global.service.ts
 api/autenticacin.service.ts
@@ -24,6 +27,7 @@ api/estudiantes.service.ts
 api/matrculas-consultas-contextuales.service.ts
 api/matrculas-novedades-de-permanencia.service.ts
 api/matrculas.service.ts
+api/profesores-situacin-administrativa.service.ts
 api/profesores.service.ts
 api/usuarios-y-roles.service.ts
 api/vinculaciones.service.ts
@@ -59,6 +63,7 @@ model/asignatura-request.ts
 model/asignatura-response.ts
 model/auditoria-calificacion-response.ts
 model/auditoria-evento-response.ts
+model/bloque-curricular-asignacion-request.ts
 model/boletin-periodo-response.ts
 model/calificacion-actividad-response.ts
 model/calificacion-periodo-response.ts
@@ -85,7 +90,9 @@ model/dia-no-lectivo-request.ts
 model/dia-no-lectivo-response.ts
 model/emision-documento-request.ts
 model/error-response.ts
+model/estado-administrativo-docente.ts
 model/estado-anio-lectivo.ts
+model/estado-asignacion-academica.ts
 model/estado-asistencia.ts
 model/estado-expediente.ts
 model/estado-grupo.ts
@@ -120,6 +127,7 @@ model/justificacion-asistencia-request.ts
 model/justificacion-asistencia-response.ts
 model/login-request.ts
 model/login-response.ts
+model/materia-vacante-response.ts
 model/matricula-request.ts
 model/matricula-response.ts
 model/models.ts
@@ -148,6 +156,7 @@ model/registro-calificacion-request.ts
 model/registro-calificaciones-lote-request.ts
 model/registro-emision-response.ts
 model/registro-restriccion-legal-request.ts
+model/relevo-docente-request.ts
 model/resolver-solicitud-rectificacion-request.ts
 model/restablecimiento-presencial-response.ts
 model/resultado-auditoria.ts
@@ -170,6 +179,7 @@ model/tipo-matricula.ts
 model/tipo-novedad-matricula.ts
 model/tipo-organo-colegiado.ts
 model/tipo-registro-asistencia.ts
+model/tipo-vinculacion-docente.ts
 model/traslado-grupo-request.ts
 model/usuario-response.ts
 model/usuario-rol-response.ts

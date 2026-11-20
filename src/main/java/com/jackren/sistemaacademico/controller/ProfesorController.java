@@ -67,4 +67,15 @@ public class ProfesorController {
         profesorService.desactivar(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/{id}/situacion-administrativa")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR')")
+    public ResponseEntity<ProfesorResponse> registrarSituacionAdministrativa(
+            @PathVariable Long id,
+            @RequestParam com.jackren.sistemaacademico.entity.EstadoAdministrativoDocente nuevoEstado,
+            @RequestParam(required = false) java.time.LocalDate fechaInicio,
+            @RequestParam(required = false) java.time.LocalDate fechaFin,
+            @RequestParam String motivo) {
+        return ResponseEntity.ok(profesorService.registrarSituacionAdministrativa(id, nuevoEstado, fechaInicio, fechaFin, motivo));
+    }
 }

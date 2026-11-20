@@ -1,11 +1,12 @@
 package com.jackren.sistemaacademico.controller;
 
-import com.jackren.sistemaacademico.dto.AsignacionAcademicaRequest;
-import com.jackren.sistemaacademico.dto.AsignacionAcademicaResponse;
+import com.jackren.sistemaacademico.dto.*;
 import com.jackren.sistemaacademico.service.AsignacionAcademicaService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -66,5 +67,43 @@ public class AsignacionAcademicaController {
     public ResponseEntity<Void> desactivar(@PathVariable Long id) {
         asignacionService.desactivar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/relevo")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR')")
+    public ResponseEntity<AsignacionAcademicaResponse> relevarDocente(
+            @PathVariable Long id,
+            @Valid @RequestBody RelevoDocenteRequest request,
+            @AuthenticationPrincipal Jwt jwt) {
+        Long usuarioId = null;
+        if (jwt != null && jwt.hasClaim("id")) {
+            Object idClaim = jwt.getClaim("id");
+            if (idClaim instanceof Number number) {
+                usuarioId = number.longValue();
+            }
+        }
+        return ResponseEntity.ok(asignacionService.relevarDocente(id, request, usuarioId));
+    }
+
+    @PostMapping("/bloque-curricular")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR')")
+    public ResponseEntity<List<AsignacionAcademicaResponse>> asignarBloqueCurricular(
+            @Valid @RequestBody BloqueCurricularAsignacionRequest request) {
+        return ResponseEntity.ok(asignacionService.asignarBloqueCurricular(request));
+    }
+
+    @GetMapping("/grupo/{grupoId}/matriz-vacantes")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR', 'SECRETARIA')")
+    public ResponseEntity<List<MateriaVacanteResponse>> obtenerMatrizVacantes(
+            @PathVariable Long grupoId,
+            @RequestParam(required = false) Long anioLectivoId) {
+        return ResponseEntity.ok(asignacionService.obtenerMatrizVacantes(anioLectivoId, grupoId));
+    }
+
+    @GetMapping("/grupo/{grupoId}/equipo-docente")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR', 'SECRETARIA', 'PROFESOR', 'ESTUDIANTE', 'ACUDIENTE')")
+    public ResponseEntity<List<AsignacionAcademicaResponse>> obtenerEquipoDocenteGrupo(
+            @PathVariable Long grupoId) {
+        return ResponseEntity.ok(asignacionService.obtenerEquipoDocenteGrupo(grupoId));
     }
 }
