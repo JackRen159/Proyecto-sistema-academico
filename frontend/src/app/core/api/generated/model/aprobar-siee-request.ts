@@ -14,5 +14,7 @@ export interface AprobarSieeRequest {
     actaConsejoDirectivo: string;
     fechaInicioVigencia: string;
     soportePdfUrl?: string;
+    constanciaSocializacion?: string;
+    fechaSocializacion?: string;
 }
 

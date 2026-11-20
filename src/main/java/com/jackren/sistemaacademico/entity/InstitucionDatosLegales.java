@@ -70,6 +70,22 @@ public class InstitucionDatosLegales {
     @Column(length = 255)
     private String lema;
 
+    @Column(name = "escudo_url", length = 255)
+    private String escudoUrl;
+
+    @Column(name = "membrete_url", length = 255)
+    private String membreteUrl;
+
+    @Column(name = "firma_rector_url", length = 255)
+    private String firmaRectorUrl;
+
+    @Column(name = "firma_secretario_url", length = 255)
+    private String firmaSecretarioUrl;
+
+    @Version
+    @Column(nullable = false)
+    private Long version = 0L;
+
     @Column(nullable = false)
     private Boolean activo = true;
 
@@ -222,6 +238,46 @@ public class InstitucionDatosLegales {
 
     public void setLema(String lema) {
         this.lema = lema;
+    }
+
+    public String getEscudoUrl() {
+        return escudoUrl;
+    }
+
+    public void setEscudoUrl(String escudoUrl) {
+        this.escudoUrl = escudoUrl;
+    }
+
+    public String getMembreteUrl() {
+        return membreteUrl;
+    }
+
+    public void setMembreteUrl(String membreteUrl) {
+        this.membreteUrl = membreteUrl;
+    }
+
+    public String getFirmaRectorUrl() {
+        return firmaRectorUrl;
+    }
+
+    public void setFirmaRectorUrl(String firmaRectorUrl) {
+        this.firmaRectorUrl = firmaRectorUrl;
+    }
+
+    public String getFirmaSecretarioUrl() {
+        return firmaSecretarioUrl;
+    }
+
+    public void setFirmaSecretarioUrl(String firmaSecretarioUrl) {
+        this.firmaSecretarioUrl = firmaSecretarioUrl;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     public Boolean getActivo() {

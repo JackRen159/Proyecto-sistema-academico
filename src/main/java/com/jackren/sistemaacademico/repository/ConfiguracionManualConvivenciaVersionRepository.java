@@ -18,4 +18,8 @@ public interface ConfiguracionManualConvivenciaVersionRepository extends JpaRepo
     List<ConfiguracionManualConvivenciaVersion> findAllByOrderByNumeroVersionDesc();
 
     Optional<ConfiguracionManualConvivenciaVersion> findTopByOrderByNumeroVersionDesc();
+
+    Optional<ConfiguracionManualConvivenciaVersion> findFirstByAnioLectivoVigenciaIdAndEstadoInOrderByNumeroVersionDesc(Long anioLectivoId, List<EstadoVersionConfiguracion> estados);
+
+    Optional<ConfiguracionManualConvivenciaVersion> findFirstByAnioLectivoVigenciaIdOrderByNumeroVersionDesc(Long anioLectivoId);
 }

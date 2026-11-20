@@ -638,6 +638,158 @@ paths:
           description: Versión del SIEE publicada como VIGENTE.
         '409':
           description: Faltan actas obligatorias (E2), intenta alterar versión histórica (E5) o aplicar a año cerrado (E3).
+  /api/configuracion/siee/{id}:
+    get:
+      tags:
+      - Configuración Institucional
+      summary: Obtener versión específica del SIEE (UC-26)
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Detalle de versión del SIEE.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfiguracionSieeResponse'
+        '404':
+          description: Versión no encontrada.
+    delete:
+      tags:
+      - Configuración Institucional
+      summary: Rechazar eliminación física de versión del SIEE (E5)
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '409':
+          description: Inmutabilidad estricta (E5).
+  /api/configuracion/siee/por-anio/{anioLectivoId}:
+    get:
+      tags:
+      - Configuración Institucional
+      summary: Consulta contextual del SIEE por año lectivo cursado (UC-PROV-14)
+      parameters:
+      - name: anioLectivoId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Versión del SIEE aplicada al año lectivo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfiguracionSieeResponse'
+  /api/configuracion/siee/{id}/clonar:
+    post:
+      tags:
+      - Configuración Institucional
+      summary: Clonar versión del SIEE hacia nuevo borrador (UC-26 Paso 2)
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClonarVersionRequest'
+      responses:
+        '201':
+          description: Versión clonada en estado BORRADOR.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfiguracionSieeResponse'
+  /api/configuracion/siee/{id}/listo-aprobacion:
+    post:
+      tags:
+      - Configuración Institucional
+      summary: Marcar versión SIEE como lista para aprobación rectoral (UC-26 A1)
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Estado actualizado a LISTA_PARA_APROBACION.
+  /api/configuracion/siee/{id}/simular:
+    post:
+      tags:
+      - Configuración Institucional
+      summary: Simulación experimental de notas en borrador SIEE (UC-26 A4)
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SimulacionSieeRequest'
+      responses:
+        '200':
+          description: Resultado de la simulación.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulacionSieeResponse'
+  /api/configuracion/siee/comparar:
+    get:
+      tags:
+      - Configuración Institucional
+      summary: Comparar diferencias entre dos versiones del SIEE (UC-PROV-14 A1)
+      parameters:
+      - name: v1
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: v2
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Diferencias encontradas.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiferenciaVersionResponse'
+  /api/configuracion/manual-convivencia:
+    get:
+      tags:
+      - Configuración Institucional
+      summary: Listar versiones del Manual de Convivencia (UC-26)
+      responses:
+        '200':
+          description: Historial de versiones del Manual.
   /api/configuracion/manual-convivencia/vigente:
     get:
       tags:
@@ -651,6 +803,133 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConfiguracionManualConvivenciaResponse'
+  /api/configuracion/manual-convivencia/{id}:
+    get:
+      tags:
+      - Configuración Institucional
+      summary: Obtener versión específica del Manual de Convivencia (UC-26)
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Detalle del Manual.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfiguracionManualConvivenciaResponse'
+    delete:
+      tags:
+      - Configuración Institucional
+      summary: Rechazar eliminación física de versión del Manual (E5)
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '409':
+          description: Inmutabilidad estricta (E5).
+  /api/configuracion/manual-convivencia/por-anio/{anioLectivoId}:
+    get:
+      tags:
+      - Configuración Institucional
+      summary: Consulta contextual del Manual por año lectivo (UC-PROV-14)
+      parameters:
+      - name: anioLectivoId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Versión del Manual de Convivencia aplicada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfiguracionManualConvivenciaResponse'
+  /api/configuracion/manual-convivencia/borrador:
+    post:
+      tags:
+      - Configuración Institucional
+      summary: Crear borrador de Manual de Convivencia (UC-26)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrearManualBorradorRequest'
+      responses:
+        '201':
+          description: Borrador creado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfiguracionManualConvivenciaResponse'
+  /api/configuracion/manual-convivencia/{id}/borrador:
+    put:
+      tags:
+      - Configuración Institucional
+      summary: Actualizar borrador de Manual de Convivencia (UC-26)
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActualizarManualBorradorRequest'
+      responses:
+        '200':
+          description: Borrador actualizado.
+  /api/configuracion/manual-convivencia/{id}/clonar:
+    post:
+      tags:
+      - Configuración Institucional
+      summary: Clonar versión del Manual hacia nuevo borrador (UC-26 Paso 2)
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClonarVersionRequest'
+      responses:
+        '201':
+          description: Borrador clonado.
+  /api/configuracion/manual-convivencia/{id}/listo-aprobacion:
+    post:
+      tags:
+      - Configuración Institucional
+      summary: Marcar Manual como listo para aprobación rectoral (UC-26 A1)
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Estado actualizado a LISTA_PARA_APROBACION.
   /api/configuracion/manual-convivencia/{id}/aprobar:
     post:
       tags:
@@ -674,6 +953,31 @@ paths:
           description: Manual publicado como VIGENTE.
         '409':
           description: Faltan actas de Comité de Convivencia y Consejo Directivo (E2).
+  /api/configuracion/manual-convivencia/comparar:
+    get:
+      tags:
+      - Configuración Institucional
+      summary: Comparar diferencias entre dos versiones del Manual (UC-PROV-14 A1)
+      parameters:
+      - name: v1
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: v2
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Diferencias encontradas.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiferenciaVersionResponse'
   /api/auditoria/eventos:
     get:
       tags:
@@ -8450,6 +8754,14 @@ components:
         lema:
           type: string
           example: Educando con calidad para la paz
+        escudoUrl:
+          type: string
+        membreteUrl:
+          type: string
+        firmaRectorUrl:
+          type: string
+        firmaSecretarioUrl:
+          type: string
         activo:
           type: boolean
           example: true
@@ -8501,6 +8813,14 @@ components:
         documentoSecretarioFirmante:
           type: string
         lema:
+          type: string
+        escudoUrl:
+          type: string
+        membreteUrl:
+          type: string
+        firmaRectorUrl:
+          type: string
+        firmaSecretarioUrl:
           type: string
     ParametroInstitucionalResponse:
       type: object
@@ -8674,6 +8994,11 @@ components:
           type: string
         soportePdfUrl:
           type: string
+        constanciaSocializacion:
+          type: string
+        fechaSocializacion:
+          type: string
+          format: date
     CrearSieeBorradorRequest:
       type: object
       required:
@@ -8735,6 +9060,11 @@ components:
           example: '2026-01-15'
         soportePdfUrl:
           type: string
+        constanciaSocializacion:
+          type: string
+        fechaSocializacion:
+          type: string
+          format: date
     ConfiguracionManualConvivenciaResponse:
       type: object
       properties:
@@ -8750,6 +9080,13 @@ components:
           example: Manual de Convivencia V1
         estado:
           $ref: '#/components/schemas/EstadoVersionConfiguracion'
+        anioLectivoVigenciaId:
+          type: integer
+          format: int64
+          nullable: true
+        anioLectivoNombre:
+          type: string
+          nullable: true
         fechaInicioVigencia:
           type: string
           format: date
@@ -8765,6 +9102,13 @@ components:
           type: string
         plazosDebidoProcesoJson:
           type: string
+        soportePdfUrl:
+          type: string
+        constanciaSocializacion:
+          type: string
+        fechaSocializacion:
+          type: string
+          format: date
     AprobarManualConvivenciaRequest:
       type: object
       required:
@@ -8781,6 +9125,118 @@ components:
         fechaInicioVigencia:
           type: string
           format: date
+        soportePdfUrl:
+          type: string
+        constanciaSocializacion:
+          type: string
+        fechaSocializacion:
+          type: string
+          format: date
+    CrearManualBorradorRequest:
+      type: object
+      required:
+      - nombreVersion
+      properties:
+        nombreVersion:
+          type: string
+          example: Manual de Convivencia Propuesta 2027
+        anioLectivoVigenciaId:
+          type: integer
+          format: int64
+        situacionesTipo1Json:
+          type: string
+        situacionesTipo2Json:
+          type: string
+        situacionesTipo3Json:
+          type: string
+        plazosDebidoProcesoJson:
+          type: string
+    ActualizarManualBorradorRequest:
+      type: object
+      required:
+      - nombreVersion
+      properties:
+        nombreVersion:
+          type: string
+        anioLectivoVigenciaId:
+          type: integer
+          format: int64
+        situacionesTipo1Json:
+          type: string
+        situacionesTipo2Json:
+          type: string
+        situacionesTipo3Json:
+          type: string
+        plazosDebidoProcesoJson:
+          type: string
+    ClonarVersionRequest:
+      type: object
+      required:
+      - nuevoNombreVersion
+      properties:
+        nuevoNombreVersion:
+          type: string
+          example: Versión Clonada 2027
+        anioLectivoVigenciaId:
+          type: integer
+          format: int64
+    SimulacionSieeRequest:
+      type: object
+      required:
+      - calificaciones
+      properties:
+        calificaciones:
+          type: array
+          items:
+            type: number
+          example: [4.5, 3.8, 4.0, 2.5]
+        ponderaciones:
+          type: array
+          items:
+            type: number
+          example: [25, 25, 25, 25]
+        calificacionRecuperacion:
+          type: number
+          example: 3.5
+    SimulacionSieeResponse:
+      type: object
+      properties:
+        notaPromedio:
+          type: number
+        notaFinal:
+          type: number
+        desempenoNacional:
+          type: string
+        aprobado:
+          type: boolean
+        decimales:
+          type: integer
+        modoRedondeo:
+          type: string
+        detallesCalculo:
+          type: array
+          items:
+            type: string
+    DiferenciaVersionResponse:
+      type: object
+      properties:
+        versionA:
+          type: integer
+        versionB:
+          type: integer
+        tipoDocumento:
+          type: string
+        diferencias:
+          type: array
+          items:
+            type: object
+            properties:
+              campo:
+                type: string
+              valorVersionA:
+                nullable: true
+              valorVersionB:
+                nullable: true
     AuditoriaEventoResponse:
       type: object
       properties:

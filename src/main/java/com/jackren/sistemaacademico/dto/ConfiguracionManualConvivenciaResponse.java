@@ -11,6 +11,8 @@ public class ConfiguracionManualConvivenciaResponse {
     private Integer numeroVersion;
     private String nombreVersion;
     private EstadoVersionConfiguracion estado;
+    private Long anioLectivoVigenciaId;
+    private String anioLectivoNombre;
     private LocalDate fechaInicioVigencia;
     private String actaComiteConvivencia;
     private String actaConsejoDirectivo;
@@ -19,6 +21,8 @@ public class ConfiguracionManualConvivenciaResponse {
     private String situacionesTipo3Json;
     private String plazosDebidoProcesoJson;
     private String soportePdfUrl;
+    private String constanciaSocializacion;
+    private LocalDate fechaSocializacion;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaAprobacion;
 
@@ -55,6 +59,22 @@ public class ConfiguracionManualConvivenciaResponse {
 
     public void setEstado(EstadoVersionConfiguracion estado) {
         this.estado = estado;
+    }
+
+    public Long getAnioLectivoVigenciaId() {
+        return anioLectivoVigenciaId;
+    }
+
+    public void setAnioLectivoVigenciaId(Long anioLectivoVigenciaId) {
+        this.anioLectivoVigenciaId = anioLectivoVigenciaId;
+    }
+
+    public String getAnioLectivoNombre() {
+        return anioLectivoNombre;
+    }
+
+    public void setAnioLectivoNombre(String anioLectivoNombre) {
+        this.anioLectivoNombre = anioLectivoNombre;
     }
 
     public LocalDate getFechaInicioVigencia() {
@@ -119,6 +139,22 @@ public class ConfiguracionManualConvivenciaResponse {
 
     public void setSoportePdfUrl(String soportePdfUrl) {
         this.soportePdfUrl = soportePdfUrl;
+    }
+
+    public String getConstanciaSocializacion() {
+        return constanciaSocializacion;
+    }
+
+    public void setConstanciaSocializacion(String constanciaSocializacion) {
+        this.constanciaSocializacion = constanciaSocializacion;
+    }
+
+    public LocalDate getFechaSocializacion() {
+        return fechaSocializacion;
+    }
+
+    public void setFechaSocializacion(LocalDate fechaSocializacion) {
+        this.fechaSocializacion = fechaSocializacion;
     }
 
     public LocalDateTime getFechaCreacion() {

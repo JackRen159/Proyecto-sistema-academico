@@ -28,6 +28,8 @@ public class ConfiguracionSieeResponse {
     private String actaConsejoAcademico;
     private String actaConsejoDirectivo;
     private String soportePdfUrl;
+    private String constanciaSocializacion;
+    private LocalDate fechaSocializacion;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaAprobacion;
 
@@ -192,6 +194,22 @@ public class ConfiguracionSieeResponse {
 
     public void setSoportePdfUrl(String soportePdfUrl) {
         this.soportePdfUrl = soportePdfUrl;
+    }
+
+    public String getConstanciaSocializacion() {
+        return constanciaSocializacion;
+    }
+
+    public void setConstanciaSocializacion(String constanciaSocializacion) {
+        this.constanciaSocializacion = constanciaSocializacion;
+    }
+
+    public LocalDate getFechaSocializacion() {
+        return fechaSocializacion;
+    }
+
+    public void setFechaSocializacion(LocalDate fechaSocializacion) {
+        this.fechaSocializacion = fechaSocializacion;
     }
 
     public LocalDateTime getFechaCreacion() {

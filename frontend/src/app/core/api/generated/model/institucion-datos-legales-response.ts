@@ -29,6 +29,10 @@ export interface InstitucionDatosLegalesResponse {
     cargoSecretarioFirmante?: string;
     documentoSecretarioFirmante?: string;
     lema?: string;
+    escudoUrl?: string;
+    membreteUrl?: string;
+    firmaRectorUrl?: string;
+    firmaSecretarioUrl?: string;
     activo?: boolean;
 }
 

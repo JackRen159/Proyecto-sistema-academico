@@ -31,6 +31,8 @@ export interface ConfiguracionSieeResponse {
     actaConsejoAcademico?: string;
     actaConsejoDirectivo?: string;
     soportePdfUrl?: string;
+    constanciaSocializacion?: string;
+    fechaSocializacion?: string;
 }
 
 

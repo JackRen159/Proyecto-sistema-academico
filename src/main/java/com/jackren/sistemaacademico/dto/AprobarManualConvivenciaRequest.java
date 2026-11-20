@@ -17,6 +17,8 @@ public class AprobarManualConvivenciaRequest {
     private LocalDate fechaInicioVigencia;
 
     private String soportePdfUrl;
+    private String constanciaSocializacion;
+    private LocalDate fechaSocializacion;
 
     public AprobarManualConvivenciaRequest() {
     }
@@ -57,5 +59,21 @@ public class AprobarManualConvivenciaRequest {
 
     public void setSoportePdfUrl(String soportePdfUrl) {
         this.soportePdfUrl = soportePdfUrl;
+    }
+
+    public String getConstanciaSocializacion() {
+        return constanciaSocializacion;
+    }
+
+    public void setConstanciaSocializacion(String constanciaSocializacion) {
+        this.constanciaSocializacion = constanciaSocializacion;
+    }
+
+    public LocalDate getFechaSocializacion() {
+        return fechaSocializacion;
+    }
+
+    public void setFechaSocializacion(LocalDate fechaSocializacion) {
+        this.fechaSocializacion = fechaSocializacion;
     }
 }

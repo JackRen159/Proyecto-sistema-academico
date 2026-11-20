@@ -13,5 +13,8 @@ export interface AprobarManualConvivenciaRequest {
     actaComiteConvivencia: string;
     actaConsejoDirectivo: string;
     fechaInicioVigencia: string;
+    soportePdfUrl?: string;
+    constanciaSocializacion?: string;
+    fechaSocializacion?: string;
 }
 

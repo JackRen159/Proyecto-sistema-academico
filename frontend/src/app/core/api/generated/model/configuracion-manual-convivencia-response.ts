@@ -15,6 +15,8 @@ export interface ConfiguracionManualConvivenciaResponse {
     numeroVersion?: number;
     nombreVersion?: string;
     estado?: EstadoVersionConfiguracion;
+    anioLectivoVigenciaId?: number | null;
+    anioLectivoNombre?: string | null;
     fechaInicioVigencia?: string;
     actaComiteConvivencia?: string;
     actaConsejoDirectivo?: string;
@@ -22,6 +24,9 @@ export interface ConfiguracionManualConvivenciaResponse {
     situacionesTipo2Json?: string;
     situacionesTipo3Json?: string;
     plazosDebidoProcesoJson?: string;
+    soportePdfUrl?: string;
+    constanciaSocializacion?: string;
+    fechaSocializacion?: string;
 }
 
 

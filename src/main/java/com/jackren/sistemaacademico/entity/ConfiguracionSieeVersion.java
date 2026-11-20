@@ -76,6 +76,16 @@ public class ConfiguracionSieeVersion {
     @Column(name = "soporte_pdf_url", length = 255)
     private String soportePdfUrl;
 
+    @Column(name = "constancia_socializacion", length = 255)
+    private String constanciaSocializacion;
+
+    @Column(name = "fecha_socializacion")
+    private LocalDate fechaSocializacion;
+
+    @Version
+    @Column(nullable = false)
+    private Long version = 0L;
+
     @CreationTimestamp
     @Column(name = "fecha_creacion", updatable = false)
     private LocalDateTime fechaCreacion;
@@ -244,6 +254,30 @@ public class ConfiguracionSieeVersion {
 
     public void setSoportePdfUrl(String soportePdfUrl) {
         this.soportePdfUrl = soportePdfUrl;
+    }
+
+    public String getConstanciaSocializacion() {
+        return constanciaSocializacion;
+    }
+
+    public void setConstanciaSocializacion(String constanciaSocializacion) {
+        this.constanciaSocializacion = constanciaSocializacion;
+    }
+
+    public LocalDate getFechaSocializacion() {
+        return fechaSocializacion;
+    }
+
+    public void setFechaSocializacion(LocalDate fechaSocializacion) {
+        this.fechaSocializacion = fechaSocializacion;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     public LocalDateTime getFechaCreacion() {

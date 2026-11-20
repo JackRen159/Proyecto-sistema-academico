@@ -41,6 +41,10 @@ public class ActualizarInstitucionRequest {
     private String cargoSecretarioFirmante = "Secretario(a) Académico(a)";
     private String documentoSecretarioFirmante;
     private String lema;
+    private String escudoUrl;
+    private String membreteUrl;
+    private String firmaRectorUrl;
+    private String firmaSecretarioUrl;
 
     public ActualizarInstitucionRequest() {
     }
@@ -179,5 +183,37 @@ public class ActualizarInstitucionRequest {
 
     public void setLema(String lema) {
         this.lema = lema;
+    }
+
+    public String getEscudoUrl() {
+        return escudoUrl;
+    }
+
+    public void setEscudoUrl(String escudoUrl) {
+        this.escudoUrl = escudoUrl;
+    }
+
+    public String getMembreteUrl() {
+        return membreteUrl;
+    }
+
+    public void setMembreteUrl(String membreteUrl) {
+        this.membreteUrl = membreteUrl;
+    }
+
+    public String getFirmaRectorUrl() {
+        return firmaRectorUrl;
+    }
+
+    public void setFirmaRectorUrl(String firmaRectorUrl) {
+        this.firmaRectorUrl = firmaRectorUrl;
+    }
+
+    public String getFirmaSecretarioUrl() {
+        return firmaSecretarioUrl;
+    }
+
+    public void setFirmaSecretarioUrl(String firmaSecretarioUrl) {
+        this.firmaSecretarioUrl = firmaSecretarioUrl;
     }
 }

@@ -40,6 +40,7 @@ model/actividad-evaluativa-response.ts
 model/actualizar-calificacion-request.ts
 model/actualizar-estado-usuario-request.ts
 model/actualizar-institucion-request.ts
+model/actualizar-manual-borrador-request.ts
 model/actualizar-parametro-request.ts
 model/acudiente-request.ts
 model/acudiente-response.ts
@@ -71,6 +72,7 @@ model/cambio-estado-matricula-request.ts
 model/cambio-password-request.ts
 model/caracter-institucion.ts
 model/certificado-estudio-response.ts
+model/clonar-version-request.ts
 model/configuracion-alerta-asistencia-request.ts
 model/configuracion-alerta-asistencia-response.ts
 model/configuracion-consecutivo-request.ts
@@ -82,12 +84,15 @@ model/configuracion-siee-response.ts
 model/confirmacion-recuperacion-password-request.ts
 model/conmutar-rol-request.ts
 model/constancia-matricula-response.ts
+model/crear-manual-borrador-request.ts
 model/crear-politica-datos-request.ts
 model/crear-siee-borrador-request.ts
 model/crear-usuario-request.ts
 model/desempeno-nacional.ts
 model/dia-no-lectivo-request.ts
 model/dia-no-lectivo-response.ts
+model/diferencia-version-response-diferencias-inner.ts
+model/diferencia-version-response.ts
 model/emision-documento-request.ts
 model/error-response.ts
 model/estado-administrativo-docente.ts
@@ -166,6 +171,8 @@ model/rol.ts
 model/sesion-asistencia-request.ts
 model/sesion-asistencia-response.ts
 model/sexo-documental.ts
+model/simulacion-siee-request.ts
+model/simulacion-siee-response.ts
 model/solicitud-rectificacion-response.ts
 model/solicitud-recuperacion-password-request.ts
 model/tipo-calendario.ts

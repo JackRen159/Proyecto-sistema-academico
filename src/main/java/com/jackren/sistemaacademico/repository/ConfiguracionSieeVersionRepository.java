@@ -18,4 +18,8 @@ public interface ConfiguracionSieeVersionRepository extends JpaRepository<Config
     List<ConfiguracionSieeVersion> findAllByOrderByNumeroVersionDesc();
 
     Optional<ConfiguracionSieeVersion> findTopByOrderByNumeroVersionDesc();
+
+    Optional<ConfiguracionSieeVersion> findFirstByAnioLectivoVigenciaIdAndEstadoInOrderByNumeroVersionDesc(Long anioLectivoId, List<EstadoVersionConfiguracion> estados);
+
+    Optional<ConfiguracionSieeVersion> findFirstByAnioLectivoVigenciaIdOrderByNumeroVersionDesc(Long anioLectivoId);
 }

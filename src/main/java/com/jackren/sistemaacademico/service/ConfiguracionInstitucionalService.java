@@ -65,6 +65,10 @@ public class ConfiguracionInstitucionalService {
         inst.setCargoSecretarioFirmante(request.getCargoSecretarioFirmante() != null ? request.getCargoSecretarioFirmante() : "Secretario(a) Académico(a)");
         inst.setDocumentoSecretarioFirmante(request.getDocumentoSecretarioFirmante());
         inst.setLema(request.getLema());
+        inst.setEscudoUrl(request.getEscudoUrl());
+        inst.setMembreteUrl(request.getMembreteUrl());
+        inst.setFirmaRectorUrl(request.getFirmaRectorUrl());
+        inst.setFirmaSecretarioUrl(request.getFirmaSecretarioUrl());
         inst.setActivo(true);
 
         InstitucionDatosLegales guardado = institucionRepository.save(inst);
@@ -169,6 +173,10 @@ public class ConfiguracionInstitucionalService {
         r.setCargoSecretarioFirmante(i.getCargoSecretarioFirmante());
         r.setDocumentoSecretarioFirmante(i.getDocumentoSecretarioFirmante());
         r.setLema(i.getLema());
+        r.setEscudoUrl(i.getEscudoUrl());
+        r.setMembreteUrl(i.getMembreteUrl());
+        r.setFirmaRectorUrl(i.getFirmaRectorUrl());
+        r.setFirmaSecretarioUrl(i.getFirmaSecretarioUrl());
         r.setActivo(i.getActivo());
         r.setFechaActualizacion(i.getFechaActualizacion());
         return r;

@@ -29,6 +29,10 @@ public class ConfiguracionManualConvivenciaVersion {
     @Column(nullable = false, length = 30)
     private EstadoVersionConfiguracion estado = EstadoVersionConfiguracion.BORRADOR;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "anio_lectivo_vigencia_id")
+    private AnioLectivo anioLectivoVigencia;
+
     @Column(name = "fecha_inicio_vigencia")
     private LocalDate fechaInicioVigencia;
 
@@ -52,6 +56,16 @@ public class ConfiguracionManualConvivenciaVersion {
 
     @Column(name = "soporte_pdf_url", length = 255)
     private String soportePdfUrl;
+
+    @Column(name = "constancia_socializacion", length = 255)
+    private String constanciaSocializacion;
+
+    @Column(name = "fecha_socializacion")
+    private LocalDate fechaSocializacion;
+
+    @Version
+    @Column(nullable = false)
+    private Long version = 0L;
 
     @CreationTimestamp
     @Column(name = "fecha_creacion", updatable = false)
@@ -165,6 +179,38 @@ public class ConfiguracionManualConvivenciaVersion {
 
     public void setSoportePdfUrl(String soportePdfUrl) {
         this.soportePdfUrl = soportePdfUrl;
+    }
+
+    public AnioLectivo getAnioLectivoVigencia() {
+        return anioLectivoVigencia;
+    }
+
+    public void setAnioLectivoVigencia(AnioLectivo anioLectivoVigencia) {
+        this.anioLectivoVigencia = anioLectivoVigencia;
+    }
+
+    public String getConstanciaSocializacion() {
+        return constanciaSocializacion;
+    }
+
+    public void setConstanciaSocializacion(String constanciaSocializacion) {
+        this.constanciaSocializacion = constanciaSocializacion;
+    }
+
+    public LocalDate getFechaSocializacion() {
+        return fechaSocializacion;
+    }
+
+    public void setFechaSocializacion(LocalDate fechaSocializacion) {
+        this.fechaSocializacion = fechaSocializacion;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     public LocalDateTime getFechaCreacion() {
