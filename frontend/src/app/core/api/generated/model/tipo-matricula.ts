@@ -15,8 +15,16 @@ export enum TipoMatricula {
 
     Nuevo = 'NUEVO',
 
+    NuevoIngreso = 'NUEVO_INGRESO',
+
+    RenovacionAntiguo = 'RENOVACION_ANTIGUO',
+
     Reincorporado = 'REINCORPORADO',
 
-    TrasladoExterno = 'TRASLADO_EXTERNO'
+    TrasladoExterno = 'TRASLADO_EXTERNO',
+
+    TrasladoEntrante = 'TRASLADO_ENTRANTE',
+
+    Repitencia = 'REPITENCIA'
 }
 

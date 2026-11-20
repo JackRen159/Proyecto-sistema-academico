@@ -38,6 +38,44 @@ public class Matricula {
     @Column(name = "tipo_matricula", nullable = false, length = 25)
     private TipoMatricula tipoMatricula = TipoMatricula.REGULAR;
 
+    @Column(name = "fecha_efectiva_inicio")
+    private LocalDate fechaEfectivaInicio;
+
+    @Column(name = "fecha_efectiva_retiro")
+    private LocalDate fechaEfectivaRetiro;
+
+    @Column(name = "institucion_procedencia", length = 150)
+    private String institucionProcedencia;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "acudiente_principal_id")
+    private Acudiente acudientePrincipal;
+
+    @Column(name = "siee_version_id")
+    private Long sieeVersionId;
+
+    @Column(name = "manual_convivencia_version_id")
+    private Long manualConvivenciaVersionId;
+
+    @Column(name = "fecha_aceptacion_reglamentos")
+    private LocalDateTime fechaAceptacionReglamentos;
+
+    @Column(name = "acta_consejo_directivo", length = 50)
+    private String actaConsejoDirectivo;
+
+    @Column(name = "fecha_acta_consejo_directivo")
+    private LocalDate fechaActaConsejoDirectivo;
+
+    @Column(name = "consentimiento_acudiente", nullable = false)
+    private Boolean consentimientoAcudiente = false;
+
+    @Column(name = "es_repitente", nullable = false)
+    private Boolean esRepitente = false;
+
+    @Version
+    @Column(nullable = false)
+    private Long version = 0L;
+
     @Column(length = 30)
     private String folio;
 
@@ -126,6 +164,102 @@ public class Matricula {
 
     public void setTipoMatricula(TipoMatricula tipoMatricula) {
         this.tipoMatricula = tipoMatricula;
+    }
+
+    public LocalDate getFechaEfectivaInicio() {
+        return fechaEfectivaInicio;
+    }
+
+    public void setFechaEfectivaInicio(LocalDate fechaEfectivaInicio) {
+        this.fechaEfectivaInicio = fechaEfectivaInicio;
+    }
+
+    public LocalDate getFechaEfectivaRetiro() {
+        return fechaEfectivaRetiro;
+    }
+
+    public void setFechaEfectivaRetiro(LocalDate fechaEfectivaRetiro) {
+        this.fechaEfectivaRetiro = fechaEfectivaRetiro;
+    }
+
+    public String getInstitucionProcedencia() {
+        return institucionProcedencia;
+    }
+
+    public void setInstitucionProcedencia(String institucionProcedencia) {
+        this.institucionProcedencia = institucionProcedencia;
+    }
+
+    public Acudiente getAcudientePrincipal() {
+        return acudientePrincipal;
+    }
+
+    public void setAcudientePrincipal(Acudiente acudientePrincipal) {
+        this.acudientePrincipal = acudientePrincipal;
+    }
+
+    public Long getSieeVersionId() {
+        return sieeVersionId;
+    }
+
+    public void setSieeVersionId(Long sieeVersionId) {
+        this.sieeVersionId = sieeVersionId;
+    }
+
+    public Long getManualConvivenciaVersionId() {
+        return manualConvivenciaVersionId;
+    }
+
+    public void setManualConvivenciaVersionId(Long manualConvivenciaVersionId) {
+        this.manualConvivenciaVersionId = manualConvivenciaVersionId;
+    }
+
+    public LocalDateTime getFechaAceptacionReglamentos() {
+        return fechaAceptacionReglamentos;
+    }
+
+    public void setFechaAceptacionReglamentos(LocalDateTime fechaAceptacionReglamentos) {
+        this.fechaAceptacionReglamentos = fechaAceptacionReglamentos;
+    }
+
+    public String getActaConsejoDirectivo() {
+        return actaConsejoDirectivo;
+    }
+
+    public void setActaConsejoDirectivo(String actaConsejoDirectivo) {
+        this.actaConsejoDirectivo = actaConsejoDirectivo;
+    }
+
+    public LocalDate getFechaActaConsejoDirectivo() {
+        return fechaActaConsejoDirectivo;
+    }
+
+    public void setFechaActaConsejoDirectivo(LocalDate fechaActaConsejoDirectivo) {
+        this.fechaActaConsejoDirectivo = fechaActaConsejoDirectivo;
+    }
+
+    public Boolean getConsentimientoAcudiente() {
+        return consentimientoAcudiente;
+    }
+
+    public void setConsentimientoAcudiente(Boolean consentimientoAcudiente) {
+        this.consentimientoAcudiente = consentimientoAcudiente;
+    }
+
+    public Boolean getEsRepitente() {
+        return esRepitente;
+    }
+
+    public void setEsRepitente(Boolean esRepitente) {
+        this.esRepitente = esRepitente;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     public String getFolio() {

@@ -32,5 +32,7 @@ public interface AsignacionAcademicaRepository extends JpaRepository<AsignacionA
      */
     boolean existsByProfesorUsuarioIdAndGrupoIdAndAsignaturaIdAndActivoTrue(Long usuarioId, Long grupoId, Long asignaturaId);
 
+    boolean existsByProfesorUsuarioIdAndGrupoIdAndActivoTrue(Long usuarioId, Long grupoId);
+
     boolean existsByProfesorIdAndGrupoIdAndAsignaturaIdAndActivoTrue(Long profesorId, Long grupoId, Long asignaturaId);
 }

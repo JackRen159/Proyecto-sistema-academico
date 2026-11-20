@@ -32,6 +32,13 @@ public interface MatriculaRepository extends JpaRepository<Matricula, Long> {
 
     List<Matricula> findByGrupoIdAndEstado(Long grupoId, EstadoMatricula estado);
 
+    @Query("SELECT m FROM Matricula m WHERE m.grupo.id = :grupoId ORDER BY m.estudiante.apellidos ASC, m.estudiante.nombres ASC")
+    List<Matricula> findListadoOficialPorGrupo(@Param("grupoId") Long grupoId);
+
+    boolean existsByEstudianteIdAndAnioLectivoIdAndEstadoIn(Long estudianteId, Long anioLectivoId, List<EstadoMatricula> estados);
+
+    long countByGrupoIdAndEstadoIn(Long grupoId, List<EstadoMatricula> estados);
+
     List<Matricula> findByEstudianteIdOrderByFechaMatriculaDesc(Long estudianteId);
 
     List<Matricula> findByAnioLectivoIdAndEstado(Long anioLectivoId, EstadoMatricula estado);

@@ -1,5 +1,6 @@
 package com.jackren.sistemaacademico.mapper;
 
+import com.jackren.sistemaacademico.dto.HistorialNovedadResponse;
 import com.jackren.sistemaacademico.dto.HistorialTrasladoResponse;
 import com.jackren.sistemaacademico.dto.MatriculaRequest;
 import com.jackren.sistemaacademico.dto.MatriculaResponse;
@@ -25,6 +26,12 @@ public class MatriculaMapper {
         matricula.setTipoMatricula(request.getTipoMatricula() != null ? request.getTipoMatricula() : TipoMatricula.REGULAR);
         matricula.setFolio(request.getFolio());
         matricula.setFechaMatricula(request.getFechaMatricula() != null ? request.getFechaMatricula() : LocalDate.now());
+        matricula.setFechaEfectivaInicio(request.getFechaEfectivaInicio() != null ? request.getFechaEfectivaInicio() : matricula.getFechaMatricula());
+        matricula.setInstitucionProcedencia(request.getInstitucionProcedencia());
+        matricula.setSieeVersionId(request.getSieeVersionId());
+        matricula.setManualConvivenciaVersionId(request.getManualConvivenciaVersionId());
+        matricula.setFechaAceptacionReglamentos(request.getFechaAceptacionReglamentos());
+        matricula.setEsRepitente(Boolean.TRUE.equals(request.getEsRepitente()));
         matricula.setObservaciones(request.getObservaciones());
         matricula.setActivo(true);
         return matricula;
@@ -66,6 +73,21 @@ public class MatriculaMapper {
         response.setTipoMatricula(matricula.getTipoMatricula());
         response.setFolio(matricula.getFolio());
         response.setFechaMatricula(matricula.getFechaMatricula());
+        response.setFechaEfectivaInicio(matricula.getFechaEfectivaInicio());
+        response.setFechaEfectivaRetiro(matricula.getFechaEfectivaRetiro());
+        response.setInstitucionProcedencia(matricula.getInstitucionProcedencia());
+
+        if (matricula.getAcudientePrincipal() != null) {
+            response.setAcudientePrincipalId(matricula.getAcudientePrincipal().getId());
+            response.setAcudientePrincipalNombre(matricula.getAcudientePrincipal().getNombres() + " " + matricula.getAcudientePrincipal().getApellidos());
+            response.setAcudientePrincipalDocumento(matricula.getAcudientePrincipal().getDocumento());
+        }
+
+        response.setSieeVersionId(matricula.getSieeVersionId());
+        response.setManualConvivenciaVersionId(matricula.getManualConvivenciaVersionId());
+        response.setActaConsejoDirectivo(matricula.getActaConsejoDirectivo());
+        response.setFechaActaConsejoDirectivo(matricula.getFechaActaConsejoDirectivo());
+        response.setEsRepitente(matricula.getEsRepitente());
         response.setObservaciones(matricula.getObservaciones());
         response.setActivo(matricula.getActivo());
         response.setFechaCreacion(matricula.getFechaCreacion());
@@ -105,6 +127,57 @@ public class MatriculaMapper {
         }
 
         response.setFechaTraslado(historial.getFechaTraslado());
+        return response;
+    }
+
+    public HistorialNovedadResponse toNovedadResponse(HistorialNovedadMatricula n) {
+        if (n == null) {
+            return null;
+        }
+
+        HistorialNovedadResponse response = new HistorialNovedadResponse();
+        response.setId(n.getId());
+
+        if (n.getMatricula() != null) {
+            response.setMatriculaId(n.getMatricula().getId());
+            response.setNumeroMatricula(n.getMatricula().getNumeroMatricula());
+        }
+
+        response.setTipoNovedad(n.getTipoNovedad());
+
+        if (n.getGrupoOrigen() != null) {
+            response.setGrupoOrigenId(n.getGrupoOrigen().getId());
+            response.setGrupoOrigenNombre(n.getGrupoOrigen().getNombre());
+        }
+
+        if (n.getGrupoDestino() != null) {
+            response.setGrupoDestinoId(n.getGrupoDestino().getId());
+            response.setGrupoDestinoNombre(n.getGrupoDestino().getNombre());
+        }
+
+        if (n.getGradoOrigen() != null) {
+            response.setGradoOrigenId(n.getGradoOrigen().getId());
+            response.setGradoOrigenNombre(n.getGradoOrigen().getNombre());
+        }
+
+        if (n.getGradoDestino() != null) {
+            response.setGradoDestinoId(n.getGradoDestino().getId());
+            response.setGradoDestinoNombre(n.getGradoDestino().getNombre());
+        }
+
+        response.setFechaEfectiva(n.getFechaEfectiva());
+        response.setMotivo(n.getMotivo());
+        response.setSoporteDocumento(n.getSoporteDocumento());
+        response.setNumeroActaResolucion(n.getNumeroActaResolucion());
+        response.setFechaActaResolucion(n.getFechaActaResolucion());
+        response.setSolicitante(n.getSolicitante());
+
+        if (n.getUsuario() != null) {
+            response.setUsuarioId(n.getUsuario().getId());
+            response.setUsername(n.getUsuario().getUsername());
+        }
+
+        response.setFechaCreacion(n.getFechaCreacion());
         return response;
     }
 }

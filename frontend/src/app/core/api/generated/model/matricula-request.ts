@@ -16,6 +16,13 @@ export interface MatriculaRequest {
     tipoMatricula?: TipoMatricula;
     folio?: string;
     fechaMatricula?: string;
+    fechaEfectivaInicio?: string;
+    institucionProcedencia?: string;
+    acudientePrincipalId?: number;
+    sieeVersionId?: number;
+    manualConvivenciaVersionId?: number;
+    fechaAceptacionReglamentos?: string;
+    esRepitente?: boolean;
     observaciones?: string;
 }
 

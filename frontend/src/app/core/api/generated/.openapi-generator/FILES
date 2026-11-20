@@ -21,6 +21,8 @@ api/estructura-acadmica-periodos.service.ts
 api/estructura-acadmica-plan-de-estudios.service.ts
 api/estructura-acadmica-reas.service.ts
 api/estudiantes.service.ts
+api/matrculas-consultas-contextuales.service.ts
+api/matrculas-novedades-de-permanencia.service.ts
 api/matrculas.service.ts
 api/profesores.service.ts
 api/usuarios-y-roles.service.ts
@@ -110,6 +112,7 @@ model/grado-response.ts
 model/grupo-request.ts
 model/grupo-response.ts
 model/historial-documento-identidad-response.ts
+model/historial-novedad-response.ts
 model/historial-traslado-response.ts
 model/institucion-datos-legales-response.ts
 model/jornada.ts
@@ -121,6 +124,7 @@ model/matricula-request.ts
 model/matricula-response.ts
 model/models.ts
 model/nivel-educativo.ts
+model/novedad-matricula-request.ts
 model/organo-colegiado-miembro-response.ts
 model/page-metadata.ts
 model/paged-acudiente-response.ts
@@ -163,6 +167,7 @@ model/tipo-documento-academico.ts
 model/tipo-documento.ts
 model/tipo-entidad-auditoria-calificacion.ts
 model/tipo-matricula.ts
+model/tipo-novedad-matricula.ts
 model/tipo-organo-colegiado.ts
 model/tipo-registro-asistencia.ts
 model/traslado-grupo-request.ts

@@ -30,6 +30,17 @@ export interface MatriculaResponse {
     tipoMatricula?: TipoMatricula;
     folio?: string;
     fechaMatricula?: string;
+    fechaEfectivaInicio?: string;
+    fechaEfectivaRetiro?: string | null;
+    institucionProcedencia?: string | null;
+    acudientePrincipalId?: number | null;
+    acudientePrincipalNombre?: string | null;
+    acudientePrincipalDocumento?: string | null;
+    sieeVersionId?: number | null;
+    manualConvivenciaVersionId?: number | null;
+    actaConsejoDirectivo?: string | null;
+    fechaActaConsejoDirectivo?: string | null;
+    esRepitente?: boolean;
     observaciones?: string;
     activo?: boolean;
     fechaCreacion?: string;

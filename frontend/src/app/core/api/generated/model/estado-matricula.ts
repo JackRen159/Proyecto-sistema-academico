@@ -13,9 +13,25 @@ export enum EstadoMatricula {
 
     Inscrita = 'INSCRITA',
 
+    EnProceso = 'EN_PROCESO',
+
+    PendienteDocumentos = 'PENDIENTE_DOCUMENTOS',
+
     Matriculada = 'MATRICULADA',
 
+    MatriculadoActivo = 'MATRICULADO_ACTIVO',
+
     Retirada = 'RETIRADA',
+
+    RetiradoVoluntario = 'RETIRADO_VOLUNTARIO',
+
+    TrasladadoSaliente = 'TRASLADADO_SALIENTE',
+
+    RetiradoDesercion = 'RETIRADO_DESERCION',
+
+    CanceladaExpulsion = 'CANCELADA_EXPULSION',
+
+    AnuladaAdministrativamente = 'ANULADA_ADMINISTRATIVAMENTE',
 
     Finalizada = 'FINALIZADA'
 }

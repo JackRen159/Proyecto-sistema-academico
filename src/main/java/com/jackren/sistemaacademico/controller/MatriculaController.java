@@ -97,6 +97,62 @@ public class MatriculaController {
         return ResponseEntity.ok(matriculaService.listarHistorialTraslados(id));
     }
 
+    @PostMapping("/{id}/promocion-anticipada")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR', 'SECRETARIA')")
+    public ResponseEntity<MatriculaResponse> promocionAnticipada(
+            @PathVariable Long id,
+            @Valid @RequestBody NovedadMatriculaRequest request,
+            @AuthenticationPrincipal Jwt jwt) {
+        Long usuarioId = extractUsuarioId(jwt);
+        return ResponseEntity.ok(matriculaService.promocionAnticipada(id, request, usuarioId));
+    }
+
+    @PostMapping("/{id}/retiro")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR', 'SECRETARIA')")
+    public ResponseEntity<MatriculaResponse> retirarEstudiante(
+            @PathVariable Long id,
+            @Valid @RequestBody NovedadMatriculaRequest request,
+            @AuthenticationPrincipal Jwt jwt) {
+        Long usuarioId = extractUsuarioId(jwt);
+        return ResponseEntity.ok(matriculaService.retirarEstudiante(id, request, usuarioId));
+    }
+
+    @PostMapping("/{id}/anular")
+    @PreAuthorize("hasRole('RECTOR')")
+    public ResponseEntity<MatriculaResponse> anularMatricula(
+            @PathVariable Long id,
+            @RequestParam String motivo,
+            @AuthenticationPrincipal Jwt jwt) {
+        Long usuarioId = extractUsuarioId(jwt);
+        return ResponseEntity.ok(matriculaService.anularMatricula(id, motivo, usuarioId));
+    }
+
+    @GetMapping("/{id}/historial-novedades")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR', 'SECRETARIA', 'PROFESOR')")
+    public ResponseEntity<List<HistorialNovedadResponse>> listarHistorialNovedades(@PathVariable Long id) {
+        return ResponseEntity.ok(matriculaService.listarHistorialNovedades(id));
+    }
+
+    @GetMapping("/grupo/{grupoId}/listado-oficial")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR', 'SECRETARIA', 'PROFESOR')")
+    public ResponseEntity<List<MatriculaResponse>> listarListadoOficialGrupo(@PathVariable Long grupoId) {
+        return ResponseEntity.ok(matriculaService.listarListadoOficialGrupo(grupoId));
+    }
+
+    @GetMapping("/mi-historial")
+    @PreAuthorize("hasRole('ESTUDIANTE')")
+    public ResponseEntity<List<MatriculaResponse>> listarMiHistorial(org.springframework.security.core.Authentication authentication) {
+        String username = authentication != null ? authentication.getName() : "";
+        return ResponseEntity.ok(matriculaService.listarMiHistorial(username));
+    }
+
+    @GetMapping("/mis-estudiantes")
+    @PreAuthorize("hasRole('ACUDIENTE')")
+    public ResponseEntity<List<MatriculaResponse>> listarMatriculasMisEstudiantes(org.springframework.security.core.Authentication authentication) {
+        String username = authentication != null ? authentication.getName() : "";
+        return ResponseEntity.ok(matriculaService.listarMatriculasMisEstudiantes(username));
+    }
+
     @GetMapping("/verificar-activa")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR', 'SECRETARIA', 'PROFESOR')")
     public ResponseEntity<Map<String, Boolean>> verificarMatriculaActiva(
@@ -104,5 +160,15 @@ public class MatriculaController {
             @RequestParam Long grupoId) {
         boolean activa = matriculaService.tieneMatriculaActivaEnGrupo(estudianteId, grupoId);
         return ResponseEntity.ok(Map.of("activa", activa));
+    }
+
+    private Long extractUsuarioId(Jwt jwt) {
+        if (jwt != null && jwt.hasClaim("id")) {
+            Object idClaim = jwt.getClaim("id");
+            if (idClaim instanceof Number number) {
+                return number.longValue();
+            }
+        }
+        return null;
     }
 }
