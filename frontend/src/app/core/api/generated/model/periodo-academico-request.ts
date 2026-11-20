@@ -15,5 +15,10 @@ export interface PeriodoAcademicoRequest {
     fechaInicio: string;
     fechaFin: string;
     porcentaje: number;
+    fechaInicioDigitacion?: string;
+    fechaFinDigitacion?: string;
+    numeroActaAprobacion?: string;
+    fechaActaAprobacion?: string;
+    organoAprobador?: string;
 }
 

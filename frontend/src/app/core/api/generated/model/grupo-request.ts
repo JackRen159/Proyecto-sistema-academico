@@ -8,6 +8,7 @@
  * Do not edit the class manually.
  */
 import { Jornada } from './jornada';
+import { EstadoGrupo } from './estado-grupo';
 
 
 export interface GrupoRequest { 
@@ -16,6 +17,9 @@ export interface GrupoRequest {
     nombre: string;
     jornada: Jornada;
     cupoMaximo: number;
+    sede?: string;
+    aulaBase?: string;
+    estado?: EstadoGrupo;
 }
 
 

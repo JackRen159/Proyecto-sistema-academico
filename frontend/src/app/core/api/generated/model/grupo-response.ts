@@ -8,6 +8,7 @@
  * Do not edit the class manually.
  */
 import { Jornada } from './jornada';
+import { EstadoGrupo } from './estado-grupo';
 
 
 export interface GrupoResponse { 
@@ -20,6 +21,11 @@ export interface GrupoResponse {
     nombre?: string;
     jornada?: Jornada;
     cupoMaximo?: number;
+    sede?: string;
+    aulaBase?: string;
+    estado?: EstadoGrupo;
+    matriculadosActuales?: number;
+    cuposDisponibles?: number;
     activo?: boolean;
     fechaCreacion?: string;
     fechaActualizacion?: string;

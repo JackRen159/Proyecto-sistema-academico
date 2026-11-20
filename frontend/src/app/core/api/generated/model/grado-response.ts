@@ -8,6 +8,7 @@
  * Do not edit the class manually.
  */
 import { NivelEducativo } from './nivel-educativo';
+import { RegimenEvaluacion } from './regimen-evaluacion';
 
 
 export interface GradoResponse { 
@@ -16,6 +17,10 @@ export interface GradoResponse {
     nombre?: string;
     nivel?: NivelEducativo;
     ordenJerarquico?: number;
+    gradoSiguienteId?: number | null;
+    gradoSiguienteNombre?: string | null;
+    esGradoTerminal?: boolean;
+    regimenEvaluacion?: RegimenEvaluacion;
     activo?: boolean;
 }
 

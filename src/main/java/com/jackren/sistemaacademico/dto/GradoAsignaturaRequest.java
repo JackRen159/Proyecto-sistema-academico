@@ -1,7 +1,12 @@
 package com.jackren.sistemaacademico.dto;
 
+import com.jackren.sistemaacademico.entity.TipoComponenteCurricular;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+
+import java.math.BigDecimal;
 
 public class GradoAsignaturaRequest {
 
@@ -16,6 +21,16 @@ public class GradoAsignaturaRequest {
     private Integer intensidadHoraria = 1;
 
     private Boolean esOptativa = false;
+
+    private Long anioLectivoId;
+
+    @DecimalMin(value = "0.01", message = "El peso porcentual debe ser mayor a 0")
+    @DecimalMax(value = "100.00", message = "El peso porcentual no puede superar 100")
+    private BigDecimal pesoPorcentualEnArea = new BigDecimal("100.00");
+
+    private TipoComponenteCurricular tipoComponente = TipoComponenteCurricular.ASIGNATURA;
+
+    private Boolean computaPromocion = true;
 
     public GradoAsignaturaRequest() {
     }
@@ -57,5 +72,37 @@ public class GradoAsignaturaRequest {
 
     public void setEsOptativa(Boolean esOptativa) {
         this.esOptativa = esOptativa;
+    }
+
+    public Long getAnioLectivoId() {
+        return anioLectivoId;
+    }
+
+    public void setAnioLectivoId(Long anioLectivoId) {
+        this.anioLectivoId = anioLectivoId;
+    }
+
+    public BigDecimal getPesoPorcentualEnArea() {
+        return pesoPorcentualEnArea;
+    }
+
+    public void setPesoPorcentualEnArea(BigDecimal pesoPorcentualEnArea) {
+        this.pesoPorcentualEnArea = pesoPorcentualEnArea;
+    }
+
+    public TipoComponenteCurricular getTipoComponente() {
+        return tipoComponente;
+    }
+
+    public void setTipoComponente(TipoComponenteCurricular tipoComponente) {
+        this.tipoComponente = tipoComponente;
+    }
+
+    public Boolean getComputaPromocion() {
+        return computaPromocion;
+    }
+
+    public void setComputaPromocion(Boolean computaPromocion) {
+        this.computaPromocion = computaPromocion;
     }
 }

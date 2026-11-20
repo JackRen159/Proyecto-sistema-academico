@@ -8,6 +8,7 @@
  * Do not edit the class manually.
  */
 import { EstadoAnioLectivo } from './estado-anio-lectivo';
+import { TipoCalendario } from './tipo-calendario';
 
 
 export interface AnioLectivoResponse { 
@@ -17,6 +18,11 @@ export interface AnioLectivoResponse {
     fechaInicio?: string;
     fechaFin?: string;
     estado?: EstadoAnioLectivo;
+    tipoCalendario?: TipoCalendario;
+    semanasLectivas?: number;
+    numeroActaAprobacion?: string;
+    fechaActaAprobacion?: string;
+    organoAprobador?: string;
     fechaCreacion?: string;
     fechaActualizacion?: string;
 }

@@ -47,6 +47,31 @@ public class PeriodoAcademico {
     @Column(nullable = false, length = 20)
     private EstadoPeriodo estado = EstadoPeriodo.CERRADO;
 
+    @Column(name = "fecha_inicio_digitacion")
+    private LocalDate fechaInicioDigitacion;
+
+    @Column(name = "fecha_fin_digitacion")
+    private LocalDate fechaFinDigitacion;
+
+    @Column(name = "numero_acta_aprobacion", length = 50)
+    private String numeroActaAprobacion;
+
+    @Column(name = "fecha_acta_aprobacion")
+    private LocalDate fechaActaAprobacion;
+
+    @Column(name = "organo_aprobador", length = 40)
+    private String organoAprobador;
+
+    @Column(name = "motivo_ajuste_excepcional", length = 500)
+    private String motivoAjusteExcepcional;
+
+    @Column(name = "resolucion_rectoral_excepcional", length = 100)
+    private String resolucionRectoralExcepcional;
+
+    @Version
+    @Column(nullable = false)
+    private Long version = 0L;
+
     @CreationTimestamp
     @Column(name = "fecha_creacion", updatable = false)
     private LocalDateTime fechaCreacion;
@@ -130,6 +155,70 @@ public class PeriodoAcademico {
 
     public void setEstado(EstadoPeriodo estado) {
         this.estado = estado;
+    }
+
+    public LocalDate getFechaInicioDigitacion() {
+        return fechaInicioDigitacion;
+    }
+
+    public void setFechaInicioDigitacion(LocalDate fechaInicioDigitacion) {
+        this.fechaInicioDigitacion = fechaInicioDigitacion;
+    }
+
+    public LocalDate getFechaFinDigitacion() {
+        return fechaFinDigitacion;
+    }
+
+    public void setFechaFinDigitacion(LocalDate fechaFinDigitacion) {
+        this.fechaFinDigitacion = fechaFinDigitacion;
+    }
+
+    public String getNumeroActaAprobacion() {
+        return numeroActaAprobacion;
+    }
+
+    public void setNumeroActaAprobacion(String numeroActaAprobacion) {
+        this.numeroActaAprobacion = numeroActaAprobacion;
+    }
+
+    public LocalDate getFechaActaAprobacion() {
+        return fechaActaAprobacion;
+    }
+
+    public void setFechaActaAprobacion(LocalDate fechaActaAprobacion) {
+        this.fechaActaAprobacion = fechaActaAprobacion;
+    }
+
+    public String getOrganoAprobador() {
+        return organoAprobador;
+    }
+
+    public void setOrganoAprobador(String organoAprobador) {
+        this.organoAprobador = organoAprobador;
+    }
+
+    public String getMotivoAjusteExcepcional() {
+        return motivoAjusteExcepcional;
+    }
+
+    public void setMotivoAjusteExcepcional(String motivoAjusteExcepcional) {
+        this.motivoAjusteExcepcional = motivoAjusteExcepcional;
+    }
+
+    public String getResolucionRectoralExcepcional() {
+        return resolucionRectoralExcepcional;
+    }
+
+    public void setResolucionRectoralExcepcional(String resolucionRectoralExcepcional) {
+        this.resolucionRectoralExcepcional = resolucionRectoralExcepcional;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     public LocalDateTime getFechaCreacion() {

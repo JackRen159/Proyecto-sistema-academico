@@ -16,12 +16,19 @@ public class PeriodoAcademicoResponse {
     private LocalDate fechaFin;
     private BigDecimal porcentaje;
     private EstadoPeriodo estado;
+    private LocalDate fechaInicioDigitacion;
+    private LocalDate fechaFinDigitacion;
+    private String numeroActaAprobacion;
+    private LocalDate fechaActaAprobacion;
+    private String organoAprobador;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaActualizacion;
 
     public PeriodoAcademicoResponse(Long id, Long anioLectivoId, Integer numero, String nombre,
                                     LocalDate fechaInicio, LocalDate fechaFin, BigDecimal porcentaje,
-                                    EstadoPeriodo estado, LocalDateTime fechaCreacion, LocalDateTime fechaActualizacion) {
+                                    EstadoPeriodo estado, LocalDate fechaInicioDigitacion, LocalDate fechaFinDigitacion,
+                                    String numeroActaAprobacion, LocalDate fechaActaAprobacion, String organoAprobador,
+                                    LocalDateTime fechaCreacion, LocalDateTime fechaActualizacion) {
         this.id = id;
         this.anioLectivoId = anioLectivoId;
         this.numero = numero;
@@ -30,8 +37,19 @@ public class PeriodoAcademicoResponse {
         this.fechaFin = fechaFin;
         this.porcentaje = porcentaje;
         this.estado = estado;
+        this.fechaInicioDigitacion = fechaInicioDigitacion;
+        this.fechaFinDigitacion = fechaFinDigitacion;
+        this.numeroActaAprobacion = numeroActaAprobacion;
+        this.fechaActaAprobacion = fechaActaAprobacion;
+        this.organoAprobador = organoAprobador;
         this.fechaCreacion = fechaCreacion;
         this.fechaActualizacion = fechaActualizacion;
+    }
+
+    public PeriodoAcademicoResponse(Long id, Long anioLectivoId, Integer numero, String nombre,
+                                    LocalDate fechaInicio, LocalDate fechaFin, BigDecimal porcentaje,
+                                    EstadoPeriodo estado, LocalDateTime fechaCreacion, LocalDateTime fechaActualizacion) {
+        this(id, anioLectivoId, numero, nombre, fechaInicio, fechaFin, porcentaje, estado, null, null, null, null, null, fechaCreacion, fechaActualizacion);
     }
 
     public Long getId() {
@@ -64,6 +82,26 @@ public class PeriodoAcademicoResponse {
 
     public EstadoPeriodo getEstado() {
         return estado;
+    }
+
+    public LocalDate getFechaInicioDigitacion() {
+        return fechaInicioDigitacion;
+    }
+
+    public LocalDate getFechaFinDigitacion() {
+        return fechaFinDigitacion;
+    }
+
+    public String getNumeroActaAprobacion() {
+        return numeroActaAprobacion;
+    }
+
+    public LocalDate getFechaActaAprobacion() {
+        return fechaActaAprobacion;
+    }
+
+    public String getOrganoAprobador() {
+        return organoAprobador;
     }
 
     public LocalDateTime getFechaCreacion() {

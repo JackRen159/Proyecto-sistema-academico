@@ -22,6 +22,13 @@ public class GrupoMapper {
         grupo.setNombre(request.getNombre());
         grupo.setJornada(request.getJornada() != null ? request.getJornada() : Jornada.MANANA);
         grupo.setCupoMaximo(request.getCupoMaximo() != null ? request.getCupoMaximo() : 35);
+        if (request.getSede() != null) {
+            grupo.setSede(request.getSede());
+        }
+        grupo.setAulaBase(request.getAulaBase());
+        if (request.getEstado() != null) {
+            grupo.setEstado(request.getEstado());
+        }
         grupo.setActivo(true);
         return grupo;
     }
@@ -40,9 +47,22 @@ public class GrupoMapper {
         if (request.getCupoMaximo() != null) {
             grupo.setCupoMaximo(request.getCupoMaximo());
         }
+        if (request.getSede() != null) {
+            grupo.setSede(request.getSede());
+        }
+        if (request.getAulaBase() != null) {
+            grupo.setAulaBase(request.getAulaBase());
+        }
+        if (request.getEstado() != null) {
+            grupo.setEstado(request.getEstado());
+        }
     }
 
     public GrupoResponse toResponse(Grupo grupo) {
+        return toResponse(grupo, 0);
+    }
+
+    public GrupoResponse toResponse(Grupo grupo, int matriculadosActivos) {
         if (grupo == null) {
             return null;
         }
@@ -54,6 +74,9 @@ public class GrupoMapper {
         String gradoCodigo = grupo.getGrado() != null ? grupo.getGrado().getCodigo() : null;
         String gradoNombre = grupo.getGrado() != null ? grupo.getGrado().getNombre() : null;
 
+        int cupo = grupo.getCupoMaximo() != null ? grupo.getCupoMaximo() : 35;
+        int disponibles = Math.max(0, cupo - matriculadosActivos);
+
         return new GrupoResponse(
                 grupo.getId(),
                 anioId,
@@ -63,7 +86,12 @@ public class GrupoMapper {
                 gradoNombre,
                 grupo.getNombre(),
                 grupo.getJornada(),
-                grupo.getCupoMaximo(),
+                cupo,
+                grupo.getSede(),
+                grupo.getAulaBase(),
+                grupo.getEstado(),
+                matriculadosActivos,
+                disponibles,
                 grupo.getActivo(),
                 grupo.getFechaCreacion(),
                 grupo.getFechaActualizacion()

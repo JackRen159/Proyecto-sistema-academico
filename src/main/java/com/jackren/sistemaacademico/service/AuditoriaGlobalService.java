@@ -42,6 +42,29 @@ public class AuditoriaGlobalService {
     }
 
     /**
+     * Sobrecarga conveniente para registrar eventos desde servicios del backend
+     * con generación automática de correlationId y defaults del módulo.
+     */
+    public synchronized AuditoriaEventoResponse registrarEvento(String accion, String entidad, String entidadId,
+                                                                 String valorAnterior, String valorNuevo,
+                                                                 String motivo, String resultadoStr) {
+        RegistroAuditoriaEventoRequest req = new RegistroAuditoriaEventoRequest();
+        req.setUsername("SISTEMA");
+        req.setRolActivo("SISTEMA");
+        req.setModulo("ESTRUCTURA_ACADEMICA");
+        req.setAccion(accion);
+        req.setEntidad(entidad);
+        req.setEntidadId(entidadId);
+        req.setValorAnterior(valorAnterior);
+        req.setValorNuevo(valorNuevo);
+        req.setMotivo(motivo != null ? motivo : accion);
+        req.setResultado("EXITOSO".equalsIgnoreCase(resultadoStr) || "EXITO".equalsIgnoreCase(resultadoStr)
+                ? ResultadoAuditoria.EXITO : ResultadoAuditoria.FALLO);
+        req.setCorrelationId(java.util.UUID.randomUUID().toString());
+        return registrarEvento(req);
+    }
+
+    /**
      * Registra un nuevo evento de auditoría en la bitácora transversal calculando
      * de forma atómica su hash encadenado SHA-256 respecto al evento inmediatamente anterior.
      */

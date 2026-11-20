@@ -43,17 +43,29 @@ export class EstructuraAcadmicaPlanDeEstudiosService extends BaseService {
      * Consultar plan de estudios de un grado
      * @endpoint get /api/grados/{gradoId}/plan-estudios
      * @param gradoId 
+     * @param anioLectivoId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiGradosGradoIdPlanEstudiosGet(gradoId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GradoAsignaturaResponse>>;
-    public apiGradosGradoIdPlanEstudiosGet(gradoId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GradoAsignaturaResponse>>>;
-    public apiGradosGradoIdPlanEstudiosGet(gradoId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GradoAsignaturaResponse>>>;
-    public apiGradosGradoIdPlanEstudiosGet(gradoId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiGradosGradoIdPlanEstudiosGet(gradoId: number, anioLectivoId?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GradoAsignaturaResponse>>;
+    public apiGradosGradoIdPlanEstudiosGet(gradoId: number, anioLectivoId?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GradoAsignaturaResponse>>>;
+    public apiGradosGradoIdPlanEstudiosGet(gradoId: number, anioLectivoId?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GradoAsignaturaResponse>>>;
+    public apiGradosGradoIdPlanEstudiosGet(gradoId: number, anioLectivoId?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (gradoId === null || gradoId === undefined) {
             throw new Error('Required parameter gradoId was null or undefined when calling apiGradosGradoIdPlanEstudiosGet.');
         }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'anioLectivoId',
+            <any>anioLectivoId,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -88,6 +100,7 @@ export class EstructuraAcadmicaPlanDeEstudiosService extends BaseService {
         return this.httpClient.request<Array<GradoAsignaturaResponse>>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -236,14 +249,15 @@ export class EstructuraAcadmicaPlanDeEstudiosService extends BaseService {
      * @param id 
      * @param intensidadHoraria 
      * @param esOptativa 
+     * @param pesoPorcentualEnArea 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiGradosPlanEstudiosIdPut(id: number, intensidadHoraria?: number, esOptativa?: boolean, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GradoAsignaturaResponse>;
-    public apiGradosPlanEstudiosIdPut(id: number, intensidadHoraria?: number, esOptativa?: boolean, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GradoAsignaturaResponse>>;
-    public apiGradosPlanEstudiosIdPut(id: number, intensidadHoraria?: number, esOptativa?: boolean, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GradoAsignaturaResponse>>;
-    public apiGradosPlanEstudiosIdPut(id: number, intensidadHoraria?: number, esOptativa?: boolean, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public apiGradosPlanEstudiosIdPut(id: number, intensidadHoraria?: number, esOptativa?: boolean, pesoPorcentualEnArea?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GradoAsignaturaResponse>;
+    public apiGradosPlanEstudiosIdPut(id: number, intensidadHoraria?: number, esOptativa?: boolean, pesoPorcentualEnArea?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GradoAsignaturaResponse>>;
+    public apiGradosPlanEstudiosIdPut(id: number, intensidadHoraria?: number, esOptativa?: boolean, pesoPorcentualEnArea?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GradoAsignaturaResponse>>;
+    public apiGradosPlanEstudiosIdPut(id: number, intensidadHoraria?: number, esOptativa?: boolean, pesoPorcentualEnArea?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
             throw new Error('Required parameter id was null or undefined when calling apiGradosPlanEstudiosIdPut.');
         }
@@ -263,6 +277,15 @@ export class EstructuraAcadmicaPlanDeEstudiosService extends BaseService {
             localVarQueryParameters,
             'esOptativa',
             <any>esOptativa,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'pesoPorcentualEnArea',
+            <any>pesoPorcentualEnArea,
             QueryParamStyle.Form,
             true,
         );

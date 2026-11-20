@@ -36,6 +36,32 @@ public class AnioLectivo {
     @Column(nullable = false, length = 20)
     private EstadoAnioLectivo estado = EstadoAnioLectivo.PLANIFICACION;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_calendario", nullable = false, length = 20)
+    private TipoCalendario tipoCalendario = TipoCalendario.CALENDARIO_A;
+
+    @Column(name = "semanas_lectivas", nullable = false)
+    private Integer semanasLectivas = 40;
+
+    @Column(name = "numero_acta_aprobacion", length = 50)
+    private String numeroActaAprobacion;
+
+    @Column(name = "fecha_acta_aprobacion")
+    private LocalDate fechaActaAprobacion;
+
+    @Column(name = "organo_aprobador", length = 40)
+    private String organoAprobador;
+
+    @Column(name = "motivo_ajuste_excepcional", length = 500)
+    private String motivoAjusteExcepcional;
+
+    @Column(name = "resolucion_rectoral_excepcional", length = 100)
+    private String resolucionRectoralExcepcional;
+
+    @Version
+    @Column(nullable = false)
+    private Long version = 0L;
+
     @CreationTimestamp
     @Column(name = "fecha_creacion", updatable = false)
     private LocalDateTime fechaCreacion;
@@ -101,6 +127,70 @@ public class AnioLectivo {
 
     public void setEstado(EstadoAnioLectivo estado) {
         this.estado = estado;
+    }
+
+    public TipoCalendario getTipoCalendario() {
+        return tipoCalendario;
+    }
+
+    public void setTipoCalendario(TipoCalendario tipoCalendario) {
+        this.tipoCalendario = tipoCalendario;
+    }
+
+    public Integer getSemanasLectivas() {
+        return semanasLectivas;
+    }
+
+    public void setSemanasLectivas(Integer semanasLectivas) {
+        this.semanasLectivas = semanasLectivas;
+    }
+
+    public String getNumeroActaAprobacion() {
+        return numeroActaAprobacion;
+    }
+
+    public void setNumeroActaAprobacion(String numeroActaAprobacion) {
+        this.numeroActaAprobacion = numeroActaAprobacion;
+    }
+
+    public LocalDate getFechaActaAprobacion() {
+        return fechaActaAprobacion;
+    }
+
+    public void setFechaActaAprobacion(LocalDate fechaActaAprobacion) {
+        this.fechaActaAprobacion = fechaActaAprobacion;
+    }
+
+    public String getOrganoAprobador() {
+        return organoAprobador;
+    }
+
+    public void setOrganoAprobador(String organoAprobador) {
+        this.organoAprobador = organoAprobador;
+    }
+
+    public String getMotivoAjusteExcepcional() {
+        return motivoAjusteExcepcional;
+    }
+
+    public void setMotivoAjusteExcepcional(String motivoAjusteExcepcional) {
+        this.motivoAjusteExcepcional = motivoAjusteExcepcional;
+    }
+
+    public String getResolucionRectoralExcepcional() {
+        return resolucionRectoralExcepcional;
+    }
+
+    public void setResolucionRectoralExcepcional(String resolucionRectoralExcepcional) {
+        this.resolucionRectoralExcepcional = resolucionRectoralExcepcional;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     public LocalDateTime getFechaCreacion() {

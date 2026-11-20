@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.net.URI;
 import java.util.List;
 
@@ -53,9 +54,11 @@ public class GradoController {
     }
 
     @GetMapping("/{gradoId}/plan-estudios")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR', 'SECRETARIA', 'PROFESOR')")
-    public ResponseEntity<List<GradoAsignaturaResponse>> listarPlanEstudios(@PathVariable Long gradoId) {
-        return ResponseEntity.ok(gradoAsignaturaService.listarPorGrado(gradoId));
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR', 'SECRETARIA', 'PROFESOR', 'ESTUDIANTE', 'ACUDIENTE')")
+    public ResponseEntity<List<GradoAsignaturaResponse>> listarPlanEstudios(
+            @PathVariable Long gradoId,
+            @RequestParam(required = false) Long anioLectivoId) {
+        return ResponseEntity.ok(gradoAsignaturaService.listarPorGradoYAnio(gradoId, anioLectivoId));
     }
 
     @PostMapping("/{gradoId}/plan-estudios")
@@ -74,8 +77,9 @@ public class GradoController {
     public ResponseEntity<GradoAsignaturaResponse> actualizarAsignacion(
             @PathVariable Long id,
             @RequestParam(required = false) Integer intensidadHoraria,
-            @RequestParam(required = false) Boolean esOptativa) {
-        return ResponseEntity.ok(gradoAsignaturaService.actualizar(id, intensidadHoraria, esOptativa));
+            @RequestParam(required = false) Boolean esOptativa,
+            @RequestParam(required = false) BigDecimal pesoPorcentualEnArea) {
+        return ResponseEntity.ok(gradoAsignaturaService.actualizar(id, intensidadHoraria, esOptativa, pesoPorcentualEnArea));
     }
 
     @DeleteMapping("/plan-estudios/{id}")

@@ -43,4 +43,14 @@ public class PeriodoAcademicoController {
     public ResponseEntity<PeriodoAcademicoResponse> cerrar(@PathVariable Long id) {
         return ResponseEntity.ok(periodoAcademicoService.cerrar(id));
     }
+
+    @PatchMapping("/{id}/ajuste-excepcional")
+    @PreAuthorize("hasRole('RECTOR')")
+    public ResponseEntity<PeriodoAcademicoResponse> ajusteExcepcional(
+            @PathVariable Long id,
+            @Valid @RequestBody PeriodoAcademicoRequest request,
+            @RequestParam String motivo,
+            @RequestParam String resolucionRectoral) {
+        return ResponseEntity.ok(periodoAcademicoService.ajusteExcepcionalRectoral(id, request, motivo, resolucionRectoral));
+    }
 }

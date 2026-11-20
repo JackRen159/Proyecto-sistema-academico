@@ -37,6 +37,12 @@ class GrupoServiceTest {
     @Mock
     private GradoRepository gradoRepository;
 
+    @Mock
+    private com.jackren.sistemaacademico.repository.MatriculaRepository matriculaRepository;
+
+    @Mock
+    private AuditoriaGlobalService auditoriaGlobalService;
+
     @Spy
     private GrupoMapper grupoMapper = new GrupoMapper();
 

@@ -33,6 +33,17 @@ public class Grado {
     @Column(name = "orden_jerarquico", nullable = false, unique = true)
     private Integer ordenJerarquico;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "grado_siguiente_id")
+    private Grado gradoSiguiente;
+
+    @Column(name = "es_grado_terminal", nullable = false)
+    private Boolean esGradoTerminal = false;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "regimen_evaluacion", nullable = false, length = 30)
+    private RegimenEvaluacion regimenEvaluacion = RegimenEvaluacion.CUANTITATIVO_AREAS;
+
     @Column(nullable = false)
     private Boolean activo = true;
 
@@ -53,6 +64,34 @@ public class Grado {
         this.nivel = nivel;
         this.ordenJerarquico = ordenJerarquico;
         this.activo = true;
+        this.esGradoTerminal = false;
+        this.regimenEvaluacion = nivel == NivelEducativo.PREESCOLAR
+                ? RegimenEvaluacion.CUALITATIVO_DIMENSIONES
+                : RegimenEvaluacion.CUANTITATIVO_AREAS;
+    }
+
+    public Grado getGradoSiguiente() {
+        return gradoSiguiente;
+    }
+
+    public void setGradoSiguiente(Grado gradoSiguiente) {
+        this.gradoSiguiente = gradoSiguiente;
+    }
+
+    public Boolean getEsGradoTerminal() {
+        return esGradoTerminal;
+    }
+
+    public void setEsGradoTerminal(Boolean esGradoTerminal) {
+        this.esGradoTerminal = esGradoTerminal;
+    }
+
+    public RegimenEvaluacion getRegimenEvaluacion() {
+        return regimenEvaluacion;
+    }
+
+    public void setRegimenEvaluacion(RegimenEvaluacion regimenEvaluacion) {
+        this.regimenEvaluacion = regimenEvaluacion;
     }
 
     public Long getId() {

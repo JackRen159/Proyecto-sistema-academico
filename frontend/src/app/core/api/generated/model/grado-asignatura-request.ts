@@ -7,12 +7,19 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { TipoComponenteCurricular } from './tipo-componente-curricular';
 
 
 export interface GradoAsignaturaRequest { 
     gradoId: number;
     asignaturaId: number;
+    anioLectivoId?: number | null;
     intensidadHoraria: number;
     esOptativa?: boolean;
+    pesoPorcentualEnArea?: number;
+    tipoComponente?: TipoComponenteCurricular;
+    computaPromocion?: boolean;
 }
+
+
 

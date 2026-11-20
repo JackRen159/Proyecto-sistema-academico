@@ -33,6 +33,16 @@ public class PeriodoAcademicoRequest {
     @DecimalMax(value = "100.00", message = "El porcentaje no puede superar 100")
     private BigDecimal porcentaje;
 
+    private LocalDate fechaInicioDigitacion;
+
+    private LocalDate fechaFinDigitacion;
+
+    private String numeroActaAprobacion;
+
+    private LocalDate fechaActaAprobacion;
+
+    private String organoAprobador;
+
     public PeriodoAcademicoRequest() {
     }
 
@@ -82,5 +92,45 @@ public class PeriodoAcademicoRequest {
 
     public void setPorcentaje(BigDecimal porcentaje) {
         this.porcentaje = porcentaje;
+    }
+
+    public LocalDate getFechaInicioDigitacion() {
+        return fechaInicioDigitacion;
+    }
+
+    public void setFechaInicioDigitacion(LocalDate fechaInicioDigitacion) {
+        this.fechaInicioDigitacion = fechaInicioDigitacion;
+    }
+
+    public LocalDate getFechaFinDigitacion() {
+        return fechaFinDigitacion;
+    }
+
+    public void setFechaFinDigitacion(LocalDate fechaFinDigitacion) {
+        this.fechaFinDigitacion = fechaFinDigitacion;
+    }
+
+    public String getNumeroActaAprobacion() {
+        return numeroActaAprobacion;
+    }
+
+    public void setNumeroActaAprobacion(String numeroActaAprobacion) {
+        this.numeroActaAprobacion = numeroActaAprobacion;
+    }
+
+    public LocalDate getFechaActaAprobacion() {
+        return fechaActaAprobacion;
+    }
+
+    public void setFechaActaAprobacion(LocalDate fechaActaAprobacion) {
+        this.fechaActaAprobacion = fechaActaAprobacion;
+    }
+
+    public String getOrganoAprobador() {
+        return organoAprobador;
+    }
+
+    public void setOrganoAprobador(String organoAprobador) {
+        this.organoAprobador = organoAprobador;
     }
 }

@@ -19,6 +19,11 @@ export interface PeriodoAcademicoResponse {
     fechaFin?: string;
     porcentaje?: number;
     estado?: EstadoPeriodo;
+    fechaInicioDigitacion?: string;
+    fechaFinDigitacion?: string;
+    numeroActaAprobacion?: string;
+    fechaActaAprobacion?: string;
+    organoAprobador?: string;
     fechaCreacion?: string;
     fechaActualizacion?: string;
 }

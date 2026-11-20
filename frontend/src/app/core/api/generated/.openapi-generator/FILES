@@ -13,6 +13,8 @@ api/control-de-asistencia.service.ts
 api/documentos-y-reportes-acadmicos.service.ts
 api/estructura-acadmica-aos-lectivos.service.ts
 api/estructura-acadmica-asignaturas.service.ts
+api/estructura-acadmica-calendario-escolar.service.ts
+api/estructura-acadmica-consultas-contextuales.service.ts
 api/estructura-acadmica-grados.service.ts
 api/estructura-acadmica-grupos.service.ts
 api/estructura-acadmica-periodos.service.ts
@@ -77,11 +79,14 @@ model/crear-politica-datos-request.ts
 model/crear-siee-borrador-request.ts
 model/crear-usuario-request.ts
 model/desempeno-nacional.ts
+model/dia-no-lectivo-request.ts
+model/dia-no-lectivo-response.ts
 model/emision-documento-request.ts
 model/error-response.ts
 model/estado-anio-lectivo.ts
 model/estado-asistencia.ts
 model/estado-expediente.ts
+model/estado-grupo.ts
 model/estado-matricula.ts
 model/estado-periodo.ts
 model/estado-solicitud-rectificacion.ts
@@ -131,6 +136,7 @@ model/politica-datos-response.ts
 model/profesor-request.ts
 model/profesor-response.ts
 model/radicar-solicitud-rectificacion-request.ts
+model/regimen-evaluacion.ts
 model/registrar-consentimiento-request.ts
 model/registro-asistencia-item-request.ts
 model/registro-asistencia-response.ts
@@ -149,7 +155,10 @@ model/sesion-asistencia-response.ts
 model/sexo-documental.ts
 model/solicitud-rectificacion-response.ts
 model/solicitud-recuperacion-password-request.ts
+model/tipo-calendario.ts
+model/tipo-componente-curricular.ts
 model/tipo-dato-parametro.ts
+model/tipo-dia-no-lectivo.ts
 model/tipo-documento-academico.ts
 model/tipo-documento.ts
 model/tipo-entidad-auditoria-calificacion.ts

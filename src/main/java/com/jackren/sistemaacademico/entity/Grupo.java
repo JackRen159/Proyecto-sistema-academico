@@ -41,6 +41,20 @@ public class Grupo {
     @Column(name = "cupo_maximo", nullable = false)
     private Integer cupoMaximo = 35;
 
+    @Column(nullable = false, length = 100)
+    private String sede = "SEDE_PRINCIPAL";
+
+    @Column(name = "aula_base", length = 50)
+    private String aulaBase;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private EstadoGrupo estado = EstadoGrupo.ACTIVO;
+
+    @Version
+    @Column(nullable = false)
+    private Long version = 0L;
+
     @Column(nullable = false)
     private Boolean activo = true;
 
@@ -110,6 +124,38 @@ public class Grupo {
 
     public void setCupoMaximo(Integer cupoMaximo) {
         this.cupoMaximo = cupoMaximo;
+    }
+
+    public String getSede() {
+        return sede;
+    }
+
+    public void setSede(String sede) {
+        this.sede = sede;
+    }
+
+    public String getAulaBase() {
+        return aulaBase;
+    }
+
+    public void setAulaBase(String aulaBase) {
+        this.aulaBase = aulaBase;
+    }
+
+    public EstadoGrupo getEstado() {
+        return estado;
+    }
+
+    public void setEstado(EstadoGrupo estado) {
+        this.estado = estado;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     public Boolean getActivo() {

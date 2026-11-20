@@ -210,6 +210,108 @@ export class EstructuraAcadmicaAosLectivosService extends BaseService {
     }
 
     /**
+     * Modificación excepcional rectoral sobre año cerrado con resolución (UC-14 A5)
+     * @endpoint patch /api/anios-lectivos/{id}/ajuste-excepcional
+     * @param id 
+     * @param motivo 
+     * @param resolucionRectoral 
+     * @param anioLectivoRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public apiAniosLectivosIdAjusteExcepcionalPatch(id: number, motivo: string, resolucionRectoral: string, anioLectivoRequest: AnioLectivoRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<AnioLectivoResponse>;
+    public apiAniosLectivosIdAjusteExcepcionalPatch(id: number, motivo: string, resolucionRectoral: string, anioLectivoRequest: AnioLectivoRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<AnioLectivoResponse>>;
+    public apiAniosLectivosIdAjusteExcepcionalPatch(id: number, motivo: string, resolucionRectoral: string, anioLectivoRequest: AnioLectivoRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<AnioLectivoResponse>>;
+    public apiAniosLectivosIdAjusteExcepcionalPatch(id: number, motivo: string, resolucionRectoral: string, anioLectivoRequest: AnioLectivoRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling apiAniosLectivosIdAjusteExcepcionalPatch.');
+        }
+        if (motivo === null || motivo === undefined) {
+            throw new Error('Required parameter motivo was null or undefined when calling apiAniosLectivosIdAjusteExcepcionalPatch.');
+        }
+        if (resolucionRectoral === null || resolucionRectoral === undefined) {
+            throw new Error('Required parameter resolucionRectoral was null or undefined when calling apiAniosLectivosIdAjusteExcepcionalPatch.');
+        }
+        if (anioLectivoRequest === null || anioLectivoRequest === undefined) {
+            throw new Error('Required parameter anioLectivoRequest was null or undefined when calling apiAniosLectivosIdAjusteExcepcionalPatch.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'motivo',
+            <any>motivo,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'resolucionRectoral',
+            <any>resolucionRectoral,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (BearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('BearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/anios-lectivos/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/ajuste-excepcional`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<AnioLectivoResponse>('patch', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: anioLectivoRequest,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Cerrar formalmente un año escolar
      * @endpoint patch /api/anios-lectivos/{id}/cerrar
      * @param id 
@@ -390,6 +492,69 @@ export class EstructuraAcadmicaAosLectivosService extends BaseService {
             {
                 context: localVarHttpContext,
                 body: anioLectivoRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Proyectar y clonar estructura curricular desde año lectivo anterior (UC-14 A1)
+     * @endpoint post /api/anios-lectivos/{origenId}/clonar-estructura/{destinoId}
+     * @param origenId 
+     * @param destinoId 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public apiAniosLectivosOrigenIdClonarEstructuraDestinoIdPost(origenId: number, destinoId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<AnioLectivoResponse>;
+    public apiAniosLectivosOrigenIdClonarEstructuraDestinoIdPost(origenId: number, destinoId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<AnioLectivoResponse>>;
+    public apiAniosLectivosOrigenIdClonarEstructuraDestinoIdPost(origenId: number, destinoId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<AnioLectivoResponse>>;
+    public apiAniosLectivosOrigenIdClonarEstructuraDestinoIdPost(origenId: number, destinoId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (origenId === null || origenId === undefined) {
+            throw new Error('Required parameter origenId was null or undefined when calling apiAniosLectivosOrigenIdClonarEstructuraDestinoIdPost.');
+        }
+        if (destinoId === null || destinoId === undefined) {
+            throw new Error('Required parameter destinoId was null or undefined when calling apiAniosLectivosOrigenIdClonarEstructuraDestinoIdPost.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (BearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('BearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/anios-lectivos/${this.configuration.encodeParam({name: "origenId", value: origenId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/clonar-estructura/${this.configuration.encodeParam({name: "destinoId", value: destinoId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<AnioLectivoResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

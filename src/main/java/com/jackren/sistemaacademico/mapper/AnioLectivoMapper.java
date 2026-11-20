@@ -20,6 +20,15 @@ public class AnioLectivoMapper {
         anio.setFechaInicio(request.getFechaInicio());
         anio.setFechaFin(request.getFechaFin());
         anio.setEstado(EstadoAnioLectivo.PLANIFICACION);
+        if (request.getTipoCalendario() != null) {
+            anio.setTipoCalendario(request.getTipoCalendario());
+        }
+        if (request.getSemanasLectivas() != null) {
+            anio.setSemanasLectivas(request.getSemanasLectivas());
+        }
+        anio.setNumeroActaAprobacion(request.getNumeroActaAprobacion());
+        anio.setFechaActaAprobacion(request.getFechaActaAprobacion());
+        anio.setOrganoAprobador(request.getOrganoAprobador());
         return anio;
     }
 
@@ -32,6 +41,21 @@ public class AnioLectivoMapper {
         anio.setNombre(request.getNombre());
         anio.setFechaInicio(request.getFechaInicio());
         anio.setFechaFin(request.getFechaFin());
+        if (request.getTipoCalendario() != null) {
+            anio.setTipoCalendario(request.getTipoCalendario());
+        }
+        if (request.getSemanasLectivas() != null) {
+            anio.setSemanasLectivas(request.getSemanasLectivas());
+        }
+        if (request.getNumeroActaAprobacion() != null) {
+            anio.setNumeroActaAprobacion(request.getNumeroActaAprobacion());
+        }
+        if (request.getFechaActaAprobacion() != null) {
+            anio.setFechaActaAprobacion(request.getFechaActaAprobacion());
+        }
+        if (request.getOrganoAprobador() != null) {
+            anio.setOrganoAprobador(request.getOrganoAprobador());
+        }
     }
 
     public AnioLectivoResponse toResponse(AnioLectivo anio) {
@@ -46,6 +70,11 @@ public class AnioLectivoMapper {
                 anio.getFechaInicio(),
                 anio.getFechaFin(),
                 anio.getEstado(),
+                anio.getTipoCalendario(),
+                anio.getSemanasLectivas(),
+                anio.getNumeroActaAprobacion(),
+                anio.getFechaActaAprobacion(),
+                anio.getOrganoAprobador(),
                 anio.getFechaCreacion(),
                 anio.getFechaActualizacion()
         );

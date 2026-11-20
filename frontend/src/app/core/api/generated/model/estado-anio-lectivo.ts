@@ -13,8 +13,14 @@ export enum EstadoAnioLectivo {
 
     Planificacion = 'PLANIFICACION',
 
+    EnPlaneacion = 'EN_PLANEACION',
+
     Activo = 'ACTIVO',
 
-    Cerrado = 'CERRADO'
+    EnCierreAnual = 'EN_CIERRE_ANUAL',
+
+    Cerrado = 'CERRADO',
+
+    CerradoHistorico = 'CERRADO_HISTORICO'
 }
 

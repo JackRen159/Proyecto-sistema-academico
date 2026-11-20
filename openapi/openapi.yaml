@@ -1701,6 +1701,12 @@ paths:
         schema:
           type: integer
           format: int64
+      - name: anioLectivoId
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int64
       responses:
         '200':
           description: Plan de estudios del grado obtenido exitosamente.
@@ -1774,6 +1780,13 @@ paths:
         required: false
         schema:
           type: boolean
+      - name: pesoPorcentualEnArea
+        in: query
+        required: false
+        schema:
+          type: number
+          format: double
+          example: 50.0
       responses:
         '200':
           description: Asignación actualizada.
@@ -2293,6 +2306,196 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
+  /api/anios-lectivos/{origenId}/clonar-estructura/{destinoId}:
+    post:
+      tags:
+      - Estructura Académica - Años Lectivos
+      summary: Proyectar y clonar estructura curricular desde año lectivo anterior (UC-14 A1)
+      parameters:
+      - name: origenId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: destinoId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Estructura clonada exitosamente en el año en planeación.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnioLectivoResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/anios-lectivos/{id}/ajuste-excepcional:
+    patch:
+      tags:
+      - Estructura Académica - Años Lectivos
+      summary: Modificación excepcional rectoral sobre año cerrado con resolución (UC-14 A5)
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: motivo
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: resolucionRectoral
+        in: query
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnioLectivoRequest'
+      responses:
+        '200':
+          description: Ajuste excepcional del año aplicado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnioLectivoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/anios-lectivos/{anioId}/dias-no-lectivos:
+    get:
+      tags:
+      - Estructura Académica - Calendario Escolar
+      summary: Listar días no lectivos del calendario escolar (UC-14 A4)
+      parameters:
+      - name: anioId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Listado de fechas no lectivas obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DiaNoLectivoResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    post:
+      tags:
+      - Estructura Académica - Calendario Escolar
+      summary: Registrar fecha no lectiva o receso en el calendario (UC-14 A4)
+      parameters:
+      - name: anioId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiaNoLectivoRequest'
+      responses:
+        '201':
+          description: Fecha no lectiva registrada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiaNoLectivoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/anios-lectivos/dias-no-lectivos/{id}:
+    put:
+      tags:
+      - Estructura Académica - Calendario Escolar
+      summary: Actualizar fecha no lectiva del calendario
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiaNoLectivoRequest'
+      responses:
+        '200':
+          description: Fecha no lectiva actualizada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiaNoLectivoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      tags:
+      - Estructura Académica - Calendario Escolar
+      summary: Eliminar o desactivar fecha no lectiva del calendario
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '204':
+          description: Fecha no lectiva eliminada.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
   /api/anios-lectivos/{anioId}/periodos:
     get:
       tags:
@@ -2457,6 +2660,105 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PeriodoAcademicoResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/periodos/{id}/ajuste-excepcional:
+    patch:
+      tags:
+      - Estructura Académica - Periodos
+      summary: Modificación excepcional rectoral sobre periodo cerrado con resolución (UC-14 A5)
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: motivo
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: resolucionRectoral
+        in: query
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PeriodoAcademicoRequest'
+      responses:
+        '200':
+          description: Ajuste excepcional del periodo aplicado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PeriodoAcademicoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/estructura/periodos-vigentes:
+    get:
+      tags:
+      - Estructura Académica - Consultas Contextuales
+      summary: Consultar periodos académicos del año escolar vigente (UC-PROV-08)
+      responses:
+        '200':
+          description: Periodos del año escolar activo.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PeriodoAcademicoResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/estructura/calendario-vigente:
+    get:
+      tags:
+      - Estructura Académica - Consultas Contextuales
+      summary: Consultar calendario y días no lectivos del año escolar vigente (UC-PROV-08)
+      responses:
+        '200':
+          description: Fechas no lectivas y recesos del año escolar activo.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DiaNoLectivoResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/estructura/mi-plan-estudios:
+    get:
+      tags:
+      - Estructura Académica - Consultas Contextuales
+      summary: Consultar plan de estudios vigente del grado matriculado (UC-PROV-08)
+      responses:
+        '200':
+          description: Malla curricular del grado del estudiante autenticado o vinculado.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GradoAsignaturaResponse'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '403':
@@ -4697,9 +4999,48 @@ components:
       type: string
       enum:
       - PLANIFICACION
+      - EN_PLANEACION
       - ACTIVO
+      - EN_CIERRE_ANUAL
       - CERRADO
+      - CERRADO_HISTORICO
       example: ACTIVO
+    RegimenEvaluacion:
+      type: string
+      enum:
+      - CUALITATIVO_DIMENSIONES
+      - CUANTITATIVO_AREAS
+      example: CUANTITATIVO_AREAS
+    TipoCalendario:
+      type: string
+      enum:
+      - CALENDARIO_A
+      - CALENDARIO_B
+      example: CALENDARIO_A
+    TipoDiaNoLectivo:
+      type: string
+      enum:
+      - FESTIVO
+      - RECESO_ESTUDIANTIL
+      - JORNADA_PEDAGOGICA
+      - SUSPENSION_EXTRAORDINARIA
+      - OTRO
+      example: FESTIVO
+    EstadoGrupo:
+      type: string
+      enum:
+      - EN_PROYECCION
+      - ACTIVO
+      - CERRADO_SIN_CUPOS
+      - CERRADO_HISTORICO
+      example: ACTIVO
+    TipoComponenteCurricular:
+      type: string
+      enum:
+      - ASIGNATURA
+      - DIMENSION_PREESCOLAR
+      - PROYECTO_PEDAGOGICO
+      example: ASIGNATURA
     EstadoPeriodo:
       type: string
       enum:
@@ -4733,6 +5074,20 @@ components:
         ordenJerarquico:
           type: integer
           example: 10
+        gradoSiguienteId:
+          type: integer
+          format: int64
+          nullable: true
+          example: 11
+        gradoSiguienteNombre:
+          type: string
+          nullable: true
+          example: Undécimo
+        esGradoTerminal:
+          type: boolean
+          example: false
+        regimenEvaluacion:
+          $ref: '#/components/schemas/RegimenEvaluacion'
         activo:
           type: boolean
           example: true
@@ -4851,6 +5206,11 @@ components:
           type: integer
           format: int64
           example: 1
+        anioLectivoId:
+          type: integer
+          format: int64
+          nullable: true
+          example: 1
         intensidadHoraria:
           type: integer
           minimum: 1
@@ -4859,6 +5219,19 @@ components:
           type: boolean
           default: false
           example: false
+        pesoPorcentualEnArea:
+          type: number
+          format: double
+          minimum: 0.01
+          maximum: 100.0
+          default: 100.0
+          example: 100.0
+        tipoComponente:
+          $ref: '#/components/schemas/TipoComponenteCurricular'
+        computaPromocion:
+          type: boolean
+          default: true
+          example: true
     GradoAsignaturaResponse:
       type: object
       properties:
@@ -4886,12 +5259,30 @@ components:
         asignaturaNombre:
           type: string
           example: Filosofía
+        anioLectivoId:
+          type: integer
+          format: int64
+          nullable: true
+          example: 1
+        anioLectivoAnio:
+          type: integer
+          nullable: true
+          example: 2026
         intensidadHoraria:
           type: integer
           example: 3
         esOptativa:
           type: boolean
           example: false
+        pesoPorcentualEnArea:
+          type: number
+          format: double
+          example: 100.0
+        tipoComponente:
+          $ref: '#/components/schemas/TipoComponenteCurricular'
+        computaPromocion:
+          type: boolean
+          example: true
         activo:
           type: boolean
           example: true
@@ -4924,6 +5315,25 @@ components:
           type: string
           format: date
           example: '2026-11-30'
+        tipoCalendario:
+          $ref: '#/components/schemas/TipoCalendario'
+        semanasLectivas:
+          type: integer
+          minimum: 30
+          maximum: 52
+          default: 40
+          example: 40
+        numeroActaAprobacion:
+          type: string
+          maxLength: 50
+          example: ACTA-CD-001-2026
+        fechaActaAprobacion:
+          type: string
+          format: date
+          example: '2026-01-10'
+        organoAprobador:
+          type: string
+          example: CONSEJO_DIRECTIVO
     AnioLectivoResponse:
       type: object
       properties:
@@ -4947,6 +5357,93 @@ components:
           example: '2026-11-30'
         estado:
           $ref: '#/components/schemas/EstadoAnioLectivo'
+        tipoCalendario:
+          $ref: '#/components/schemas/TipoCalendario'
+        semanasLectivas:
+          type: integer
+          example: 40
+        numeroActaAprobacion:
+          type: string
+          example: ACTA-CD-001-2026
+        fechaActaAprobacion:
+          type: string
+          format: date
+          example: '2026-01-10'
+        organoAprobador:
+          type: string
+          example: CONSEJO_DIRECTIVO
+        fechaCreacion:
+          type: string
+          format: date-time
+        fechaActualizacion:
+          type: string
+          format: date-time
+    DiaNoLectivoRequest:
+      type: object
+      required:
+      - nombre
+      - fechaInicio
+      - fechaFin
+      - tipo
+      properties:
+        nombre:
+          type: string
+          maxLength: 100
+          example: Semana de Receso Estudiantil Octubre
+        fechaInicio:
+          type: string
+          format: date
+          example: '2026-10-05'
+        fechaFin:
+          type: string
+          format: date
+          example: '2026-10-09'
+        tipo:
+          $ref: '#/components/schemas/TipoDiaNoLectivo'
+        motivo:
+          type: string
+          maxLength: 255
+          example: Receso institucional obligatorio Decreto 1075
+        sede:
+          type: string
+          maxLength: 100
+          example: SEDE_PRINCIPAL
+    DiaNoLectivoResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        anioLectivoId:
+          type: integer
+          format: int64
+          example: 1
+        anioLectivoAnio:
+          type: integer
+          example: 2026
+        nombre:
+          type: string
+          example: Semana de Receso Estudiantil Octubre
+        fechaInicio:
+          type: string
+          format: date
+          example: '2026-10-05'
+        fechaFin:
+          type: string
+          format: date
+          example: '2026-10-09'
+        tipo:
+          $ref: '#/components/schemas/TipoDiaNoLectivo'
+        motivo:
+          type: string
+          example: Receso institucional obligatorio Decreto 1075
+        sede:
+          type: string
+          example: SEDE_PRINCIPAL
+        activo:
+          type: boolean
+          example: true
         fechaCreacion:
           type: string
           format: date-time
@@ -4985,6 +5482,25 @@ components:
           minimum: 0.01
           maximum: 100.0
           example: 25.0
+        fechaInicioDigitacion:
+          type: string
+          format: date
+          example: '2026-04-01'
+        fechaFinDigitacion:
+          type: string
+          format: date
+          example: '2026-04-20'
+        numeroActaAprobacion:
+          type: string
+          maxLength: 50
+          example: ACTA-CA-002-2026
+        fechaActaAprobacion:
+          type: string
+          format: date
+          example: '2026-01-12'
+        organoAprobador:
+          type: string
+          example: CONSEJO_ACADEMICO
     PeriodoAcademicoResponse:
       type: object
       properties:
@@ -5016,6 +5532,24 @@ components:
           example: 25.0
         estado:
           $ref: '#/components/schemas/EstadoPeriodo'
+        fechaInicioDigitacion:
+          type: string
+          format: date
+          example: '2026-04-01'
+        fechaFinDigitacion:
+          type: string
+          format: date
+          example: '2026-04-20'
+        numeroActaAprobacion:
+          type: string
+          example: ACTA-CA-002-2026
+        fechaActaAprobacion:
+          type: string
+          format: date
+          example: '2026-01-12'
+        organoAprobador:
+          type: string
+          example: CONSEJO_ACADEMICO
         fechaCreacion:
           type: string
           format: date-time
@@ -5049,6 +5583,17 @@ components:
           type: integer
           minimum: 1
           example: 35
+        sede:
+          type: string
+          maxLength: 100
+          default: SEDE_PRINCIPAL
+          example: SEDE_PRINCIPAL
+        aulaBase:
+          type: string
+          maxLength: 50
+          example: Salón 101
+        estado:
+          $ref: '#/components/schemas/EstadoGrupo'
     GrupoResponse:
       type: object
       properties:
@@ -5081,6 +5626,20 @@ components:
         cupoMaximo:
           type: integer
           example: 35
+        sede:
+          type: string
+          example: SEDE_PRINCIPAL
+        aulaBase:
+          type: string
+          example: Salón 101
+        estado:
+          $ref: '#/components/schemas/EstadoGrupo'
+        matriculadosActuales:
+          type: integer
+          example: 28
+        cuposDisponibles:
+          type: integer
+          example: 7
         activo:
           type: boolean
           example: true

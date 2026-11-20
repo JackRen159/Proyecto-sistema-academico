@@ -1,10 +1,8 @@
 package com.jackren.sistemaacademico.controller;
 
-import com.jackren.sistemaacademico.dto.AnioLectivoRequest;
-import com.jackren.sistemaacademico.dto.AnioLectivoResponse;
-import com.jackren.sistemaacademico.dto.PeriodoAcademicoRequest;
-import com.jackren.sistemaacademico.dto.PeriodoAcademicoResponse;
+import com.jackren.sistemaacademico.dto.*;
 import com.jackren.sistemaacademico.service.AnioLectivoService;
+import com.jackren.sistemaacademico.service.DiaNoLectivoService;
 import com.jackren.sistemaacademico.service.PeriodoAcademicoService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -20,11 +18,14 @@ public class AnioLectivoController {
 
     private final AnioLectivoService anioLectivoService;
     private final PeriodoAcademicoService periodoAcademicoService;
+    private final DiaNoLectivoService diaNoLectivoService;
 
     public AnioLectivoController(AnioLectivoService anioLectivoService,
-                                 PeriodoAcademicoService periodoAcademicoService) {
+                                 PeriodoAcademicoService periodoAcademicoService,
+                                 DiaNoLectivoService diaNoLectivoService) {
         this.anioLectivoService = anioLectivoService;
         this.periodoAcademicoService = periodoAcademicoService;
+        this.diaNoLectivoService = diaNoLectivoService;
     }
 
     @GetMapping
@@ -73,6 +74,24 @@ public class AnioLectivoController {
         return ResponseEntity.ok(anioLectivoService.cerrar(id));
     }
 
+    @PostMapping("/{origenId}/clonar-estructura/{destinoId}")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR')")
+    public ResponseEntity<AnioLectivoResponse> clonarEstructura(
+            @PathVariable Long origenId,
+            @PathVariable Long destinoId) {
+        return ResponseEntity.ok(anioLectivoService.clonarEstructuraAnio(origenId, destinoId));
+    }
+
+    @PatchMapping("/{id}/ajuste-excepcional")
+    @PreAuthorize("hasRole('RECTOR')")
+    public ResponseEntity<AnioLectivoResponse> ajusteExcepcional(
+            @PathVariable Long id,
+            @Valid @RequestBody AnioLectivoRequest request,
+            @RequestParam String motivo,
+            @RequestParam String resolucionRectoral) {
+        return ResponseEntity.ok(anioLectivoService.ajusteExcepcionalRectoral(id, request, motivo, resolucionRectoral));
+    }
+
     @GetMapping("/{anioId}/periodos")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR', 'SECRETARIA', 'PROFESOR')")
     public ResponseEntity<List<PeriodoAcademicoResponse>> listarPeriodos(@PathVariable Long anioId) {
@@ -87,5 +106,36 @@ public class AnioLectivoController {
         PeriodoAcademicoResponse response = periodoAcademicoService.guardar(anioId, request);
         URI location = URI.create("/api/periodos/" + response.getId());
         return ResponseEntity.created(location).body(response);
+    }
+
+    @GetMapping("/{anioId}/dias-no-lectivos")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR', 'SECRETARIA', 'PROFESOR', 'ESTUDIANTE', 'ACUDIENTE')")
+    public ResponseEntity<List<DiaNoLectivoResponse>> listarDiasNoLectivos(@PathVariable Long anioId) {
+        return ResponseEntity.ok(diaNoLectivoService.listarPorAnio(anioId));
+    }
+
+    @PostMapping("/{anioId}/dias-no-lectivos")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR')")
+    public ResponseEntity<DiaNoLectivoResponse> crearDiaNoLectivo(
+            @PathVariable Long anioId,
+            @Valid @RequestBody DiaNoLectivoRequest request) {
+        DiaNoLectivoResponse response = diaNoLectivoService.guardar(anioId, request);
+        URI location = URI.create("/api/anios-lectivos/" + anioId + "/dias-no-lectivos/" + response.getId());
+        return ResponseEntity.created(location).body(response);
+    }
+
+    @PutMapping("/dias-no-lectivos/{id}")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR')")
+    public ResponseEntity<DiaNoLectivoResponse> actualizarDiaNoLectivo(
+            @PathVariable Long id,
+            @Valid @RequestBody DiaNoLectivoRequest request) {
+        return ResponseEntity.ok(diaNoLectivoService.actualizar(id, request));
+    }
+
+    @DeleteMapping("/dias-no-lectivos/{id}")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR')")
+    public ResponseEntity<Void> eliminarDiaNoLectivo(@PathVariable Long id) {
+        diaNoLectivoService.desactivar(id);
+        return ResponseEntity.noContent().build();
     }
 }

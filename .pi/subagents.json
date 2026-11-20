@@ -1,0 +1,14 @@
+{
+  "default_model": "omniroute/agy/gemini-3.8-flash-high",
+  "model_profiles": {
+    "gentle-ai-verify": {
+      "model": "omniroute/agy/gemini-3.8-flash-high"
+    },
+    "gentle-ai-worker": {
+      "model": "omniroute/agy/gemini-3.8-flash-high"
+    },
+    "gentle-ai-explore": {
+      "model": "omniroute/agy/gemini-3.8-flash-high"
+    }
+  }
+}

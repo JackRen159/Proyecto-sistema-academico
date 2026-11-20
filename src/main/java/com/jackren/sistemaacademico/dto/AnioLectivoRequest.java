@@ -1,5 +1,6 @@
 package com.jackren.sistemaacademico.dto;
 
+import com.jackren.sistemaacademico.entity.TipoCalendario;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -20,6 +21,16 @@ public class AnioLectivoRequest {
 
     @NotNull(message = "La fecha de fin es obligatoria")
     private LocalDate fechaFin;
+
+    private TipoCalendario tipoCalendario = TipoCalendario.CALENDARIO_A;
+
+    private Integer semanasLectivas = 40;
+
+    private String numeroActaAprobacion;
+
+    private LocalDate fechaActaAprobacion;
+
+    private String organoAprobador;
 
     public AnioLectivoRequest() {
     }
@@ -61,5 +72,45 @@ public class AnioLectivoRequest {
 
     public void setFechaFin(LocalDate fechaFin) {
         this.fechaFin = fechaFin;
+    }
+
+    public TipoCalendario getTipoCalendario() {
+        return tipoCalendario;
+    }
+
+    public void setTipoCalendario(TipoCalendario tipoCalendario) {
+        this.tipoCalendario = tipoCalendario;
+    }
+
+    public Integer getSemanasLectivas() {
+        return semanasLectivas;
+    }
+
+    public void setSemanasLectivas(Integer semanasLectivas) {
+        this.semanasLectivas = semanasLectivas;
+    }
+
+    public String getNumeroActaAprobacion() {
+        return numeroActaAprobacion;
+    }
+
+    public void setNumeroActaAprobacion(String numeroActaAprobacion) {
+        this.numeroActaAprobacion = numeroActaAprobacion;
+    }
+
+    public LocalDate getFechaActaAprobacion() {
+        return fechaActaAprobacion;
+    }
+
+    public void setFechaActaAprobacion(LocalDate fechaActaAprobacion) {
+        this.fechaActaAprobacion = fechaActaAprobacion;
+    }
+
+    public String getOrganoAprobador() {
+        return organoAprobador;
+    }
+
+    public void setOrganoAprobador(String organoAprobador) {
+        this.organoAprobador = organoAprobador;
     }
 }

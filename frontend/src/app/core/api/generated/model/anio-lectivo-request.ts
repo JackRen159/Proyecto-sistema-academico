@@ -7,6 +7,7 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { TipoCalendario } from './tipo-calendario';
 
 
 export interface AnioLectivoRequest { 
@@ -14,5 +15,12 @@ export interface AnioLectivoRequest {
     nombre: string;
     fechaInicio: string;
     fechaFin: string;
+    tipoCalendario?: TipoCalendario;
+    semanasLectivas?: number;
+    numeroActaAprobacion?: string;
+    fechaActaAprobacion?: string;
+    organoAprobador?: string;
 }
+
+
 

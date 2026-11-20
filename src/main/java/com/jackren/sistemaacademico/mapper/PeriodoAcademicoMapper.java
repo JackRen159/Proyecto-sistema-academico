@@ -22,6 +22,11 @@ public class PeriodoAcademicoMapper {
         periodo.setFechaInicio(request.getFechaInicio());
         periodo.setFechaFin(request.getFechaFin());
         periodo.setPorcentaje(request.getPorcentaje());
+        periodo.setFechaInicioDigitacion(request.getFechaInicioDigitacion());
+        periodo.setFechaFinDigitacion(request.getFechaFinDigitacion());
+        periodo.setNumeroActaAprobacion(request.getNumeroActaAprobacion());
+        periodo.setFechaActaAprobacion(request.getFechaActaAprobacion());
+        periodo.setOrganoAprobador(request.getOrganoAprobador());
         periodo.setEstado(EstadoPeriodo.CERRADO);
         return periodo;
     }
@@ -36,6 +41,21 @@ public class PeriodoAcademicoMapper {
         periodo.setFechaInicio(request.getFechaInicio());
         periodo.setFechaFin(request.getFechaFin());
         periodo.setPorcentaje(request.getPorcentaje());
+        if (request.getFechaInicioDigitacion() != null) {
+            periodo.setFechaInicioDigitacion(request.getFechaInicioDigitacion());
+        }
+        if (request.getFechaFinDigitacion() != null) {
+            periodo.setFechaFinDigitacion(request.getFechaFinDigitacion());
+        }
+        if (request.getNumeroActaAprobacion() != null) {
+            periodo.setNumeroActaAprobacion(request.getNumeroActaAprobacion());
+        }
+        if (request.getFechaActaAprobacion() != null) {
+            periodo.setFechaActaAprobacion(request.getFechaActaAprobacion());
+        }
+        if (request.getOrganoAprobador() != null) {
+            periodo.setOrganoAprobador(request.getOrganoAprobador());
+        }
     }
 
     public PeriodoAcademicoResponse toResponse(PeriodoAcademico periodo) {
@@ -54,6 +74,11 @@ public class PeriodoAcademicoMapper {
                 periodo.getFechaFin(),
                 periodo.getPorcentaje(),
                 periodo.getEstado(),
+                periodo.getFechaInicioDigitacion(),
+                periodo.getFechaFinDigitacion(),
+                periodo.getNumeroActaAprobacion(),
+                periodo.getFechaActaAprobacion(),
+                periodo.getOrganoAprobador(),
                 periodo.getFechaCreacion(),
                 periodo.getFechaActualizacion()
         );

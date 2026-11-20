@@ -25,6 +25,12 @@ public class GrupoRequest {
     @Min(value = 1, message = "El cupo máximo debe ser al menos 1")
     private Integer cupoMaximo = 35;
 
+    private String sede = "SEDE_PRINCIPAL";
+
+    private String aulaBase;
+
+    private com.jackren.sistemaacademico.entity.EstadoGrupo estado = com.jackren.sistemaacademico.entity.EstadoGrupo.ACTIVO;
+
     public GrupoRequest() {
     }
 
@@ -74,5 +80,29 @@ public class GrupoRequest {
 
     public void setCupoMaximo(Integer cupoMaximo) {
         this.cupoMaximo = cupoMaximo;
+    }
+
+    public String getSede() {
+        return sede;
+    }
+
+    public void setSede(String sede) {
+        this.sede = sede;
+    }
+
+    public String getAulaBase() {
+        return aulaBase;
+    }
+
+    public void setAulaBase(String aulaBase) {
+        this.aulaBase = aulaBase;
+    }
+
+    public com.jackren.sistemaacademico.entity.EstadoGrupo getEstado() {
+        return estado;
+    }
+
+    public void setEstado(com.jackren.sistemaacademico.entity.EstadoGrupo estado) {
+        this.estado = estado;
     }
 }

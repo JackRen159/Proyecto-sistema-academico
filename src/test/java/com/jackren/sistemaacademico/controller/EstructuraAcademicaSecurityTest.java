@@ -82,6 +82,9 @@ class EstructuraAcademicaSecurityTest {
     private PeriodoAcademicoService periodoAcademicoService;
 
     @MockitoBean
+    private DiaNoLectivoService diaNoLectivoService;
+
+    @MockitoBean
     private GrupoService grupoService;
 
     @MockitoBean

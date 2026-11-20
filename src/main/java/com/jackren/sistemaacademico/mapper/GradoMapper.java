@@ -12,12 +12,19 @@ public class GradoMapper {
             return null;
         }
 
+        Long sigId = grado.getGradoSiguiente() != null ? grado.getGradoSiguiente().getId() : null;
+        String sigNombre = grado.getGradoSiguiente() != null ? grado.getGradoSiguiente().getNombre() : null;
+
         return new GradoResponse(
                 grado.getId(),
                 grado.getCodigo(),
                 grado.getNombre(),
                 grado.getNivel(),
                 grado.getOrdenJerarquico(),
+                sigId,
+                sigNombre,
+                grado.getEsGradoTerminal(),
+                grado.getRegimenEvaluacion(),
                 grado.getActivo()
         );
     }
