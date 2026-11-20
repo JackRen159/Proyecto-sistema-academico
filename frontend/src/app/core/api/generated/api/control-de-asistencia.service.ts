@@ -31,8 +31,6 @@ import { ConfiguracionAlertaAsistenciaResponse } from '../model/configuracion-al
 // @ts-ignore
 import { ConsultaAsistenciaEstudianteResponse } from '../model/consulta-asistencia-estudiante-response';
 // @ts-ignore
-import { ControlSesionesDocenteResponse } from '../model/control-sesiones-docente-response';
-// @ts-ignore
 import { ErrorResponse } from '../model/error-response';
 // @ts-ignore
 import { JustificacionAsistenciaRequest } from '../model/justificacion-asistencia-request';
@@ -266,91 +264,6 @@ export class ControlDeAsistenciaService extends BaseService {
         let localVarPath = `/api/asistencia/acudiente/estudiante/${this.configuration.encodeParam({name: "estudianteId", value: estudianteId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<ConsultaAsistenciaEstudianteResponse>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                params: localVarQueryParameters.toHttpParams(),
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Consultar tablero de control de toma de lista docente (UC-PROV-19 A1)
-     * Monitoreo de cumplimiento de sesiones dictadas vs pendientes antes del cierre de periodo.
-     * @endpoint get /api/asistencia/control-sesiones
-     * @param anioLectivoId 
-     * @param periodoId 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public consultarControlSesiones(anioLectivoId: number, periodoId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<ControlSesionesDocenteResponse>>;
-    public consultarControlSesiones(anioLectivoId: number, periodoId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<ControlSesionesDocenteResponse>>>;
-    public consultarControlSesiones(anioLectivoId: number, periodoId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<ControlSesionesDocenteResponse>>>;
-    public consultarControlSesiones(anioLectivoId: number, periodoId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (anioLectivoId === null || anioLectivoId === undefined) {
-            throw new Error('Required parameter anioLectivoId was null or undefined when calling consultarControlSesiones.');
-        }
-        if (periodoId === null || periodoId === undefined) {
-            throw new Error('Required parameter periodoId was null or undefined when calling consultarControlSesiones.');
-        }
-
-        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'anioLectivoId',
-            <any>anioLectivoId,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'periodoId',
-            <any>periodoId,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (BearerAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('BearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/api/asistencia/control-sesiones`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<Array<ControlSesionesDocenteResponse>>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 params: localVarQueryParameters.toHttpParams(),

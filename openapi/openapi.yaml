@@ -5672,13 +5672,123 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '403':
           $ref: '#/components/responses/ForbiddenError'
-  /api/asistencia/control-sesiones:
+  /api/horarios/aulas:
+    post:
+      tags:
+      - Horarios Escolares
+      summary: Crear aula o espacio físico institucional (UC-PROV-20)
+      description: Registra una nueva aula, laboratorio o escenario deportivo con capacidad máxima y sede.
+      operationId: crearAula
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AulaRequest'
+      responses:
+        '201':
+          description: Aula creada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AulaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
     get:
       tags:
-      - Control de Asistencia
-      summary: Consultar tablero de control de toma de lista docente (UC-PROV-19 A1)
-      description: Monitoreo de cumplimiento de sesiones dictadas vs pendientes antes del cierre de periodo.
-      operationId: consultarControlSesiones
+      - Horarios Escolares
+      summary: Listar aulas por sede
+      description: Retorna el catálogo de aulas disponibles por sede.
+      operationId: listarAulas
+      parameters:
+      - name: sede
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Listado de aulas obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AulaResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  /api/horarios/aulas/{id}/estado:
+    patch:
+      tags:
+      - Horarios Escolares
+      summary: Actualizar estado operativo del aula
+      description: Cambia el estado de un aula a DISPONIBLE, EN_MANTENIMIENTO o INACTIVA.
+      operationId: actualizarEstadoAula
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: nuevoEstado
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/EstadoAula'
+      responses:
+        '200':
+          description: Estado del aula actualizado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AulaResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  /api/horarios/franjas:
+    post:
+      tags:
+      - Horarios Escolares
+      summary: Crear franja horaria en la plantilla de jornada (UC-PROV-20)
+      description: Define un bloque lectivo o descanso pedagógico con hora de inicio y fin (Dec. 1850 de 2002).
+      operationId: crearFranjaHoraria
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlantillaFranjaHorariaRequest'
+      responses:
+        '201':
+          description: Franja horaria creada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlantillaFranjaHorariaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+    get:
+      tags:
+      - Horarios Escolares
+      summary: Listar franjas horarias por jornada y año lectivo
+      description: Retorna la plantilla de franjas horarias configuradas.
+      operationId: listarFranjasHorarias
       parameters:
       - name: anioLectivoId
         in: query
@@ -5686,7 +5796,317 @@ paths:
         schema:
           type: integer
           format: int64
-      - name: periodoId
+      - name: jornada
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/Jornada'
+      responses:
+        '200':
+          description: Plantilla de franjas obtenida exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PlantillaFranjaHorariaResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  /api/horarios/versiones:
+    post:
+      tags:
+      - Horarios Escolares
+      summary: Crear versión de horario en borrador para un grupo (UC-PROV-20)
+      description: Inicia la estructuración semanal de clases para un grupo de estudiantes.
+      operationId: crearHorarioBorrador
+      parameters:
+      - name: grupoId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '201':
+          description: Versión de horario creada en borrador.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HorarioGrupoVersionResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  /api/horarios/bloques:
+    post:
+      tags:
+      - Horarios Escolares
+      summary: Agregar bloque de clase con validación de Triple No-Colisión (UC-PROV-20)
+      description: Asigna materia, docente y aula en día y franja, validando que no colisionen grupo, docente ni aula.
+      operationId: agregarBloqueHorario
+      parameters:
+      - name: horarioVersionId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HorarioBloqueRequest'
+      responses:
+        '201':
+          description: Bloque asignado exitosamente sin colisiones.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HorarioBloqueResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/horarios/bloques/{id}:
+    delete:
+      tags:
+      - Horarios Escolares
+      summary: Eliminar bloque de clase de un horario en borrador
+      description: Quita un bloque de clase asignado en un horario no histórico.
+      operationId: eliminarBloqueHorario
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '204':
+          description: Bloque eliminado exitosamente.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/horarios/versiones/{id}/validar:
+    get:
+      tags:
+      - Horarios Escolares
+      summary: Validar restricciones y cumplimiento de IHS del horario (UC-PROV-20)
+      description: Verifica la ausencia de colisiones y que cada asignatura cumpla exactamente su intensidad horaria semanal del Plan de Estudios.
+      operationId: validarHorarioVersion
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Diagnóstico de validación horaria obtenido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidacionHorarioResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  /api/horarios/versiones/{id}/publicar:
+    post:
+      tags:
+      - Horarios Escolares
+      summary: Publicar oficialmente versión de horario (UC-PROV-20)
+      description: Pasa el horario a PUBLICADO_VIGENTE tras validar IHS al 100% y archiva la versión anterior como HISTORICA.
+      operationId: publicarHorarioVersion
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: fechaInicioVigencia
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      responses:
+        '200':
+          description: Horario publicado oficialmente y en vigencia.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HorarioGrupoVersionResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/horarios/novedades:
+    post:
+      tags:
+      - Horarios Escolares
+      summary: Registrar novedad temporal o permuta de clases (UC-PROV-21)
+      description: Registra cambio temporal de aula o permuta docente con validación de no-colisión.
+      operationId: registrarNovedadHorario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NovedadHorarioRequest'
+      responses:
+        '200':
+          description: Novedad horaria registrada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NovedadHorarioResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/horarios/novedades/bloque/{bloqueId}:
+    get:
+      tags:
+      - Horarios Escolares
+      summary: Listar novedades de un bloque de clase
+      description: Retorna las novedades temporales aplicadas sobre un bloque de clase.
+      operationId: listarNovedadesBloque
+      parameters:
+      - name: bloqueId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Novedades obtenidas exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NovedadHorarioResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  /api/horarios/mis-horarios:
+    get:
+      tags:
+      - Horarios Escolares
+      summary: Consultar horario académico propio del estudiante (UC-04)
+      description: Consulta contextual segura de la grilla horaria semanal del estudiante según su matrícula activa.
+      operationId: consultarMisHorarios
+      parameters:
+      - name: fecha
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      responses:
+        '200':
+          description: Horario propio obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsultaHorarioEstudianteResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/horarios/acudiente/estudiante/{estudianteId}:
+    get:
+      tags:
+      - Horarios Escolares
+      summary: Consultar horario del estudiante vinculado para acudiente (UC-10)
+      description: Consulta contextual para acudientes con validación obligatoria de vínculo y medidas de protección legal.
+      operationId: consultarHorarioAcudiente
+      parameters:
+      - name: estudianteId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: fecha
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      responses:
+        '200':
+          description: Horario del menor obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsultaHorarioEstudianteResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/horarios/docente/mi-agenda:
+    get:
+      tags:
+      - Horarios Escolares
+      summary: Consultar agenda semanal consolidada del docente autenticado (UC-PROV-22)
+      description: Retorna todas las clases semanales programadas para el profesor en sus distintos grupos y aulas.
+      operationId: consultarMiAgendaDocente
+      responses:
+        '200':
+          description: Agenda docente obtenida exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgendaDocenteResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  /api/horarios/aulas/disponibilidad:
+    get:
+      tags:
+      - Horarios Escolares
+      summary: Consultar mapa de ocupación y aulas disponibles (UC-PROV-22 A2)
+      description: Permite visualizar en tiempo real qué aulas se encuentran libres u ocupadas en un día y franja.
+      operationId: consultarDisponibilidadAulas
+      parameters:
+      - name: sede
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: dia
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/DiaSemana'
+      - name: franjaId
         in: query
         required: true
         schema:
@@ -5694,13 +6114,44 @@ paths:
           format: int64
       responses:
         '200':
-          description: Tablero de control de sesiones obtenido exitosamente.
+          description: Disponibilidad de aulas obtenida exitosamente.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ControlSesionesDocenteResponse'
+                  $ref: '#/components/schemas/DisponibilidadAulaResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  /api/horarios/ubicacion-actual:
+    get:
+      tags:
+      - Horarios Escolares
+      summary: Consultar ubicación física en tiempo real de estudiante, grupo o docente (UC-PROV-22 A1)
+      description: Ubicación física inmediata para atención de urgencias o salidas anticipadas en portería.
+      operationId: consultarUbicacionActual
+      parameters:
+      - name: tipoConsulta
+        in: query
+        required: true
+        schema:
+          type: string
+          example: GRUPO
+      - name: id
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Ubicación en tiempo real obtenida exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UbicacionActualResponse'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '403':
@@ -9960,6 +10411,538 @@ components:
       - VISITA_DOMICILIARIA
       - CONSTANCIA_PROTOCOLO_DESERCION_AGOTADO
       example: CITACION_ACUDIENTE
+    TipoEspacioFisico:
+      type: string
+      enum:
+      - AULA_ESTANDAR
+      - LABORATORIO_CIENCIAS
+      - SALA_INFORMATICA
+      - AULA_POLIVALENTE
+      - ESCENARIO_DEPORTIVO
+      - AUDITORIO
+      example: AULA_ESTANDAR
+    EstadoAula:
+      type: string
+      enum:
+      - DISPONIBLE
+      - EN_MANTENIMIENTO
+      - INACTIVA
+      example: DISPONIBLE
+    TipoFranjaHoraria:
+      type: string
+      enum:
+      - BLOQUE_LECTIVO
+      - DESCANSO_PEDAGOGICO
+      - DIRECCION_GRUPO
+      example: BLOQUE_LECTIVO
+    EstadoHorarioVersion:
+      type: string
+      enum:
+      - BORRADOR
+      - PUBLICADO_VIGENTE
+      - HISTORICO
+      example: PUBLICADO_VIGENTE
+    DiaSemana:
+      type: string
+      enum:
+      - LUNES
+      - MARTES
+      - MIERCOLES
+      - JUEVES
+      - VIERNES
+      - SABADO
+      example: LUNES
+    TipoNovedadHorario:
+      type: string
+      enum:
+      - CAMBIO_AULA_TEMPORAL
+      - PERMUTA_DOCENTE
+      - JORNADA_ESPECIAL
+      - SUPLENCIA_DOCENTE
+      example: CAMBIO_AULA_TEMPORAL
+    AulaRequest:
+      type: object
+      required:
+      - codigo
+      - nombre
+      - tipoEspacio
+      - capacidadMaxima
+      properties:
+        sede:
+          type: string
+          example: SEDE_PRINCIPAL
+        codigo:
+          type: string
+          example: '101'
+        nombre:
+          type: string
+          example: Salón 101 - Aula Base
+        tipoEspacio:
+          $ref: '#/components/schemas/TipoEspacioFisico'
+        capacidadMaxima:
+          type: integer
+          example: 40
+        esMultigrupo:
+          type: boolean
+          example: false
+        estado:
+          $ref: '#/components/schemas/EstadoAula'
+        observaciones:
+          type: string
+          example: Aula con proyector y ventilación natural
+    AulaResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        sede:
+          type: string
+          example: SEDE_PRINCIPAL
+        codigo:
+          type: string
+          example: '101'
+        nombre:
+          type: string
+          example: Salón 101 - Aula Base
+        tipoEspacio:
+          $ref: '#/components/schemas/TipoEspacioFisico'
+        capacidadMaxima:
+          type: integer
+          example: 40
+        esMultigrupo:
+          type: boolean
+          example: false
+        estado:
+          $ref: '#/components/schemas/EstadoAula'
+        observaciones:
+          type: string
+          example: Aula disponible
+    PlantillaFranjaHorariaRequest:
+      type: object
+      required:
+      - anioLectivoId
+      - jornada
+      - numeroBloque
+      - horaInicio
+      - horaFin
+      properties:
+        anioLectivoId:
+          type: integer
+          format: int64
+          example: 1
+        jornada:
+          $ref: '#/components/schemas/Jornada'
+        numeroBloque:
+          type: integer
+          example: 1
+        horaInicio:
+          type: string
+          format: time
+          example: '07:00:00'
+        horaFin:
+          type: string
+          format: time
+          example: '07:55:00'
+        tipoFranja:
+          $ref: '#/components/schemas/TipoFranjaHoraria'
+        descripcion:
+          type: string
+          example: Primer bloque de clase
+    PlantillaFranjaHorariaResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        anioLectivoId:
+          type: integer
+          format: int64
+          example: 1
+        anioLectivo:
+          type: integer
+          example: 2026
+        jornada:
+          $ref: '#/components/schemas/Jornada'
+        numeroBloque:
+          type: integer
+          example: 1
+        horaInicio:
+          type: string
+          format: time
+          example: '07:00:00'
+        horaFin:
+          type: string
+          format: time
+          example: '07:55:00'
+        tipoFranja:
+          $ref: '#/components/schemas/TipoFranjaHoraria'
+        descripcion:
+          type: string
+          example: Primer bloque de clase
+    HorarioBloqueRequest:
+      type: object
+      required:
+      - asignacionAcademicaId
+      - aulaId
+      - diaSemana
+      - franjaHorariaId
+      properties:
+        asignacionAcademicaId:
+          type: integer
+          format: int64
+          example: 50
+        aulaId:
+          type: integer
+          format: int64
+          example: 1
+        diaSemana:
+          $ref: '#/components/schemas/DiaSemana'
+        franjaHorariaId:
+          type: integer
+          format: int64
+          example: 10
+    HorarioBloqueResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        horarioVersionId:
+          type: integer
+          format: int64
+          example: 10
+        asignacionAcademicaId:
+          type: integer
+          format: int64
+          example: 50
+        profesorId:
+          type: integer
+          format: int64
+          example: 20
+        profesorNombreCompleto:
+          type: string
+          example: Marie Curie
+        asignaturaId:
+          type: integer
+          format: int64
+          example: 100
+        asignaturaNombre:
+          type: string
+          example: Química
+        aulaId:
+          type: integer
+          format: int64
+          example: 1
+        aulaCodigo:
+          type: string
+          example: LAB-QUI
+        aulaNombre:
+          type: string
+          example: Laboratorio Integrado de Ciencias
+        diaSemana:
+          $ref: '#/components/schemas/DiaSemana'
+        franjaHorariaId:
+          type: integer
+          format: int64
+          example: 10
+        numeroBloque:
+          type: integer
+          example: 1
+        horaInicio:
+          type: string
+          format: time
+          example: '07:00:00'
+        horaFin:
+          type: string
+          format: time
+          example: '07:55:00'
+        tipoFranja:
+          $ref: '#/components/schemas/TipoFranjaHoraria'
+    HorarioGrupoVersionRequest:
+      type: object
+      required:
+      - grupoId
+      properties:
+        grupoId:
+          type: integer
+          format: int64
+          example: 5
+        fechaInicioVigencia:
+          type: string
+          format: date
+          example: '2026-02-01'
+        bloques:
+          type: array
+          items:
+            $ref: '#/components/schemas/HorarioBloqueRequest'
+    HorarioGrupoVersionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        grupoId:
+          type: integer
+          format: int64
+          example: 5
+        grupoNombre:
+          type: string
+          example: 9-B
+        numeroVersion:
+          type: integer
+          example: 1
+        estado:
+          $ref: '#/components/schemas/EstadoHorarioVersion'
+        fechaInicioVigencia:
+          type: string
+          format: date
+          example: '2026-02-01'
+        fechaFinVigencia:
+          type: string
+          format: date
+          example: '2026-11-30'
+        usuarioPublicadorNombre:
+          type: string
+          example: coordinador_academico
+        fechaPublicacion:
+          type: string
+          format: date-time
+        bloques:
+          type: array
+          items:
+            $ref: '#/components/schemas/HorarioBloqueResponse'
+    NovedadHorarioRequest:
+      type: object
+      required:
+      - horarioBloqueId
+      - tipoNovedad
+      - fechaInicio
+      - fechaFin
+      - motivo
+      properties:
+        horarioBloqueId:
+          type: integer
+          format: int64
+          example: 1
+        tipoNovedad:
+          $ref: '#/components/schemas/TipoNovedadHorario'
+        aulaReemplazoId:
+          type: integer
+          format: int64
+          example: 2
+        docenteReemplazoId:
+          type: integer
+          format: int64
+          example: 25
+        fechaInicio:
+          type: string
+          format: date
+          example: '2026-03-10'
+        fechaFin:
+          type: string
+          format: date
+          example: '2026-03-15'
+        motivo:
+          type: string
+          example: Salón en mantenimiento de cableado
+    NovedadHorarioResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        horarioBloqueId:
+          type: integer
+          format: int64
+          example: 1
+        tipoNovedad:
+          $ref: '#/components/schemas/TipoNovedadHorario'
+        aulaReemplazoId:
+          type: integer
+          format: int64
+          example: 2
+        aulaReemplazoCodigo:
+          type: string
+          example: '102'
+        docenteReemplazoId:
+          type: integer
+          format: int64
+          example: 25
+        docenteReemplazoNombre:
+          type: string
+          example: Richard Feynman
+        fechaInicio:
+          type: string
+          format: date
+          example: '2026-03-10'
+        fechaFin:
+          type: string
+          format: date
+          example: '2026-03-15'
+        motivo:
+          type: string
+          example: Salón en mantenimiento
+        usuarioAutorizadorNombre:
+          type: string
+          example: coordinador_academico
+        fechaRegistro:
+          type: string
+          format: date-time
+    ValidacionHorarioResponse:
+      type: object
+      properties:
+        valido:
+          type: boolean
+          example: true
+        erroresColision:
+          type: array
+          items:
+            type: string
+            example: 'Conflicto de Docente: ya tiene clase asignada'
+    DisponibilidadAulaResponse:
+      type: object
+      properties:
+        aulaId:
+          type: integer
+          format: int64
+          example: 1
+        sede:
+          type: string
+          example: SEDE_PRINCIPAL
+        codigo:
+          type: string
+          example: '101'
+        nombre:
+          type: string
+          example: Salón 101 - Aula Base
+        tipoEspacio:
+          $ref: '#/components/schemas/TipoEspacioFisico'
+        capacidadMaxima:
+          type: integer
+          example: 40
+        disponible:
+          type: boolean
+          example: true
+        grupoOcupante:
+          type: string
+          example: 10-A
+        asignaturaOcupante:
+          type: string
+          example: Física
+        docenteOcupante:
+          type: string
+          example: Albert Einstein
+    UbicacionActualResponse:
+      type: object
+      properties:
+        tipoConsulta:
+          type: string
+          example: GRUPO
+        id:
+          type: integer
+          format: int64
+          example: 5
+        nombre:
+          type: string
+          example: Isaac Newton
+        grupoNombre:
+          type: string
+          example: 9-B
+        asignaturaNombre:
+          type: string
+          example: Química
+        profesorNombre:
+          type: string
+          example: Marie Curie
+        aulaCodigo:
+          type: string
+          example: LAB-QUI
+        aulaNombre:
+          type: string
+          example: Laboratorio Integrado de Ciencias
+        sede:
+          type: string
+          example: SEDE_PRINCIPAL
+        horaInicio:
+          type: string
+          format: time
+          example: '07:00:00'
+        horaFin:
+          type: string
+          format: time
+          example: '07:55:00'
+        claseEnCurso:
+          type: boolean
+          example: true
+    ConsultaHorarioEstudianteResponse:
+      type: object
+      properties:
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        numeroMatricula:
+          type: string
+          example: MAT-2026-0001
+        estudianteId:
+          type: integer
+          format: int64
+          example: 7
+        estudianteNombreCompleto:
+          type: string
+          example: Niels Bohr
+        grupoId:
+          type: integer
+          format: int64
+          example: 5
+        grupoNombre:
+          type: string
+          example: 9-B
+        sede:
+          type: string
+          example: SEDE_PRINCIPAL
+        jornada:
+          $ref: '#/components/schemas/Jornada'
+        numeroVersion:
+          type: integer
+          example: 1
+        estado:
+          $ref: '#/components/schemas/EstadoHorarioVersion'
+        fechaInicioVigencia:
+          type: string
+          format: date
+          example: '2026-02-01'
+        bloques:
+          type: array
+          items:
+            $ref: '#/components/schemas/HorarioBloqueResponse'
+    AgendaDocenteResponse:
+      type: object
+      properties:
+        profesorId:
+          type: integer
+          format: int64
+          example: 20
+        profesorNombreCompleto:
+          type: string
+          example: Marie Curie
+        documento:
+          type: string
+          example: '98765432'
+        totalBloquesSemanales:
+          type: integer
+          format: int64
+          example: 22
+        bloques:
+          type: array
+          items:
+            $ref: '#/components/schemas/HorarioBloqueResponse'
     TipoDocumentoAcademico:
       type: string
       enum:
@@ -11775,6 +12758,8 @@ tags:
   description: Gestión de escalas institucionales (Decreto 1290), actividades evaluativas, registro de notas, definitivas y auditoría
 - name: Control de Asistencia
   description: Registro de asistencia dual (sesión de clase y jornada diaria), justificaciones auditadas y alertas tempranas de ausentismo
+- name: Horarios Escolares
+  description: Configuración de aulas, franjas horarias, estructuración con Triple No-Colisión, cumplimiento de IHS, novedades y consultas contextuales (UC-04, UC-10, UC-PROV-20, UC-PROV-21, UC-PROV-22)
 - name: Documentos y Reportes Académicos
   description: Emisión y auditoría de documentos oficiales (boletines periódicos y finales, certificados de estudio, constancias de matrícula y verificación de autenticidad)
 - name: Usuarios y Roles

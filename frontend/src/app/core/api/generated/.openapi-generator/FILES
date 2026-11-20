@@ -24,6 +24,7 @@ api/estructura-acadmica-periodos.service.ts
 api/estructura-acadmica-plan-de-estudios.service.ts
 api/estructura-acadmica-reas.service.ts
 api/estudiantes.service.ts
+api/horarios-escolares.service.ts
 api/matrculas-consultas-contextuales.service.ts
 api/matrculas-novedades-de-permanencia.service.ts
 api/matrculas.service.ts
@@ -48,6 +49,7 @@ model/actualizar-manual-borrador-request.ts
 model/actualizar-parametro-request.ts
 model/acudiente-request.ts
 model/acudiente-response.ts
+model/agenda-docente-response.ts
 model/anio-lectivo-request.ts
 model/anio-lectivo-response.ts
 model/anulacion-emision-request.ts
@@ -69,6 +71,8 @@ model/asignatura-response.ts
 model/auditoria-asistencia-response.ts
 model/auditoria-calificacion-response.ts
 model/auditoria-evento-response.ts
+model/aula-request.ts
+model/aula-response.ts
 model/autorizacion-salida-anticipada-request.ts
 model/autorizacion-salida-anticipada-response.ts
 model/bloque-curricular-asignacion-request.ts
@@ -95,6 +99,7 @@ model/conmutar-rol-request.ts
 model/constancia-matricula-response.ts
 model/consulta-asistencia-estudiante-response.ts
 model/consulta-calificaciones-estudiante-response.ts
+model/consulta-horario-estudiante-response.ts
 model/control-sesiones-docente-response.ts
 model/convalidacion-calificacion-request.ts
 model/convalidacion-calificacion-response.ts
@@ -109,8 +114,10 @@ model/decision-solicitud-excusa.ts
 model/desempeno-nacional.ts
 model/dia-no-lectivo-request.ts
 model/dia-no-lectivo-response.ts
+model/dia-semana.ts
 model/diferencia-version-response-diferencias-inner.ts
 model/diferencia-version-response.ts
+model/disponibilidad-aula-response.ts
 model/emision-documento-request.ts
 model/error-response.ts
 model/estado-actividad-evaluativa.ts
@@ -118,10 +125,12 @@ model/estado-administrativo-docente.ts
 model/estado-anio-lectivo.ts
 model/estado-asignacion-academica.ts
 model/estado-asistencia.ts
+model/estado-aula.ts
 model/estado-autorizacion-salida.ts
 model/estado-calificacion-actividad.ts
 model/estado-expediente.ts
 model/estado-grupo.ts
+model/estado-horario-version.ts
 model/estado-matricula.ts
 model/estado-periodo.ts
 model/estado-reclamacion-calificacion.ts
@@ -150,6 +159,10 @@ model/grupo-response.ts
 model/historial-documento-identidad-response.ts
 model/historial-novedad-response.ts
 model/historial-traslado-response.ts
+model/horario-bloque-request.ts
+model/horario-bloque-response.ts
+model/horario-grupo-version-request.ts
+model/horario-grupo-version-response.ts
 model/institucion-datos-legales-response.ts
 model/jornada.ts
 model/justificacion-asistencia-request.ts
@@ -162,6 +175,8 @@ model/matricula-response.ts
 model/modalidad-evaluativa.ts
 model/models.ts
 model/nivel-educativo.ts
+model/novedad-horario-request.ts
+model/novedad-horario-response.ts
 model/novedad-matricula-request.ts
 model/organo-colegiado-miembro-response.ts
 model/origen-calificacion.ts
@@ -175,6 +190,8 @@ model/parentesco.ts
 model/periodo-academico-request.ts
 model/periodo-academico-response.ts
 model/planilla-asistencia-lote-request.ts
+model/plantilla-franja-horaria-request.ts
+model/plantilla-franja-horaria-response.ts
 model/politica-datos-response.ts
 model/profesor-request.ts
 model/profesor-response.ts
@@ -222,16 +239,21 @@ model/tipo-dia-no-lectivo.ts
 model/tipo-documento-academico.ts
 model/tipo-documento.ts
 model/tipo-entidad-auditoria-calificacion.ts
+model/tipo-espacio-fisico.ts
+model/tipo-franja-horaria.ts
 model/tipo-justificacion-asistencia.ts
 model/tipo-matricula.ts
+model/tipo-novedad-horario.ts
 model/tipo-novedad-matricula.ts
 model/tipo-organo-colegiado.ts
 model/tipo-origen-convalidacion.ts
 model/tipo-registro-asistencia.ts
 model/tipo-vinculacion-docente.ts
 model/traslado-grupo-request.ts
+model/ubicacion-actual-response.ts
 model/usuario-response.ts
 model/usuario-rol-response.ts
+model/validacion-horario-response.ts
 model/verificacion-integridad-response.ts
 model/verificar-matricula-activa-response.ts
 param.ts
