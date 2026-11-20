@@ -7,6 +7,10 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { EstadoActividadEvaluativa } from './estado-actividad-evaluativa';
+import { TipoComponenteEvaluativo } from './tipo-componente-evaluativo';
+import { ModalidadEvaluativa } from './modalidad-evaluativa';
+import { CategoriaEvaluativa } from './categoria-evaluativa';
 
 
 export interface ActividadEvaluativaRequest { 
@@ -16,5 +20,13 @@ export interface ActividadEvaluativaRequest {
     descripcion?: string;
     porcentaje: number;
     fechaEvaluacion?: string;
+    categoriaEvaluativa?: CategoriaEvaluativa;
+    tipoComponente?: TipoComponenteEvaluativo;
+    modalidad?: ModalidadEvaluativa;
+    estado?: EstadoActividadEvaluativa;
+    esAdaptacionPiar?: boolean;
+    criteriosAdaptadosPiar?: string;
 }
+
+
 

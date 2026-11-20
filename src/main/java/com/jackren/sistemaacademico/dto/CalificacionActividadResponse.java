@@ -1,8 +1,10 @@
 package com.jackren.sistemaacademico.dto;
 
 import com.jackren.sistemaacademico.entity.DesempenoNacional;
+import com.jackren.sistemaacademico.entity.EstadoCalificacionActividad;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class CalificacionActividadResponse {
@@ -17,6 +19,10 @@ public class CalificacionActividadResponse {
     private String estudianteNombreCompleto;
     private String estudianteDocumento;
     private BigDecimal valor;
+    private EstadoCalificacionActividad estado;
+    private LocalDate fechaSupletoria;
+    private String valorCualitativo;
+    private String observacionDescriptiva;
     private DesempenoNacional desempeno;
     private String observaciones;
     private LocalDateTime fechaRegistro;
@@ -103,6 +109,38 @@ public class CalificacionActividadResponse {
 
     public void setValor(BigDecimal valor) {
         this.valor = valor;
+    }
+
+    public EstadoCalificacionActividad getEstado() {
+        return estado;
+    }
+
+    public void setEstado(EstadoCalificacionActividad estado) {
+        this.estado = estado;
+    }
+
+    public LocalDate getFechaSupletoria() {
+        return fechaSupletoria;
+    }
+
+    public void setFechaSupletoria(LocalDate fechaSupletoria) {
+        this.fechaSupletoria = fechaSupletoria;
+    }
+
+    public String getValorCualitativo() {
+        return valorCualitativo;
+    }
+
+    public void setValorCualitativo(String valorCualitativo) {
+        this.valorCualitativo = valorCualitativo;
+    }
+
+    public String getObservacionDescriptiva() {
+        return observacionDescriptiva;
+    }
+
+    public void setObservacionDescriptiva(String observacionDescriptiva) {
+        this.observacionDescriptiva = observacionDescriptiva;
     }
 
     public DesempenoNacional getDesempeno() {

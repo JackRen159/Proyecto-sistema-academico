@@ -8,6 +8,7 @@
  * Do not edit the class manually.
  */
 import { DesempenoNacional } from './desempeno-nacional';
+import { OrigenCalificacion } from './origen-calificacion';
 
 
 export interface CalificacionPeriodoResponse { 
@@ -27,6 +28,7 @@ export interface CalificacionPeriodoResponse {
     aprobada?: boolean;
     notaRecuperacion?: number;
     notaFinal?: number;
+    origen?: OrigenCalificacion;
     observaciones?: string;
     fechaCalculo?: string;
     fechaActualizacion?: string;

@@ -19,6 +19,8 @@ public interface CalificacionPeriodoRepository extends JpaRepository<Calificacio
 
     List<CalificacionPeriodo> findByAsignaturaIdAndPeriodoAcademicoId(Long asignaturaId, Long periodoAcademicoId);
 
+    List<CalificacionPeriodo> findByPeriodoAcademicoIdAndMatriculaGrupoId(Long periodoId, Long grupoId);
+
     boolean existsByMatriculaIdAndAsignaturaIdAndPeriodoAcademicoId(
             Long matriculaId, Long asignaturaId, Long periodoAcademicoId);
 }

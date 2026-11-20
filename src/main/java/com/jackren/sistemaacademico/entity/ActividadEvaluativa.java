@@ -13,7 +13,9 @@ import java.time.LocalDateTime;
     name = "actividades_evaluativas",
     indexes = {
         @Index(name = "idx_actividades_asignacion", columnList = "asignacion_academica_id"),
-        @Index(name = "idx_actividades_periodo", columnList = "periodo_academico_id")
+        @Index(name = "idx_actividades_periodo", columnList = "periodo_academico_id"),
+        @Index(name = "idx_actividades_estado", columnList = "estado"),
+        @Index(name = "idx_actividades_siee_version", columnList = "siee_version_id")
     }
 )
 public class ActividadEvaluativa {
@@ -42,8 +44,38 @@ public class ActividadEvaluativa {
     @Column(name = "fecha_evaluacion")
     private LocalDate fechaEvaluacion;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "categoria_evaluativa", nullable = false, length = 30)
+    private CategoriaEvaluativa categoriaEvaluativa = CategoriaEvaluativa.COGNITIVA;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_componente", nullable = false, length = 30)
+    private TipoComponenteEvaluativo tipoComponente = TipoComponenteEvaluativo.TALLER;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private ModalidadEvaluativa modalidad = ModalidadEvaluativa.HETEROEVALUACION;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private EstadoActividadEvaluativa estado = EstadoActividadEvaluativa.PUBLICADA;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "siee_version_id")
+    private ConfiguracionSieeVersion sieeVersion;
+
+    @Column(name = "es_adaptacion_piar", nullable = false)
+    private Boolean esAdaptacionPiar = false;
+
+    @Column(name = "criterios_adaptados_piar", columnDefinition = "TEXT")
+    private String criteriosAdaptadosPiar;
+
     @Column(nullable = false)
     private Boolean activo = true;
+
+    @Version
+    @Column(nullable = false)
+    private Long version = 0L;
 
     @CreationTimestamp
     @Column(name = "fecha_creacion", nullable = false, updatable = false)
@@ -127,12 +159,76 @@ public class ActividadEvaluativa {
         this.fechaEvaluacion = fechaEvaluacion;
     }
 
+    public CategoriaEvaluativa getCategoriaEvaluativa() {
+        return categoriaEvaluativa;
+    }
+
+    public void setCategoriaEvaluativa(CategoriaEvaluativa categoriaEvaluativa) {
+        this.categoriaEvaluativa = categoriaEvaluativa;
+    }
+
+    public TipoComponenteEvaluativo getTipoComponente() {
+        return tipoComponente;
+    }
+
+    public void setTipoComponente(TipoComponenteEvaluativo tipoComponente) {
+        this.tipoComponente = tipoComponente;
+    }
+
+    public ModalidadEvaluativa getModalidad() {
+        return modalidad;
+    }
+
+    public void setModalidad(ModalidadEvaluativa modalidad) {
+        this.modalidad = modalidad;
+    }
+
+    public EstadoActividadEvaluativa getEstado() {
+        return estado;
+    }
+
+    public void setEstado(EstadoActividadEvaluativa estado) {
+        this.estado = estado;
+    }
+
+    public ConfiguracionSieeVersion getSieeVersion() {
+        return sieeVersion;
+    }
+
+    public void setSieeVersion(ConfiguracionSieeVersion sieeVersion) {
+        this.sieeVersion = sieeVersion;
+    }
+
+    public Boolean getEsAdaptacionPiar() {
+        return esAdaptacionPiar;
+    }
+
+    public void setEsAdaptacionPiar(Boolean esAdaptacionPiar) {
+        this.esAdaptacionPiar = esAdaptacionPiar;
+    }
+
+    public String getCriteriosAdaptadosPiar() {
+        return criteriosAdaptadosPiar;
+    }
+
+    public void setCriteriosAdaptadosPiar(String criteriosAdaptadosPiar) {
+        this.criteriosAdaptadosPiar = criteriosAdaptadosPiar;
+    }
+
     public Boolean getActivo() {
         return activo;
     }
 
     public void setActivo(Boolean activo) {
         this.activo = activo;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     public LocalDateTime getFechaCreacion() {

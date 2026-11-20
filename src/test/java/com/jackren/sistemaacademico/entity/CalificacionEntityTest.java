@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -71,15 +72,23 @@ class CalificacionEntityTest {
     }
 
     @Test
-    @DisplayName("ActividadEvaluativa debe instanciarse con campos obligatorios y porcentaje")
+    @DisplayName("ActividadEvaluativa debe instanciarse con campos obligatorios y soporte V2")
     void actividadEvaluativa_InstanciacionCorrecta() {
         ActividadEvaluativa actividad = new ActividadEvaluativa();
         actividad.setNombre("Taller de Ondas");
         actividad.setPorcentaje(new BigDecimal("25.00"));
+        actividad.setCategoriaEvaluativa(CategoriaEvaluativa.COGNITIVA);
+        actividad.setTipoComponente(TipoComponenteEvaluativo.TALLER);
+        actividad.setModalidad(ModalidadEvaluativa.HETEROEVALUACION);
+        actividad.setEstado(EstadoActividadEvaluativa.PUBLICADA);
         actividad.setActivo(true);
 
         assertEquals("Taller de Ondas", actividad.getNombre());
         assertEquals(new BigDecimal("25.00"), actividad.getPorcentaje());
+        assertEquals(CategoriaEvaluativa.COGNITIVA, actividad.getCategoriaEvaluativa());
+        assertEquals(TipoComponenteEvaluativo.TALLER, actividad.getTipoComponente());
+        assertEquals(ModalidadEvaluativa.HETEROEVALUACION, actividad.getModalidad());
+        assertEquals(EstadoActividadEvaluativa.PUBLICADA, actividad.getEstado());
         assertTrue(actividad.getActivo());
     }
 
@@ -91,10 +100,12 @@ class CalificacionEntityTest {
         calif.setNotaFinal(new BigDecimal("4.20"));
         calif.setDesempeno(DesempenoNacional.ALTO);
         calif.setAprobada(true);
+        calif.setOrigen(OrigenCalificacion.CALCULADA);
 
         assertEquals(new BigDecimal("4.20"), calif.getNotaDefinitiva());
         assertEquals(DesempenoNacional.ALTO, calif.getDesempeno());
         assertTrue(calif.getAprobada());
+        assertEquals(OrigenCalificacion.CALCULADA, calif.getOrigen());
     }
 
     @Test
@@ -113,5 +124,57 @@ class CalificacionEntityTest {
         assertEquals(new BigDecimal("2.50"), audit.getValorAnterior());
         assertEquals(new BigDecimal("4.00"), audit.getValorNuevo());
         assertEquals("profesor1", audit.getUsername());
+    }
+
+    @Test
+    @DisplayName("CalificacionAreaPeriodo debe almacenar consolidado de área curricular")
+    void calificacionAreaPeriodo_InstanciacionCorrecta() {
+        CalificacionAreaPeriodo califArea = new CalificacionAreaPeriodo();
+        califArea.setNotaDefinitiva(new BigDecimal("3.85"));
+        califArea.setDesempeno(DesempenoNacional.BASICO);
+        califArea.setAprobada(true);
+        califArea.setOrigen(OrigenCalificacion.CALCULADA);
+
+        assertEquals(new BigDecimal("3.85"), califArea.getNotaDefinitiva());
+        assertEquals(DesempenoNacional.BASICO, califArea.getDesempeno());
+        assertTrue(califArea.getAprobada());
+        assertEquals(OrigenCalificacion.CALCULADA, califArea.getOrigen());
+    }
+
+    @Test
+    @DisplayName("ActaNivelacion debe registrar la fórmula aplicada y la nota resultante")
+    void actaNivelacion_InstanciacionCorrecta() {
+        ActaNivelacion acta = new ActaNivelacion();
+        acta.setNumeroActa("ACT-NIV-2026-0001");
+        acta.setFechaSustentacion(LocalDate.of(2026, 4, 15));
+        acta.setAsistencia(true);
+        acta.setNotaOriginal(new BigDecimal("2.40"));
+        acta.setNotaObtenida(new BigDecimal("3.50"));
+        acta.setFormulaAplicada(FormulaRecuperacionSiee.REEMPLAZO_TOTAL);
+        acta.setNotaFinalResultante(new BigDecimal("3.50"));
+        acta.setDesempenoResultante(DesempenoNacional.BASICO);
+
+        assertEquals("ACT-NIV-2026-0001", acta.getNumeroActa());
+        assertEquals(FormulaRecuperacionSiee.REEMPLAZO_TOTAL, acta.getFormulaAplicada());
+        assertEquals(new BigDecimal("3.50"), acta.getNotaFinalResultante());
+        assertEquals(DesempenoNacional.BASICO, acta.getDesempenoResultante());
+    }
+
+    @Test
+    @DisplayName("ReclamacionCalificacion debe registrar radicado, motivo y estado de debido proceso")
+    void reclamacionCalificacion_InstanciacionCorrecta() {
+        ReclamacionCalificacion rec = new ReclamacionCalificacion();
+        rec.setNumeroRadicado("REC-2026-0001");
+        rec.setTipoCalificacion(TipoCalificacionReclamacion.ACTIVIDAD);
+        rec.setReferenciaId(100L);
+        rec.setRolSolicitante(RolSolicitanteReclamacion.ESTUDIANTE);
+        rec.setMotivoReclamacion("Error aritmético en suma de puntos de rúbrica");
+        rec.setEstado(EstadoReclamacionCalificacion.RADICADA_PRIMERA_INSTANCIA);
+        rec.setFechaLimiteRespuesta(LocalDate.of(2026, 4, 20));
+
+        assertEquals("REC-2026-0001", rec.getNumeroRadicado());
+        assertEquals(TipoCalificacionReclamacion.ACTIVIDAD, rec.getTipoCalificacion());
+        assertEquals(EstadoReclamacionCalificacion.RADICADA_PRIMERA_INSTANCIA, rec.getEstado());
+        assertEquals(LocalDate.of(2026, 4, 20), rec.getFechaLimiteRespuesta());
     }
 }

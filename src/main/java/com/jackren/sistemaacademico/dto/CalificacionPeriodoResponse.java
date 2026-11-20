@@ -1,6 +1,7 @@
 package com.jackren.sistemaacademico.dto;
 
 import com.jackren.sistemaacademico.entity.DesempenoNacional;
+import com.jackren.sistemaacademico.entity.OrigenCalificacion;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -23,6 +24,7 @@ public class CalificacionPeriodoResponse {
     private Boolean aprobada;
     private BigDecimal notaRecuperacion;
     private BigDecimal notaFinal;
+    private OrigenCalificacion origen;
     private String observaciones;
     private LocalDateTime fechaCalculo;
     private LocalDateTime fechaActualizacion;
@@ -156,6 +158,14 @@ public class CalificacionPeriodoResponse {
 
     public void setNotaFinal(BigDecimal notaFinal) {
         this.notaFinal = notaFinal;
+    }
+
+    public OrigenCalificacion getOrigen() {
+        return origen;
+    }
+
+    public void setOrigen(OrigenCalificacion origen) {
+        this.origen = origen;
     }
 
     public String getObservaciones() {

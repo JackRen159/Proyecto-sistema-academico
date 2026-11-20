@@ -1,5 +1,10 @@
 package com.jackren.sistemaacademico.dto;
 
+import com.jackren.sistemaacademico.entity.CategoriaEvaluativa;
+import com.jackren.sistemaacademico.entity.EstadoActividadEvaluativa;
+import com.jackren.sistemaacademico.entity.ModalidadEvaluativa;
+import com.jackren.sistemaacademico.entity.TipoComponenteEvaluativo;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,6 +25,13 @@ public class ActividadEvaluativaResponse {
     private String descripcion;
     private BigDecimal porcentaje;
     private LocalDate fechaEvaluacion;
+    private CategoriaEvaluativa categoriaEvaluativa;
+    private TipoComponenteEvaluativo tipoComponente;
+    private ModalidadEvaluativa modalidad;
+    private EstadoActividadEvaluativa estado;
+    private Long sieeVersionId;
+    private Boolean esAdaptacionPiar;
+    private String criteriosAdaptadosPiar;
     private Boolean activo;
     private LocalDateTime fechaCreacion;
 
@@ -136,6 +148,62 @@ public class ActividadEvaluativaResponse {
 
     public void setFechaEvaluacion(LocalDate fechaEvaluacion) {
         this.fechaEvaluacion = fechaEvaluacion;
+    }
+
+    public CategoriaEvaluativa getCategoriaEvaluativa() {
+        return categoriaEvaluativa;
+    }
+
+    public void setCategoriaEvaluativa(CategoriaEvaluativa categoriaEvaluativa) {
+        this.categoriaEvaluativa = categoriaEvaluativa;
+    }
+
+    public TipoComponenteEvaluativo getTipoComponente() {
+        return tipoComponente;
+    }
+
+    public void setTipoComponente(TipoComponenteEvaluativo tipoComponente) {
+        this.tipoComponente = tipoComponente;
+    }
+
+    public ModalidadEvaluativa getModalidad() {
+        return modalidad;
+    }
+
+    public void setModalidad(ModalidadEvaluativa modalidad) {
+        this.modalidad = modalidad;
+    }
+
+    public EstadoActividadEvaluativa getEstado() {
+        return estado;
+    }
+
+    public void setEstado(EstadoActividadEvaluativa estado) {
+        this.estado = estado;
+    }
+
+    public Long getSieeVersionId() {
+        return sieeVersionId;
+    }
+
+    public void setSieeVersionId(Long sieeVersionId) {
+        this.sieeVersionId = sieeVersionId;
+    }
+
+    public Boolean getEsAdaptacionPiar() {
+        return esAdaptacionPiar;
+    }
+
+    public void setEsAdaptacionPiar(Boolean esAdaptacionPiar) {
+        this.esAdaptacionPiar = esAdaptacionPiar;
+    }
+
+    public String getCriteriosAdaptadosPiar() {
+        return criteriosAdaptadosPiar;
+    }
+
+    public void setCriteriosAdaptadosPiar(String criteriosAdaptadosPiar) {
+        this.criteriosAdaptadosPiar = criteriosAdaptadosPiar;
     }
 
     public Boolean getActivo() {

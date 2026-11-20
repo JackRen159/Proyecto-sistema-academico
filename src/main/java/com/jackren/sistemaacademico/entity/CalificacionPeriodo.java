@@ -16,7 +16,8 @@ import java.time.LocalDateTime;
     indexes = {
         @Index(name = "idx_calif_periodo_matricula", columnList = "matricula_id"),
         @Index(name = "idx_calif_periodo_asignatura", columnList = "asignatura_id"),
-        @Index(name = "idx_calif_periodo_periodo", columnList = "periodo_academico_id")
+        @Index(name = "idx_calif_periodo_periodo", columnList = "periodo_academico_id"),
+        @Index(name = "idx_calif_periodo_origen", columnList = "origen")
     }
 )
 public class CalificacionPeriodo {
@@ -53,8 +54,16 @@ public class CalificacionPeriodo {
     @Column(name = "nota_final", precision = 4, scale = 2)
     private BigDecimal notaFinal;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 35)
+    private OrigenCalificacion origen = OrigenCalificacion.CALCULADA;
+
     @Column(length = 255)
     private String observaciones;
+
+    @Version
+    @Column(nullable = false)
+    private Long version = 0L;
 
     @CreationTimestamp
     @Column(name = "fecha_calculo", nullable = false, updatable = false)
@@ -80,6 +89,7 @@ public class CalificacionPeriodo {
         this.desempeno = desempeno;
         this.aprobada = aprobada;
         this.notaFinal = notaDefinitiva;
+        this.origen = OrigenCalificacion.CALCULADA;
     }
 
     public Long getId() {
@@ -154,12 +164,28 @@ public class CalificacionPeriodo {
         this.notaFinal = notaFinal;
     }
 
+    public OrigenCalificacion getOrigen() {
+        return origen;
+    }
+
+    public void setOrigen(OrigenCalificacion origen) {
+        this.origen = origen;
+    }
+
     public String getObservaciones() {
         return observaciones;
     }
 
     public void setObservaciones(String observaciones) {
         this.observaciones = observaciones;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     public LocalDateTime getFechaCalculo() {

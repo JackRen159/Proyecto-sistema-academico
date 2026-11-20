@@ -1,5 +1,9 @@
 package com.jackren.sistemaacademico.dto;
 
+import com.jackren.sistemaacademico.entity.CategoriaEvaluativa;
+import com.jackren.sistemaacademico.entity.EstadoActividadEvaluativa;
+import com.jackren.sistemaacademico.entity.ModalidadEvaluativa;
+import com.jackren.sistemaacademico.entity.TipoComponenteEvaluativo;
 import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
@@ -26,6 +30,18 @@ public class ActividadEvaluativaRequest {
     private BigDecimal porcentaje;
 
     private LocalDate fechaEvaluacion;
+
+    private CategoriaEvaluativa categoriaEvaluativa = CategoriaEvaluativa.COGNITIVA;
+
+    private TipoComponenteEvaluativo tipoComponente = TipoComponenteEvaluativo.TALLER;
+
+    private ModalidadEvaluativa modalidad = ModalidadEvaluativa.HETEROEVALUACION;
+
+    private EstadoActividadEvaluativa estado = EstadoActividadEvaluativa.PUBLICADA;
+
+    private Boolean esAdaptacionPiar = false;
+
+    private String criteriosAdaptadosPiar;
 
     public ActividadEvaluativaRequest() {
     }
@@ -76,5 +92,53 @@ public class ActividadEvaluativaRequest {
 
     public void setFechaEvaluacion(LocalDate fechaEvaluacion) {
         this.fechaEvaluacion = fechaEvaluacion;
+    }
+
+    public CategoriaEvaluativa getCategoriaEvaluativa() {
+        return categoriaEvaluativa;
+    }
+
+    public void setCategoriaEvaluativa(CategoriaEvaluativa categoriaEvaluativa) {
+        this.categoriaEvaluativa = categoriaEvaluativa;
+    }
+
+    public TipoComponenteEvaluativo getTipoComponente() {
+        return tipoComponente;
+    }
+
+    public void setTipoComponente(TipoComponenteEvaluativo tipoComponente) {
+        this.tipoComponente = tipoComponente;
+    }
+
+    public ModalidadEvaluativa getModalidad() {
+        return modalidad;
+    }
+
+    public void setModalidad(ModalidadEvaluativa modalidad) {
+        this.modalidad = modalidad;
+    }
+
+    public EstadoActividadEvaluativa getEstado() {
+        return estado;
+    }
+
+    public void setEstado(EstadoActividadEvaluativa estado) {
+        this.estado = estado;
+    }
+
+    public Boolean getEsAdaptacionPiar() {
+        return esAdaptacionPiar;
+    }
+
+    public void setEsAdaptacionPiar(Boolean esAdaptacionPiar) {
+        this.esAdaptacionPiar = esAdaptacionPiar;
+    }
+
+    public String getCriteriosAdaptadosPiar() {
+        return criteriosAdaptadosPiar;
+    }
+
+    public void setCriteriosAdaptadosPiar(String criteriosAdaptadosPiar) {
+        this.criteriosAdaptadosPiar = criteriosAdaptadosPiar;
     }
 }

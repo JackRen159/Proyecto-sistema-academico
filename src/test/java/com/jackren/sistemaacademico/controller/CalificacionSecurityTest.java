@@ -52,6 +52,15 @@ class CalificacionSecurityTest {
     private CalificacionService calificacionService;
 
     @MockitoBean
+    private com.jackren.sistemaacademico.service.NivelacionCalificacionService nivelacionService;
+
+    @MockitoBean
+    private com.jackren.sistemaacademico.service.ReclamacionCalificacionService reclamacionService;
+
+    @MockitoBean
+    private com.jackren.sistemaacademico.service.ConvalidacionCalificacionService convalidacionService;
+
+    @MockitoBean
     private UsuarioRepository usuarioRepository;
 
     @Test
@@ -111,7 +120,7 @@ class CalificacionSecurityTest {
         ActividadEvaluativaResponse resp = new ActividadEvaluativaResponse();
         resp.setId(10L);
         resp.setNombre("Taller de Gravitación");
-        when(calificacionService.crearActividad(any(ActividadEvaluativaRequest.class))).thenReturn(resp);
+        when(calificacionService.crearActividad(any(), any(), any())).thenReturn(resp);
 
         mockMvc.perform(post("/api/calificaciones/actividades")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -130,7 +139,7 @@ class CalificacionSecurityTest {
         CalificacionActividadResponse calResp = new CalificacionActividadResponse();
         calResp.setId(100L);
         calResp.setValor(new BigDecimal("4.50"));
-        when(calificacionService.registrarCalificacionesLote(any(), any(), any())).thenReturn(List.of(calResp));
+        when(calificacionService.registrarCalificacionesLote(any(), any(), any(), any())).thenReturn(List.of(calResp));
 
         mockMvc.perform(post("/api/calificaciones/actividades/notas/lote")
                         .contentType(MediaType.APPLICATION_JSON)

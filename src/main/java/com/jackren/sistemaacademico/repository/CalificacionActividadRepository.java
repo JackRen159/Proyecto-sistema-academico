@@ -18,6 +18,8 @@ public interface CalificacionActividadRepository extends JpaRepository<Calificac
 
     boolean existsByMatriculaId(Long matriculaId);
 
+    boolean existsByActividadId(Long actividadId);
+
     List<CalificacionActividad> findByActividadPeriodoAcademicoIdAndMatriculaId(Long periodoId, Long matriculaId);
 
     boolean existsByActividadIdAndMatriculaId(Long actividadId, Long matriculaId);

@@ -8,6 +8,7 @@
  * Do not edit the class manually.
  */
 import { DesempenoNacional } from './desempeno-nacional';
+import { EstadoCalificacionActividad } from './estado-calificacion-actividad';
 
 
 export interface CalificacionActividadResponse { 
@@ -21,6 +22,10 @@ export interface CalificacionActividadResponse {
     estudianteNombreCompleto?: string;
     estudianteDocumento?: string;
     valor?: number;
+    estado?: EstadoCalificacionActividad;
+    fechaSupletoria?: string;
+    valorCualitativo?: string;
+    observacionDescriptiva?: string;
     desempeno?: DesempenoNacional;
     observaciones?: string;
     fechaRegistro?: string;

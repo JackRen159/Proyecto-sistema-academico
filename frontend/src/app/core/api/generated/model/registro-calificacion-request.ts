@@ -7,11 +7,19 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { EstadoCalificacionActividad } from './estado-calificacion-actividad';
 
 
 export interface RegistroCalificacionRequest { 
     matriculaId: number;
-    valor: number;
+    valor?: number;
+    estado?: EstadoCalificacionActividad;
+    fechaSupletoria?: string;
+    valorCualitativo?: string;
+    observacionDescriptiva?: string;
+    motivoCorreccion?: string;
     observaciones?: string;
 }
+
+
 

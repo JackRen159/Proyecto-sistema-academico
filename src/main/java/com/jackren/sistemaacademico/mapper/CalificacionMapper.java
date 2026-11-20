@@ -53,7 +53,8 @@ public class CalificacionMapper {
 
     public ActividadEvaluativa toEntity(ActividadEvaluativaRequest request,
                                         AsignacionAcademica asignacion,
-                                        PeriodoAcademico periodo) {
+                                        PeriodoAcademico periodo,
+                                        ConfiguracionSieeVersion sieeVersion) {
         if (request == null) {
             return null;
         }
@@ -65,6 +66,21 @@ public class CalificacionMapper {
         actividad.setDescripcion(request.getDescripcion());
         actividad.setPorcentaje(request.getPorcentaje());
         actividad.setFechaEvaluacion(request.getFechaEvaluacion() != null ? request.getFechaEvaluacion() : LocalDate.now());
+        if (request.getCategoriaEvaluativa() != null) {
+            actividad.setCategoriaEvaluativa(request.getCategoriaEvaluativa());
+        }
+        if (request.getTipoComponente() != null) {
+            actividad.setTipoComponente(request.getTipoComponente());
+        }
+        if (request.getModalidad() != null) {
+            actividad.setModalidad(request.getModalidad());
+        }
+        if (request.getEstado() != null) {
+            actividad.setEstado(request.getEstado());
+        }
+        actividad.setSieeVersion(sieeVersion);
+        actividad.setEsAdaptacionPiar(Boolean.TRUE.equals(request.getEsAdaptacionPiar()));
+        actividad.setCriteriosAdaptadosPiar(request.getCriteriosAdaptadosPiar());
         actividad.setActivo(true);
         return actividad;
     }
@@ -103,6 +119,15 @@ public class CalificacionMapper {
         response.setDescripcion(actividad.getDescripcion());
         response.setPorcentaje(actividad.getPorcentaje());
         response.setFechaEvaluacion(actividad.getFechaEvaluacion());
+        response.setCategoriaEvaluativa(actividad.getCategoriaEvaluativa());
+        response.setTipoComponente(actividad.getTipoComponente());
+        response.setModalidad(actividad.getModalidad());
+        response.setEstado(actividad.getEstado());
+        if (actividad.getSieeVersion() != null) {
+            response.setSieeVersionId(actividad.getSieeVersion().getId());
+        }
+        response.setEsAdaptacionPiar(actividad.getEsAdaptacionPiar());
+        response.setCriteriosAdaptadosPiar(actividad.getCriteriosAdaptadosPiar());
         response.setActivo(actividad.getActivo());
         response.setFechaCreacion(actividad.getFechaCreacion());
         return response;
@@ -119,6 +144,10 @@ public class CalificacionMapper {
         calificacion.setActividad(actividad);
         calificacion.setMatricula(matricula);
         calificacion.setValor(request.getValor());
+        calificacion.setEstado(request.getEstado() != null ? request.getEstado() : EstadoCalificacionActividad.CALIFICADA);
+        calificacion.setFechaSupletoria(request.getFechaSupletoria());
+        calificacion.setValorCualitativo(request.getValorCualitativo());
+        calificacion.setObservacionDescriptiva(request.getObservacionDescriptiva());
         calificacion.setObservaciones(request.getObservaciones());
         return calificacion;
     }
@@ -149,6 +178,11 @@ public class CalificacionMapper {
         }
 
         response.setValor(calificacion.getValor());
+        response.setEstado(calificacion.getEstado());
+        response.setFechaSupletoria(calificacion.getFechaSupletoria());
+        response.setValorCualitativo(calificacion.getValorCualitativo());
+        response.setObservacionDescriptiva(calificacion.getObservacionDescriptiva());
+
         if (escala != null && calificacion.getValor() != null) {
             response.setDesempeno(escala.homologarDesempeno(calificacion.getValor()));
         }
@@ -193,9 +227,205 @@ public class CalificacionMapper {
         response.setAprobada(calificacion.getAprobada());
         response.setNotaRecuperacion(calificacion.getNotaRecuperacion());
         response.setNotaFinal(calificacion.getNotaFinal());
+        response.setOrigen(calificacion.getOrigen());
         response.setObservaciones(calificacion.getObservaciones());
         response.setFechaCalculo(calificacion.getFechaCalculo());
         response.setFechaActualizacion(calificacion.getFechaActualizacion());
+        return response;
+    }
+
+    public CalificacionAreaPeriodoResponse toResponse(CalificacionAreaPeriodo califArea) {
+        if (califArea == null) {
+            return null;
+        }
+
+        CalificacionAreaPeriodoResponse response = new CalificacionAreaPeriodoResponse();
+        response.setId(califArea.getId());
+
+        if (califArea.getMatricula() != null) {
+            Matricula mat = califArea.getMatricula();
+            response.setMatriculaId(mat.getId());
+            response.setNumeroMatricula(mat.getNumeroMatricula());
+            if (mat.getEstudiante() != null) {
+                response.setEstudianteId(mat.getEstudiante().getId());
+                response.setEstudianteNombreCompleto(mat.getEstudiante().getNombres() + " " + mat.getEstudiante().getApellidos());
+                response.setEstudianteDocumento(mat.getEstudiante().getDocumento());
+            }
+        }
+
+        if (califArea.getArea() != null) {
+            response.setAreaId(califArea.getArea().getId());
+            response.setAreaNombre(califArea.getArea().getNombre());
+        }
+
+        if (califArea.getPeriodoAcademico() != null) {
+            response.setPeriodoAcademicoId(califArea.getPeriodoAcademico().getId());
+            response.setPeriodoNombre(califArea.getPeriodoAcademico().getNombre());
+            response.setPeriodoNumero(califArea.getPeriodoAcademico().getNumero());
+        }
+
+        response.setNotaDefinitiva(califArea.getNotaDefinitiva());
+        response.setDesempeno(califArea.getDesempeno());
+        response.setAprobada(califArea.getAprobada());
+        response.setOrigen(califArea.getOrigen());
+        response.setFechaCalculo(califArea.getFechaCalculo());
+        return response;
+    }
+
+    public ActaNivelacionResponse toResponse(ActaNivelacion acta) {
+        if (acta == null) {
+            return null;
+        }
+
+        ActaNivelacionResponse response = new ActaNivelacionResponse();
+        response.setId(acta.getId());
+        response.setNumeroActa(acta.getNumeroActa());
+
+        if (acta.getCalificacionPeriodo() != null) {
+            response.setCalificacionPeriodoId(acta.getCalificacionPeriodo().getId());
+        }
+
+        if (acta.getMatricula() != null) {
+            Matricula mat = acta.getMatricula();
+            response.setMatriculaId(mat.getId());
+            response.setNumeroMatricula(mat.getNumeroMatricula());
+            if (mat.getEstudiante() != null) {
+                response.setEstudianteId(mat.getEstudiante().getId());
+                response.setEstudianteNombreCompleto(mat.getEstudiante().getNombres() + " " + mat.getEstudiante().getApellidos());
+            }
+        }
+
+        if (acta.getAsignatura() != null) {
+            response.setAsignaturaId(acta.getAsignatura().getId());
+            response.setAsignaturaNombre(acta.getAsignatura().getNombre());
+        }
+
+        if (acta.getPeriodoAcademico() != null) {
+            response.setPeriodoAcademicoId(acta.getPeriodoAcademico().getId());
+            response.setPeriodoNombre(acta.getPeriodoAcademico().getNombre());
+        }
+
+        if (acta.getDocente() != null) {
+            response.setDocenteId(acta.getDocente().getId());
+            response.setDocenteNombreCompleto(acta.getDocente().getNombres() + " " + acta.getDocente().getApellidos());
+        }
+
+        response.setFechaSustentacion(acta.getFechaSustentacion());
+        response.setAsistencia(acta.getAsistencia());
+        response.setNotaOriginal(acta.getNotaOriginal());
+        response.setNotaObtenida(acta.getNotaObtenida());
+        response.setFormulaAplicada(acta.getFormulaAplicada());
+        response.setNotaFinalResultante(acta.getNotaFinalResultante());
+        response.setDesempenoResultante(acta.getDesempenoResultante());
+        response.setEstrategiaPedagogica(acta.getEstrategiaPedagogica());
+        response.setEvidenciasSoporte(acta.getEvidenciasSoporte());
+        response.setObservaciones(acta.getObservaciones());
+        response.setFechaRegistro(acta.getFechaRegistro());
+        return response;
+    }
+
+    public ReclamacionCalificacionResponse toResponse(ReclamacionCalificacion rec) {
+        if (rec == null) {
+            return null;
+        }
+
+        ReclamacionCalificacionResponse response = new ReclamacionCalificacionResponse();
+        response.setId(rec.getId());
+        response.setNumeroRadicado(rec.getNumeroRadicado());
+        response.setTipoCalificacion(rec.getTipoCalificacion());
+        response.setReferenciaId(rec.getReferenciaId());
+
+        if (rec.getMatricula() != null) {
+            Matricula mat = rec.getMatricula();
+            response.setMatriculaId(mat.getId());
+            response.setNumeroMatricula(mat.getNumeroMatricula());
+            if (mat.getEstudiante() != null) {
+                response.setEstudianteId(mat.getEstudiante().getId());
+                response.setEstudianteNombreCompleto(mat.getEstudiante().getNombres() + " " + mat.getEstudiante().getApellidos());
+            }
+        }
+
+        if (rec.getSolicitanteUsuario() != null) {
+            response.setSolicitanteUsuarioId(rec.getSolicitanteUsuario().getId());
+        }
+
+        response.setRolSolicitante(rec.getRolSolicitante());
+        response.setMotivoReclamacion(rec.getMotivoReclamacion());
+        response.setSoporteUrl(rec.getSoporteUrl());
+        response.setEstado(rec.getEstado());
+        response.setFechaRadicacion(rec.getFechaRadicacion());
+        response.setFechaLimiteRespuesta(rec.getFechaLimiteRespuesta());
+        response.setDecisionPrimeraInstancia(rec.getDecisionPrimeraInstancia());
+        response.setMotivoPrimeraInstancia(rec.getMotivoPrimeraInstancia());
+        response.setFechaDecisionPrimeraInstancia(rec.getFechaDecisionPrimeraInstancia());
+
+        if (rec.getDocenteResolutor() != null) {
+            response.setDocenteResolutorNombre(rec.getDocenteResolutor().getUsername());
+        }
+
+        response.setDecisionSegundaInstancia(rec.getDecisionSegundaInstancia());
+        response.setMotivoSegundaInstancia(rec.getMotivoSegundaInstancia());
+        response.setFechaDecisionSegundaInstancia(rec.getFechaDecisionSegundaInstancia());
+
+        if (rec.getCoordinadorResolutor() != null) {
+            response.setCoordinadorResolutorNombre(rec.getCoordinadorResolutor().getUsername());
+        }
+
+        response.setNuevaNotaAprobada(rec.getNuevaNotaAprobada());
+        return response;
+    }
+
+    public ConvalidacionCalificacionResponse toResponse(ConvalidacionCalificacion conv) {
+        if (conv == null) {
+            return null;
+        }
+
+        ConvalidacionCalificacionResponse response = new ConvalidacionCalificacionResponse();
+        response.setId(conv.getId());
+        response.setNumeroActa(conv.getNumeroActa());
+
+        if (conv.getMatricula() != null) {
+            Matricula mat = conv.getMatricula();
+            response.setMatriculaId(mat.getId());
+            response.setNumeroMatricula(mat.getNumeroMatricula());
+            if (mat.getEstudiante() != null) {
+                response.setEstudianteId(mat.getEstudiante().getId());
+                response.setEstudianteNombreCompleto(mat.getEstudiante().getNombres() + " " + mat.getEstudiante().getApellidos());
+            }
+        }
+
+        if (conv.getPeriodoAcademico() != null) {
+            response.setPeriodoAcademicoId(conv.getPeriodoAcademico().getId());
+            response.setPeriodoNombre(conv.getPeriodoAcademico().getNombre());
+        }
+
+        response.setTipoOrigen(conv.getTipoOrigen());
+        response.setInstitucionOrigen(conv.getInstitucionOrigen());
+        response.setActaSoporteUrl(conv.getActaSoporteUrl());
+        response.setObservaciones(conv.getObservaciones());
+
+        if (conv.getCoordinador() != null) {
+            response.setCoordinadorNombre(conv.getCoordinador().getUsername());
+        }
+
+        response.setFechaConvalidacion(conv.getFechaConvalidacion());
+        response.setFechaCreacion(conv.getFechaCreacion());
+
+        if (conv.getDetalles() != null) {
+            for (ConvalidacionCalificacionDetalle det : conv.getDetalles()) {
+                ConvalidacionDetalleResponse detResp = new ConvalidacionDetalleResponse();
+                detResp.setId(det.getId());
+                if (det.getAsignatura() != null) {
+                    detResp.setAsignaturaId(det.getAsignatura().getId());
+                    detResp.setAsignaturaNombre(det.getAsignatura().getNombre());
+                }
+                detResp.setNotaConvalidada(det.getNotaConvalidada());
+                detResp.setDesempeno(det.getDesempeno());
+                detResp.setObservaciones(det.getObservaciones());
+                response.getDetalles().add(detResp);
+            }
+        }
+
         return response;
     }
 

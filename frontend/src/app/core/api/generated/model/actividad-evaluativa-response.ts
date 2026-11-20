@@ -7,6 +7,10 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { EstadoActividadEvaluativa } from './estado-actividad-evaluativa';
+import { TipoComponenteEvaluativo } from './tipo-componente-evaluativo';
+import { ModalidadEvaluativa } from './modalidad-evaluativa';
+import { CategoriaEvaluativa } from './categoria-evaluativa';
 
 
 export interface ActividadEvaluativaResponse { 
@@ -24,7 +28,16 @@ export interface ActividadEvaluativaResponse {
     descripcion?: string;
     porcentaje?: number;
     fechaEvaluacion?: string;
+    categoriaEvaluativa?: CategoriaEvaluativa;
+    tipoComponente?: TipoComponenteEvaluativo;
+    modalidad?: ModalidadEvaluativa;
+    estado?: EstadoActividadEvaluativa;
+    sieeVersionId?: number;
+    esAdaptacionPiar?: boolean;
+    criteriosAdaptadosPiar?: string;
     activo?: boolean;
     fechaCreacion?: string;
 }
+
+
 

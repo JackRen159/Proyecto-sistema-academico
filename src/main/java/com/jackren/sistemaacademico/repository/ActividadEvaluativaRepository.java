@@ -1,6 +1,7 @@
 package com.jackren.sistemaacademico.repository;
 
 import com.jackren.sistemaacademico.entity.ActividadEvaluativa;
+import com.jackren.sistemaacademico.entity.EstadoActividadEvaluativa;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,6 +16,9 @@ public interface ActividadEvaluativaRepository extends JpaRepository<ActividadEv
     List<ActividadEvaluativa> findByAsignacionAcademicaIdAndPeriodoAcademicoIdAndActivoTrue(Long asignacionId, Long periodoId);
 
     List<ActividadEvaluativa> findByAsignacionAcademicaIdAndPeriodoAcademicoId(Long asignacionId, Long periodoId);
+
+    List<ActividadEvaluativa> findByAsignacionAcademicaIdAndPeriodoAcademicoIdAndEstadoAndActivoTrue(
+            Long asignacionId, Long periodoId, EstadoActividadEvaluativa estado);
 
     @Query("SELECT COALESCE(SUM(a.porcentaje), 0) FROM ActividadEvaluativa a WHERE a.asignacionAcademica.id = :asignacionId AND a.periodoAcademico.id = :periodoId AND a.activo = true")
     BigDecimal sumPorcentajeByAsignacionAndPeriodo(@Param("asignacionId") Long asignacionId, @Param("periodoId") Long periodoId);

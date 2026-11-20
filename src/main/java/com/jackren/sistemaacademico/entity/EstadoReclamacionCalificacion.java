@@ -1,0 +1,10 @@
+package com.jackren.sistemaacademico.entity;
+
+public enum EstadoReclamacionCalificacion {
+    RADICADA_PRIMERA_INSTANCIA,
+    RESUELTA_FAVORABLE_DOCENTE,
+    RECHAZADA_DOCENTE,
+    ESCALADA_SEGUNDA_INSTANCIA,
+    RESUELTA_FAVORABLE_COORDINACION,
+    RECHAZADA_COORDINACION
+}

@@ -5,6 +5,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -15,7 +16,8 @@ import java.time.LocalDateTime;
     },
     indexes = {
         @Index(name = "idx_calificaciones_actividad", columnList = "actividad_id"),
-        @Index(name = "idx_calificaciones_matricula", columnList = "matricula_id")
+        @Index(name = "idx_calificaciones_matricula", columnList = "matricula_id"),
+        @Index(name = "idx_calif_actividad_estado", columnList = "estado")
     }
 )
 public class CalificacionActividad {
@@ -32,11 +34,28 @@ public class CalificacionActividad {
     @JoinColumn(name = "matricula_id", nullable = false)
     private Matricula matricula;
 
-    @Column(nullable = false, precision = 4, scale = 2)
+    @Column(precision = 4, scale = 2)
     private BigDecimal valor;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 35)
+    private EstadoCalificacionActividad estado = EstadoCalificacionActividad.CALIFICADA;
+
+    @Column(name = "fecha_supletoria")
+    private LocalDate fechaSupletoria;
+
+    @Column(name = "valor_cualitativo", length = 50)
+    private String valorCualitativo;
+
+    @Column(name = "observacion_descriptiva", columnDefinition = "TEXT")
+    private String observacionDescriptiva;
 
     @Column(length = 255)
     private String observaciones;
+
+    @Version
+    @Column(nullable = false)
+    private Long version = 0L;
 
     @CreationTimestamp
     @Column(name = "fecha_registro", nullable = false, updatable = false)
@@ -54,6 +73,7 @@ public class CalificacionActividad {
         this.matricula = matricula;
         this.valor = valor;
         this.observaciones = observaciones;
+        this.estado = EstadoCalificacionActividad.CALIFICADA;
     }
 
     public Long getId() {
@@ -88,12 +108,52 @@ public class CalificacionActividad {
         this.valor = valor;
     }
 
+    public EstadoCalificacionActividad getEstado() {
+        return estado;
+    }
+
+    public void setEstado(EstadoCalificacionActividad estado) {
+        this.estado = estado;
+    }
+
+    public LocalDate getFechaSupletoria() {
+        return fechaSupletoria;
+    }
+
+    public void setFechaSupletoria(LocalDate fechaSupletoria) {
+        this.fechaSupletoria = fechaSupletoria;
+    }
+
+    public String getValorCualitativo() {
+        return valorCualitativo;
+    }
+
+    public void setValorCualitativo(String valorCualitativo) {
+        this.valorCualitativo = valorCualitativo;
+    }
+
+    public String getObservacionDescriptiva() {
+        return observacionDescriptiva;
+    }
+
+    public void setObservacionDescriptiva(String observacionDescriptiva) {
+        this.observacionDescriptiva = observacionDescriptiva;
+    }
+
     public String getObservaciones() {
         return observaciones;
     }
 
     public void setObservaciones(String observaciones) {
         this.observaciones = observaciones;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     public LocalDateTime getFechaRegistro() {

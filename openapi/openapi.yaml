@@ -4591,6 +4591,468 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '403':
           $ref: '#/components/responses/ForbiddenError'
+  /api/calificaciones/actividades/{actividadId}:
+    put:
+      tags:
+      - Calificaciones y SIEE
+      summary: Actualizar actividad evaluativa configurada
+      description: Permite modificar nombre, ponderación, fecha o criterios de una actividad con justificación si ya está calificada.
+      operationId: actualizarActividad
+      parameters:
+      - name: actividadId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: motivoJustificacion
+        in: query
+        required: false
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActividadEvaluativaRequest'
+      responses:
+        '200':
+          description: Actividad evaluativa actualizada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActividadEvaluativaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+    delete:
+      tags:
+      - Calificaciones y SIEE
+      summary: Desactivar actividad evaluativa
+      description: Desactiva una actividad evaluativa que no tenga notas registradas.
+      operationId: eliminarActividad
+      parameters:
+      - name: actividadId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '204':
+          description: Actividad evaluativa desactivada exitosamente.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/calificaciones/nivelaciones:
+    post:
+      tags:
+      - Calificaciones y SIEE
+      summary: Registrar Acta de Nivelación y Apoyo Pedagógico (UC-18)
+      description: Asienta el resultado del plan de apoyo aplicando la fórmula matemática del SIEE con no desmejoramiento.
+      operationId: registrarActaNivelacion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActaNivelacionRequest'
+      responses:
+        '200':
+          description: Acta de nivelación registrada y calificada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActaNivelacionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/calificaciones/nivelaciones/matricula/{matriculaId}:
+    get:
+      tags:
+      - Calificaciones y SIEE
+      summary: Listar actas de nivelación de una matrícula
+      description: Retorna el historial de actas de nivelación registradas para el estudiante.
+      operationId: listarNivelacionesMatricula
+      parameters:
+      - name: matriculaId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Actas de nivelación obtenidas exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ActaNivelacionResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  /api/calificaciones/mis-calificaciones:
+    get:
+      tags:
+      - Calificaciones y SIEE
+      summary: Consultar calificaciones propias del estudiante autenticado (UC-02)
+      description: Consulta contextual segura por sesión del estudiante con estructura jerárquica de Áreas y Asignaturas.
+      operationId: consultarMisCalificaciones
+      parameters:
+      - name: anioLectivoId
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int64
+      - name: periodoId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Calificaciones propias obtenidas exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsultaCalificacionesEstudianteResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/calificaciones/acudiente/estudiante/{estudianteId}:
+    get:
+      tags:
+      - Calificaciones y SIEE
+      summary: Consultar calificaciones de estudiante vinculado para acudiente (UC-08)
+      description: Consulta contextual para acudientes verificando vínculo activo y ausencia de restricciones legales en servidor.
+      operationId: consultarCalificacionesAcudiente
+      parameters:
+      - name: estudianteId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: anioLectivoId
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int64
+      - name: periodoId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Calificaciones del estudiante vinculado obtenidas exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsultaCalificacionesEstudianteResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/calificaciones/reclamaciones:
+    post:
+      tags:
+      - Calificaciones y SIEE
+      summary: Radicar reclamación académica sobre calificación (UC-PROV-15)
+      description: Permite al estudiante o acudiente radicar una reclamación con cálculo de términos en días hábiles.
+      operationId: radicarReclamacion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReclamacionCalificacionRequest'
+      responses:
+        '200':
+          description: Reclamación radicada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReclamacionCalificacionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/calificaciones/reclamaciones/{reclamacionId}/primera-instancia:
+    put:
+      tags:
+      - Calificaciones y SIEE
+      summary: Resolver reclamación en primera instancia por el docente (UC-PROV-15)
+      description: El docente titular decide aceptar con rectificación de nota o rechazar con motivación escrita.
+      operationId: resolverPrimeraInstancia
+      parameters:
+      - name: reclamacionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResolverReclamacionRequest'
+      responses:
+        '200':
+          description: Reclamación resuelta en primera instancia.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReclamacionCalificacionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/calificaciones/reclamaciones/{reclamacionId}/escalar:
+    put:
+      tags:
+      - Calificaciones y SIEE
+      summary: Escalar reclamación a segunda instancia ante Coordinación (UC-PROV-15)
+      description: Interpone recurso de apelación ante Coordinación Académica tras decisión de primera instancia.
+      operationId: escalarSegundaInstancia
+      parameters:
+      - name: reclamacionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Reclamación escalada a segunda instancia.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReclamacionCalificacionResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/calificaciones/reclamaciones/{reclamacionId}/segunda-instancia:
+    put:
+      tags:
+      - Calificaciones y SIEE
+      summary: Resolver reclamación en segunda instancia por Coordinación (UC-PROV-15)
+      description: El Coordinador Académico emite fallo definitivo con rectificación o ratificación de la nota.
+      operationId: resolverSegundaInstancia
+      parameters:
+      - name: reclamacionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResolverReclamacionRequest'
+      responses:
+        '200':
+          description: Reclamación resuelta definitivamente en segunda instancia.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReclamacionCalificacionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/calificaciones/reclamaciones/matricula/{matriculaId}:
+    get:
+      tags:
+      - Calificaciones y SIEE
+      summary: Listar reclamaciones de una matrícula
+      description: Retorna el historial de reclamaciones presentadas sobre calificaciones de un estudiante.
+      operationId: listarReclamacionesMatricula
+      parameters:
+      - name: matriculaId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Reclamaciones obtenidas exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReclamacionCalificacionResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  /api/calificaciones/convalidaciones:
+    post:
+      tags:
+      - Calificaciones y SIEE
+      summary: Convalidar calificaciones de periodos previos (UC-PROV-16)
+      description: Registra mediante Acta oficial notas de periodos anteriores por traslado entrante o promoción anticipada.
+      operationId: registrarConvalidacion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConvalidacionCalificacionRequest'
+      responses:
+        '200':
+          description: Convalidación asentada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConvalidacionCalificacionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/calificaciones/convalidaciones/matricula/{matriculaId}:
+    get:
+      tags:
+      - Calificaciones y SIEE
+      summary: Listar actas de convalidación de una matrícula
+      description: Retorna las convalidaciones y homologaciones registradas para el estudiante.
+      operationId: listarConvalidacionesMatricula
+      parameters:
+      - name: matriculaId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Convalidaciones obtenidas exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConvalidacionCalificacionResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  /api/calificaciones/sabana:
+    get:
+      tags:
+      - Calificaciones y SIEE
+      summary: Consultar sábana consolidada de calificaciones del grupo (UC-PROV-17)
+      description: Matriz integral de estudiantes vs áreas y asignaturas con alertas de riesgo académico.
+      operationId: consultarSabanaConsolidada
+      parameters:
+      - name: grupoId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: periodoId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Sábana consolidada obtenida exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SabanaConsolidadaResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/calificaciones/avance-docente:
+    get:
+      tags:
+      - Calificaciones y SIEE
+      summary: Consultar tablero de avance y completitud docente (UC-PROV-17)
+      description: Monitoreo de porcentaje de planeación y digitación de notas por curso y asignatura antes del cierre.
+      operationId: consultarTableroAvanceDocente
+      parameters:
+      - name: anioLectivoId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: periodoId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Tablero de avance obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TableroAvanceDocenteResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
   /api/asistencia/alertas/configuracion:
     post:
       tags:
@@ -7336,6 +7798,20 @@ components:
           type: string
           format: date
           example: '2026-03-15'
+        categoriaEvaluativa:
+          $ref: '#/components/schemas/CategoriaEvaluativa'
+        tipoComponente:
+          $ref: '#/components/schemas/TipoComponenteEvaluativo'
+        modalidad:
+          $ref: '#/components/schemas/ModalidadEvaluativa'
+        estado:
+          $ref: '#/components/schemas/EstadoActividadEvaluativa'
+        esAdaptacionPiar:
+          type: boolean
+          example: false
+        criteriosAdaptadosPiar:
+          type: string
+          example: Evaluación con tiempo extendido y soporte visual (Decreto 1421)
     ActividadEvaluativaResponse:
       type: object
       properties:
@@ -7388,6 +7864,24 @@ components:
           type: string
           format: date
           example: '2026-03-15'
+        categoriaEvaluativa:
+          $ref: '#/components/schemas/CategoriaEvaluativa'
+        tipoComponente:
+          $ref: '#/components/schemas/TipoComponenteEvaluativo'
+        modalidad:
+          $ref: '#/components/schemas/ModalidadEvaluativa'
+        estado:
+          $ref: '#/components/schemas/EstadoActividadEvaluativa'
+        sieeVersionId:
+          type: integer
+          format: int64
+          example: 1
+        esAdaptacionPiar:
+          type: boolean
+          example: false
+        criteriosAdaptadosPiar:
+          type: string
+          example: Criterios flexibilizados según PIAR
         activo:
           type: boolean
           example: true
@@ -7398,7 +7892,6 @@ components:
       type: object
       required:
       - matriculaId
-      - valor
       properties:
         matriculaId:
           type: integer
@@ -7408,6 +7901,21 @@ components:
           type: number
           format: float
           example: 4.5
+        estado:
+          $ref: '#/components/schemas/EstadoCalificacionActividad'
+        fechaSupletoria:
+          type: string
+          format: date
+          example: '2026-03-20'
+        valorCualitativo:
+          type: string
+          example: AVANZADO
+        observacionDescriptiva:
+          type: string
+          example: Demuestra dominio de las dimensiones comunicativa y cognitiva
+        motivoCorreccion:
+          type: string
+          example: Corrección justificada de digitación
         observaciones:
           type: string
           example: Excelente sustentación oral
@@ -7480,6 +7988,18 @@ components:
           type: number
           format: float
           example: 4.5
+        estado:
+          $ref: '#/components/schemas/EstadoCalificacionActividad'
+        fechaSupletoria:
+          type: string
+          format: date
+          example: '2026-03-20'
+        valorCualitativo:
+          type: string
+          example: AVANZADO
+        observacionDescriptiva:
+          type: string
+          example: Demuestra dominio cualitativo en la dimensión
         desempeno:
           $ref: '#/components/schemas/DesempenoNacional'
         observaciones:
@@ -7549,6 +8069,8 @@ components:
           type: number
           format: float
           example: 4.3
+        origen:
+          $ref: '#/components/schemas/OrigenCalificacion'
         observaciones:
           type: string
           example: Promovido en periodo ordinario
@@ -7602,6 +8124,630 @@ components:
         fechaAuditoria:
           type: string
           format: date-time
+    CalificacionAreaPeriodoResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        numeroMatricula:
+          type: string
+          example: MAT-2026-0001
+        estudianteId:
+          type: integer
+          format: int64
+          example: 7
+        estudianteNombreCompleto:
+          type: string
+          example: Isaac Newton
+        estudianteDocumento:
+          type: string
+          example: '10203040'
+        areaId:
+          type: integer
+          format: int64
+          example: 5
+        areaNombre:
+          type: string
+          example: Ciencias Naturales
+        periodoAcademicoId:
+          type: integer
+          format: int64
+          example: 10
+        periodoNombre:
+          type: string
+          example: Primer Periodo
+        periodoNumero:
+          type: integer
+          example: 1
+        notaDefinitiva:
+          type: number
+          format: float
+          example: 4.15
+        desempeno:
+          $ref: '#/components/schemas/DesempenoNacional'
+        aprobada:
+          type: boolean
+          example: true
+        origen:
+          $ref: '#/components/schemas/OrigenCalificacion'
+        fechaCalculo:
+          type: string
+          format: date-time
+    ActaNivelacionRequest:
+      type: object
+      required:
+      - calificacionPeriodoId
+      - fechaSustentacion
+      properties:
+        calificacionPeriodoId:
+          type: integer
+          format: int64
+          example: 1
+        fechaSustentacion:
+          type: string
+          format: date
+          example: '2026-04-15'
+        asistencia:
+          type: boolean
+          example: true
+        notaObtenida:
+          type: number
+          format: float
+          example: 3.8
+        estrategiaPedagogica:
+          type: string
+          example: Taller de refuerzo y sustentación oral individual
+        evidenciasSoporte:
+          type: string
+          example: https://colegio.edu.co/evidencias/acta-niv-001.pdf
+        observaciones:
+          type: string
+          example: Superación satisfactoria de debilidades
+    ActaNivelacionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        numeroActa:
+          type: string
+          example: ACT-NIV-2026-0001
+        calificacionPeriodoId:
+          type: integer
+          format: int64
+          example: 1
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        numeroMatricula:
+          type: string
+          example: MAT-2026-0001
+        estudianteId:
+          type: integer
+          format: int64
+          example: 7
+        estudianteNombreCompleto:
+          type: string
+          example: Isaac Newton
+        asignaturaId:
+          type: integer
+          format: int64
+          example: 100
+        asignaturaNombre:
+          type: string
+          example: Física
+        periodoAcademicoId:
+          type: integer
+          format: int64
+          example: 10
+        periodoNombre:
+          type: string
+          example: Primer Periodo
+        docenteId:
+          type: integer
+          format: int64
+          example: 50
+        docenteNombreCompleto:
+          type: string
+          example: Albert Einstein
+        fechaSustentacion:
+          type: string
+          format: date
+          example: '2026-04-15'
+        asistencia:
+          type: boolean
+          example: true
+        notaOriginal:
+          type: number
+          format: float
+          example: 2.4
+        notaObtenida:
+          type: number
+          format: float
+          example: 3.8
+        formulaAplicada:
+          $ref: '#/components/schemas/FormulaRecuperacionSiee'
+        notaFinalResultante:
+          type: number
+          format: float
+          example: 3.8
+        desempenoResultante:
+          $ref: '#/components/schemas/DesempenoNacional'
+        estrategiaPedagogica:
+          type: string
+          example: Taller de refuerzo y sustentación oral
+        evidenciasSoporte:
+          type: string
+          example: https://colegio.edu.co/evidencias/acta-niv-001.pdf
+        observaciones:
+          type: string
+          example: Debilidades superadas
+        fechaRegistro:
+          type: string
+          format: date-time
+    ReclamacionCalificacionRequest:
+      type: object
+      required:
+      - tipoCalificacion
+      - referenciaId
+      - matriculaId
+      - motivoReclamacion
+      properties:
+        tipoCalificacion:
+          $ref: '#/components/schemas/TipoCalificacionReclamacion'
+        referenciaId:
+          type: integer
+          format: int64
+          example: 10
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        motivoReclamacion:
+          type: string
+          example: Error en suma de puntos de rúbrica en la pregunta 4
+        soporteUrl:
+          type: string
+          example: https://colegio.edu.co/soportes/evaluacion-escaneada.pdf
+    ResolverReclamacionRequest:
+      type: object
+      required:
+      - decision
+      - motivo
+      properties:
+        decision:
+          $ref: '#/components/schemas/DecisionReclamacion'
+        motivo:
+          type: string
+          example: Se revisó la prueba física y efectivamente hubo un error aritmético de suma
+        nuevaNotaAprobada:
+          type: number
+          format: float
+          example: 4.2
+    ReclamacionCalificacionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        numeroRadicado:
+          type: string
+          example: REC-2026-00001
+        tipoCalificacion:
+          $ref: '#/components/schemas/TipoCalificacionReclamacion'
+        referenciaId:
+          type: integer
+          format: int64
+          example: 10
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        numeroMatricula:
+          type: string
+          example: MAT-2026-0001
+        estudianteId:
+          type: integer
+          format: int64
+          example: 7
+        estudianteNombreCompleto:
+          type: string
+          example: Isaac Newton
+        solicitanteUsuarioId:
+          type: integer
+          format: int64
+          example: 15
+        rolSolicitante:
+          $ref: '#/components/schemas/RolSolicitanteReclamacion'
+        motivoReclamacion:
+          type: string
+          example: Error aritmético en calificación
+        soporteUrl:
+          type: string
+          example: https://colegio.edu.co/soportes/evaluacion.pdf
+        estado:
+          $ref: '#/components/schemas/EstadoReclamacionCalificacion'
+        fechaRadicacion:
+          type: string
+          format: date-time
+        fechaLimiteRespuesta:
+          type: string
+          format: date
+          example: '2026-04-20'
+        decisionPrimeraInstancia:
+          $ref: '#/components/schemas/DecisionReclamacion'
+        motivoPrimeraInstancia:
+          type: string
+          example: Error corregido
+        fechaDecisionPrimeraInstancia:
+          type: string
+          format: date-time
+        docenteResolutorNombre:
+          type: string
+          example: einstein_a
+        decisionSegundaInstancia:
+          $ref: '#/components/schemas/DecisionReclamacion'
+        motivoSegundaInstancia:
+          type: string
+          example: Decisión confirmada en segunda instancia
+        fechaDecisionSegundaInstancia:
+          type: string
+          format: date-time
+        coordinadorResolutorNombre:
+          type: string
+          example: bohr_n
+        nuevaNotaAprobada:
+          type: number
+          format: float
+          example: 4.2
+    ConvalidacionCalificacionRequest:
+      type: object
+      required:
+      - matriculaId
+      - periodoAcademicoId
+      - tipoOrigen
+      - detalles
+      properties:
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        periodoAcademicoId:
+          type: integer
+          format: int64
+          example: 10
+        tipoOrigen:
+          $ref: '#/components/schemas/TipoOrigenConvalidacion'
+        institucionOrigen:
+          type: string
+          example: Colegio San José de las Vegas
+        actaSoporteUrl:
+          type: string
+          example: https://colegio.edu.co/actas/conv-2026-001.pdf
+        observaciones:
+          type: string
+          example: Convalidación de calificaciones por traslado entrante
+        fechaConvalidacion:
+          type: string
+          format: date
+          example: '2026-04-10'
+        detalles:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConvalidacionDetalleRequest'
+    ConvalidacionDetalleRequest:
+      type: object
+      required:
+      - asignaturaId
+      - notaConvalidada
+      properties:
+        asignaturaId:
+          type: integer
+          format: int64
+          example: 100
+        notaConvalidada:
+          type: number
+          format: float
+          example: 4.0
+        observaciones:
+          type: string
+          example: Homologación según certificado oficial
+    ConvalidacionCalificacionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        numeroActa:
+          type: string
+          example: ACT-CONV-2026-0001
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        numeroMatricula:
+          type: string
+          example: MAT-2026-0001
+        estudianteId:
+          type: integer
+          format: int64
+          example: 7
+        estudianteNombreCompleto:
+          type: string
+          example: Isaac Newton
+        periodoAcademicoId:
+          type: integer
+          format: int64
+          example: 10
+        periodoNombre:
+          type: string
+          example: Primer Periodo
+        tipoOrigen:
+          $ref: '#/components/schemas/TipoOrigenConvalidacion'
+        institucionOrigen:
+          type: string
+          example: Colegio San José
+        actaSoporteUrl:
+          type: string
+          example: https://colegio.edu.co/actas/conv-2026-001.pdf
+        observaciones:
+          type: string
+          example: Convalidación oficial
+        coordinadorNombre:
+          type: string
+          example: bohr_n
+        fechaConvalidacion:
+          type: string
+          format: date
+          example: '2026-04-10'
+        fechaCreacion:
+          type: string
+          format: date-time
+        detalles:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConvalidacionDetalleResponse'
+    ConvalidacionDetalleResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        asignaturaId:
+          type: integer
+          format: int64
+          example: 100
+        asignaturaNombre:
+          type: string
+          example: Física
+        notaConvalidada:
+          type: number
+          format: float
+          example: 4.0
+        desempeno:
+          $ref: '#/components/schemas/DesempenoNacional'
+        observaciones:
+          type: string
+          example: Homologado
+    SabanaConsolidadaResponse:
+      type: object
+      properties:
+        grupoId:
+          type: integer
+          format: int64
+          example: 5
+        grupoNombre:
+          type: string
+          example: 10-A
+        periodoId:
+          type: integer
+          format: int64
+          example: 10
+        periodoNombre:
+          type: string
+          example: Primer Periodo
+        directorGrupoNombre:
+          type: string
+          example: Albert Einstein
+        totalEstudiantes:
+          type: integer
+          example: 35
+        totalEstudiantesEnRiesgo:
+          type: integer
+          example: 3
+    TableroAvanceDocenteResponse:
+      type: object
+      properties:
+        asignacionId:
+          type: integer
+          format: int64
+          example: 50
+        docenteId:
+          type: integer
+          format: int64
+          example: 20
+        docenteNombreCompleto:
+          type: string
+          example: Albert Einstein
+        grupoId:
+          type: integer
+          format: int64
+          example: 5
+        grupoNombre:
+          type: string
+          example: 10-A
+        asignaturaId:
+          type: integer
+          format: int64
+          example: 100
+        asignaturaNombre:
+          type: string
+          example: Física
+        porcentajePlaneado:
+          type: number
+          format: float
+          example: 100.0
+        totalActividades:
+          type: integer
+          example: 4
+        estudiantesMatriculados:
+          type: integer
+          example: 35
+        calificacionesRegistradas:
+          type: integer
+          example: 140
+        calificacionesPendientes:
+          type: integer
+          example: 0
+        porcentajeAvance:
+          type: number
+          format: float
+          example: 100.0
+        planeacionCompleta:
+          type: boolean
+          example: true
+    ConsultaCalificacionesEstudianteResponse:
+      type: object
+      properties:
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        numeroMatricula:
+          type: string
+          example: MAT-2026-0001
+        estudianteId:
+          type: integer
+          format: int64
+          example: 7
+        estudianteNombreCompleto:
+          type: string
+          example: Isaac Newton
+        estudianteDocumento:
+          type: string
+          example: '10203040'
+        anioLectivoId:
+          type: integer
+          format: int64
+          example: 1
+        anioLectivo:
+          type: integer
+          example: 2026
+        periodoAcademicoId:
+          type: integer
+          format: int64
+          example: 10
+        periodoNombre:
+          type: string
+          example: Primer Periodo
+        periodoNumero:
+          type: integer
+          example: 1
+        estadoPeriodo:
+          type: string
+          example: ABIERTO
+    CategoriaEvaluativa:
+      type: string
+      enum:
+      - COGNITIVA
+      - PROCEDIMENTAL
+      - ACTITUDINAL
+      - AUTOEVALUACION
+      - COEVALUACION
+      - PERIODO
+      example: COGNITIVA
+    TipoComponenteEvaluativo:
+      type: string
+      enum:
+      - QUIZ
+      - TALLER
+      - TAREA
+      - PROYECTO
+      - SUSTENTACION
+      - EXAMEN
+      - OTRO
+      example: TALLER
+    ModalidadEvaluativa:
+      type: string
+      enum:
+      - HETEROEVALUACION
+      - AUTOEVALUACION
+      - COEVALUACION
+      example: HETEROEVALUACION
+    EstadoActividadEvaluativa:
+      type: string
+      enum:
+      - BORRADOR
+      - PUBLICADA
+      example: PUBLICADA
+    EstadoCalificacionActividad:
+      type: string
+      enum:
+      - CALIFICADA
+      - PENDIENTE_POR_EXCUSA_JUSTIFICADA
+      - EXIMIDA_CONVALIDADA
+      - NO_PRESENTO
+      example: CALIFICADA
+    OrigenCalificacion:
+      type: string
+      enum:
+      - CALCULADA
+      - CONVALIDADA_TRASLADO
+      - CONVALIDADA_PROMOCION_ANTICIPADA
+      example: CALCULADA
+    FormulaRecuperacionSiee:
+      type: string
+      enum:
+      - REEMPLAZO_TOTAL
+      - TOPE_BASICO
+      - PROMEDIO_PONDERADO
+      example: REEMPLAZO_TOTAL
+    TipoCalificacionReclamacion:
+      type: string
+      enum:
+      - ACTIVIDAD
+      - PERIODO
+      - NIVELACION
+      example: ACTIVIDAD
+    RolSolicitanteReclamacion:
+      type: string
+      enum:
+      - ESTUDIANTE
+      - ACUDIENTE
+      example: ESTUDIANTE
+    EstadoReclamacionCalificacion:
+      type: string
+      enum:
+      - RADICADA_PRIMERA_INSTANCIA
+      - RESUELTA_FAVORABLE_DOCENTE
+      - RECHAZADA_DOCENTE
+      - ESCALADA_SEGUNDA_INSTANCIA
+      - RESUELTA_FAVORABLE_COORDINACION
+      - RECHAZADA_COORDINACION
+      example: RADICADA_PRIMERA_INSTANCIA
+    DecisionReclamacion:
+      type: string
+      enum:
+      - APROBAR_RECTIFICACION
+      - RECHAZAR_MANTENER_NOTA
+      example: APROBAR_RECTIFICACION
+    TipoOrigenConvalidacion:
+      type: string
+      enum:
+      - TRASLADO_ENTRANTE
+      - PROMOCION_ANTICIPADA
+      example: TRASLADO_ENTRANTE
     EstadoAsistencia:
       type: string
       enum:
