@@ -14,6 +14,7 @@ export interface RegistroAsistenciaItemRequest {
     matriculaId: number;
     estado: EstadoAsistencia;
     minutosRetardo?: number;
+    motivoCorreccion?: string;
     observaciones?: string;
 }
 

@@ -33,7 +33,7 @@ public class RegistroAsistencia {
     private Matricula matricula;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
+    @Column(nullable = false, length = 35)
     private EstadoAsistencia estado = EstadoAsistencia.PRESENTE;
 
     @Column(name = "minutos_retardo", nullable = false)
@@ -41,6 +41,10 @@ public class RegistroAsistencia {
 
     @Column(length = 255)
     private String observaciones;
+
+    @Version
+    @Column(nullable = false)
+    private Long version = 0L;
 
     @CreationTimestamp
     @Column(name = "fecha_creacion", nullable = false, updatable = false)
@@ -111,6 +115,14 @@ public class RegistroAsistencia {
 
     public void setObservaciones(String observaciones) {
         this.observaciones = observaciones;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     public LocalDateTime getFechaCreacion() {

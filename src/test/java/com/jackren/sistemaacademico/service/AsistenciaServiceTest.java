@@ -57,6 +57,30 @@ class AsistenciaServiceTest {
     @Mock
     private UsuarioRepository usuarioRepository;
 
+    @Mock
+    private AuditoriaAsistenciaRepository auditoriaRepository;
+
+    @Mock
+    private SolicitudExcusaAsistenciaRepository solicitudExcusaRepository;
+
+    @Mock
+    private AutorizacionSalidaAnticipadaRepository salidaRepository;
+
+    @Mock
+    private ProfesorRepository profesorRepository;
+
+    @Mock
+    private EstudianteRepository estudianteRepository;
+
+    @Mock
+    private EstudianteAcudienteRepository estudianteAcudienteRepository;
+
+    @Mock
+    private DiaNoLectivoRepository diaNoLectivoRepository;
+
+    @Mock
+    private ConfiguracionSieeVersionRepository sieeVersionRepository;
+
     @Spy
     private AsistenciaMapper asistenciaMapper = new AsistenciaMapper();
 

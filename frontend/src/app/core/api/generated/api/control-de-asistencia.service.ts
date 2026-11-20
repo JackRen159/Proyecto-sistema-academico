@@ -17,9 +17,21 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
+import { ActuacionSeguimientoAusentismoRequest } from '../model/actuacion-seguimiento-ausentismo-request';
+// @ts-ignore
+import { ActuacionSeguimientoAusentismoResponse } from '../model/actuacion-seguimiento-ausentismo-response';
+// @ts-ignore
+import { AutorizacionSalidaAnticipadaRequest } from '../model/autorizacion-salida-anticipada-request';
+// @ts-ignore
+import { AutorizacionSalidaAnticipadaResponse } from '../model/autorizacion-salida-anticipada-response';
+// @ts-ignore
 import { ConfiguracionAlertaAsistenciaRequest } from '../model/configuracion-alerta-asistencia-request';
 // @ts-ignore
 import { ConfiguracionAlertaAsistenciaResponse } from '../model/configuracion-alerta-asistencia-response';
+// @ts-ignore
+import { ConsultaAsistenciaEstudianteResponse } from '../model/consulta-asistencia-estudiante-response';
+// @ts-ignore
+import { ControlSesionesDocenteResponse } from '../model/control-sesiones-docente-response';
 // @ts-ignore
 import { ErrorResponse } from '../model/error-response';
 // @ts-ignore
@@ -31,11 +43,19 @@ import { PlanillaAsistenciaLoteRequest } from '../model/planilla-asistencia-lote
 // @ts-ignore
 import { RegistroAsistenciaResponse } from '../model/registro-asistencia-response';
 // @ts-ignore
+import { ResolverSolicitudExcusaRequest } from '../model/resolver-solicitud-excusa-request';
+// @ts-ignore
 import { ResumenAsistenciaEstudianteResponse } from '../model/resumen-asistencia-estudiante-response';
+// @ts-ignore
+import { SabanaAsistenciaGrupalResponse } from '../model/sabana-asistencia-grupal-response';
 // @ts-ignore
 import { SesionAsistenciaRequest } from '../model/sesion-asistencia-request';
 // @ts-ignore
 import { SesionAsistenciaResponse } from '../model/sesion-asistencia-response';
+// @ts-ignore
+import { SolicitudExcusaAsistenciaRequest } from '../model/solicitud-excusa-asistencia-request';
+// @ts-ignore
+import { SolicitudExcusaAsistenciaResponse } from '../model/solicitud-excusa-asistencia-response';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -173,6 +193,324 @@ export class ControlDeAsistenciaService extends BaseService {
             {
                 context: localVarHttpContext,
                 body: configuracionAlertaAsistenciaRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Consultar asistencia de estudiante vinculado para acudiente (UC-09)
+     * Consulta contextual para acudientes con validación obligatoria de vínculo activo y ausencia de restricciones legales.
+     * @endpoint get /api/asistencia/acudiente/estudiante/{estudianteId}
+     * @param estudianteId 
+     * @param periodoId 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public consultarAsistenciasAcudiente(estudianteId: number, periodoId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ConsultaAsistenciaEstudianteResponse>;
+    public consultarAsistenciasAcudiente(estudianteId: number, periodoId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ConsultaAsistenciaEstudianteResponse>>;
+    public consultarAsistenciasAcudiente(estudianteId: number, periodoId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ConsultaAsistenciaEstudianteResponse>>;
+    public consultarAsistenciasAcudiente(estudianteId: number, periodoId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (estudianteId === null || estudianteId === undefined) {
+            throw new Error('Required parameter estudianteId was null or undefined when calling consultarAsistenciasAcudiente.');
+        }
+        if (periodoId === null || periodoId === undefined) {
+            throw new Error('Required parameter periodoId was null or undefined when calling consultarAsistenciasAcudiente.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'periodoId',
+            <any>periodoId,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (BearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('BearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/asistencia/acudiente/estudiante/${this.configuration.encodeParam({name: "estudianteId", value: estudianteId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<ConsultaAsistenciaEstudianteResponse>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Consultar tablero de control de toma de lista docente (UC-PROV-19 A1)
+     * Monitoreo de cumplimiento de sesiones dictadas vs pendientes antes del cierre de periodo.
+     * @endpoint get /api/asistencia/control-sesiones
+     * @param anioLectivoId 
+     * @param periodoId 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public consultarControlSesiones(anioLectivoId: number, periodoId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<ControlSesionesDocenteResponse>>;
+    public consultarControlSesiones(anioLectivoId: number, periodoId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<ControlSesionesDocenteResponse>>>;
+    public consultarControlSesiones(anioLectivoId: number, periodoId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<ControlSesionesDocenteResponse>>>;
+    public consultarControlSesiones(anioLectivoId: number, periodoId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (anioLectivoId === null || anioLectivoId === undefined) {
+            throw new Error('Required parameter anioLectivoId was null or undefined when calling consultarControlSesiones.');
+        }
+        if (periodoId === null || periodoId === undefined) {
+            throw new Error('Required parameter periodoId was null or undefined when calling consultarControlSesiones.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'anioLectivoId',
+            <any>anioLectivoId,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'periodoId',
+            <any>periodoId,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (BearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('BearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/asistencia/control-sesiones`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<Array<ControlSesionesDocenteResponse>>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Consultar asistencia propia del estudiante autenticado (UC-03)
+     * Consulta contextual segura de asistencias, ausencias, retardos, evasiones y excusas del estudiante.
+     * @endpoint get /api/asistencia/mis-asistencias
+     * @param periodoId 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public consultarMisAsistencias(periodoId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ConsultaAsistenciaEstudianteResponse>;
+    public consultarMisAsistencias(periodoId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ConsultaAsistenciaEstudianteResponse>>;
+    public consultarMisAsistencias(periodoId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ConsultaAsistenciaEstudianteResponse>>;
+    public consultarMisAsistencias(periodoId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (periodoId === null || periodoId === undefined) {
+            throw new Error('Required parameter periodoId was null or undefined when calling consultarMisAsistencias.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'periodoId',
+            <any>periodoId,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (BearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('BearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/asistencia/mis-asistencias`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<ConsultaAsistenciaEstudianteResponse>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Consultar sábana consolidada grupal de asistencia (UC-PROV-19)
+     * Matriz integral de asistencia del curso por asignatura y jornada con control de acceso por Director de Grupo.
+     * @endpoint get /api/asistencia/sabana
+     * @param grupoId 
+     * @param periodoId 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public consultarSabanaGrupal(grupoId: number, periodoId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<SabanaAsistenciaGrupalResponse>;
+    public consultarSabanaGrupal(grupoId: number, periodoId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SabanaAsistenciaGrupalResponse>>;
+    public consultarSabanaGrupal(grupoId: number, periodoId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SabanaAsistenciaGrupalResponse>>;
+    public consultarSabanaGrupal(grupoId: number, periodoId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (grupoId === null || grupoId === undefined) {
+            throw new Error('Required parameter grupoId was null or undefined when calling consultarSabanaGrupal.');
+        }
+        if (periodoId === null || periodoId === undefined) {
+            throw new Error('Required parameter periodoId was null or undefined when calling consultarSabanaGrupal.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'grupoId',
+            <any>grupoId,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'periodoId',
+            <any>periodoId,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (BearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('BearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/asistencia/sabana`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<SabanaAsistenciaGrupalResponse>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -328,6 +666,66 @@ export class ControlDeAsistenciaService extends BaseService {
     }
 
     /**
+     * Listar actuaciones de seguimiento al ausentismo de una matrícula
+     * Retorna las gestiones y citaciones registradas para el expediente de permanencia escolar.
+     * @endpoint get /api/asistencia/seguimiento-ausentismo/matricula/{matriculaId}
+     * @param matriculaId 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public listarActuacionesMatricula(matriculaId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<ActuacionSeguimientoAusentismoResponse>>;
+    public listarActuacionesMatricula(matriculaId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<ActuacionSeguimientoAusentismoResponse>>>;
+    public listarActuacionesMatricula(matriculaId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<ActuacionSeguimientoAusentismoResponse>>>;
+    public listarActuacionesMatricula(matriculaId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (matriculaId === null || matriculaId === undefined) {
+            throw new Error('Required parameter matriculaId was null or undefined when calling listarActuacionesMatricula.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (BearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('BearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/asistencia/seguimiento-ausentismo/matricula/${this.configuration.encodeParam({name: "matriculaId", value: matriculaId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<Array<ActuacionSeguimientoAusentismoResponse>>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Listar estudiantes en condición de alerta por ausentismo en un grupo
      * Retorna los estudiantes con nivel de alerta AMARILLA o ROJA según los umbrales institucionales.
      * @endpoint get /api/asistencia/grupo/{grupoId}/alertas
@@ -417,6 +815,66 @@ export class ControlDeAsistenciaService extends BaseService {
     }
 
     /**
+     * Listar excusas de una matrícula
+     * Retorna el historial de excusas radicadas y resueltas para un estudiante.
+     * @endpoint get /api/asistencia/excusas/matricula/{matriculaId}
+     * @param matriculaId 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public listarExcusasMatricula(matriculaId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<SolicitudExcusaAsistenciaResponse>>;
+    public listarExcusasMatricula(matriculaId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<SolicitudExcusaAsistenciaResponse>>>;
+    public listarExcusasMatricula(matriculaId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<SolicitudExcusaAsistenciaResponse>>>;
+    public listarExcusasMatricula(matriculaId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (matriculaId === null || matriculaId === undefined) {
+            throw new Error('Required parameter matriculaId was null or undefined when calling listarExcusasMatricula.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (BearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('BearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/asistencia/excusas/matricula/${this.configuration.encodeParam({name: "matriculaId", value: matriculaId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<Array<SolicitudExcusaAsistenciaResponse>>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Listar planilla de asistencia registrada para una sesión
      * Retorna el estado individual de cada estudiante en la sesión.
      * @endpoint get /api/asistencia/sesiones/{sesionId}/registros
@@ -464,6 +922,66 @@ export class ControlDeAsistenciaService extends BaseService {
         let localVarPath = `/api/asistencia/sesiones/${this.configuration.encodeParam({name: "sesionId", value: sesionId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/registros`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<RegistroAsistenciaResponse>>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Listar autorizaciones de salida anticipada de una matrícula
+     * Retorna el registro de salidas en portería para un estudiante.
+     * @endpoint get /api/asistencia/salidas-anticipadas/matricula/{matriculaId}
+     * @param matriculaId 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public listarSalidasMatricula(matriculaId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<AutorizacionSalidaAnticipadaResponse>>;
+    public listarSalidasMatricula(matriculaId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<AutorizacionSalidaAnticipadaResponse>>>;
+    public listarSalidasMatricula(matriculaId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<AutorizacionSalidaAnticipadaResponse>>>;
+    public listarSalidasMatricula(matriculaId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (matriculaId === null || matriculaId === undefined) {
+            throw new Error('Required parameter matriculaId was null or undefined when calling listarSalidasMatricula.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (BearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('BearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/asistencia/salidas-anticipadas/matricula/${this.configuration.encodeParam({name: "matriculaId", value: matriculaId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<Array<AutorizacionSalidaAnticipadaResponse>>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -718,6 +1236,146 @@ export class ControlDeAsistenciaService extends BaseService {
     }
 
     /**
+     * Radicar solicitud de excusa de inasistencia por rango de fechas (UC-PROV-18)
+     * Radica justificación médica o de fuerza mayor con número de radicado y reserva de datos de salud.
+     * @endpoint post /api/asistencia/excusas
+     * @param solicitudExcusaAsistenciaRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public radicarExcusa(solicitudExcusaAsistenciaRequest: SolicitudExcusaAsistenciaRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<SolicitudExcusaAsistenciaResponse>;
+    public radicarExcusa(solicitudExcusaAsistenciaRequest: SolicitudExcusaAsistenciaRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SolicitudExcusaAsistenciaResponse>>;
+    public radicarExcusa(solicitudExcusaAsistenciaRequest: SolicitudExcusaAsistenciaRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SolicitudExcusaAsistenciaResponse>>;
+    public radicarExcusa(solicitudExcusaAsistenciaRequest: SolicitudExcusaAsistenciaRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (solicitudExcusaAsistenciaRequest === null || solicitudExcusaAsistenciaRequest === undefined) {
+            throw new Error('Required parameter solicitudExcusaAsistenciaRequest was null or undefined when calling radicarExcusa.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (BearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('BearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/asistencia/excusas`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<SolicitudExcusaAsistenciaResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: solicitudExcusaAsistenciaRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Registrar actuación de seguimiento al ausentismo o deserción (UC-PROV-19)
+     * Documenta citaciones, actas de compromiso o constancia de protocolo de búsqueda familiar agotado.
+     * @endpoint post /api/asistencia/seguimiento-ausentismo
+     * @param actuacionSeguimientoAusentismoRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public registrarActuacionSeguimiento(actuacionSeguimientoAusentismoRequest: ActuacionSeguimientoAusentismoRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ActuacionSeguimientoAusentismoResponse>;
+    public registrarActuacionSeguimiento(actuacionSeguimientoAusentismoRequest: ActuacionSeguimientoAusentismoRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ActuacionSeguimientoAusentismoResponse>>;
+    public registrarActuacionSeguimiento(actuacionSeguimientoAusentismoRequest: ActuacionSeguimientoAusentismoRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ActuacionSeguimientoAusentismoResponse>>;
+    public registrarActuacionSeguimiento(actuacionSeguimientoAusentismoRequest: ActuacionSeguimientoAusentismoRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (actuacionSeguimientoAusentismoRequest === null || actuacionSeguimientoAusentismoRequest === undefined) {
+            throw new Error('Required parameter actuacionSeguimientoAusentismoRequest was null or undefined when calling registrarActuacionSeguimiento.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (BearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('BearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/asistencia/seguimiento-ausentismo`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<ActuacionSeguimientoAusentismoResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: actuacionSeguimientoAusentismoRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Registrar o actualizar planilla de asistencia en lote
      * Guarda la presencia, ausencias o retardos de todos los estudiantes de la sesión de forma idempotente.
      * @endpoint post /api/asistencia/sesiones/planilla
@@ -777,6 +1435,150 @@ export class ControlDeAsistenciaService extends BaseService {
             {
                 context: localVarHttpContext,
                 body: planillaAsistenciaLoteRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Registrar salida anticipada de estudiante en portería (UC-PROV-18 A1)
+     * Valida en tiempo real que el adulto esté autorizado para retiro físico y libre de medidas de protección legal.
+     * @endpoint post /api/asistencia/salidas-anticipadas
+     * @param autorizacionSalidaAnticipadaRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public registrarSalidaAnticipada(autorizacionSalidaAnticipadaRequest: AutorizacionSalidaAnticipadaRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<AutorizacionSalidaAnticipadaResponse>;
+    public registrarSalidaAnticipada(autorizacionSalidaAnticipadaRequest: AutorizacionSalidaAnticipadaRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<AutorizacionSalidaAnticipadaResponse>>;
+    public registrarSalidaAnticipada(autorizacionSalidaAnticipadaRequest: AutorizacionSalidaAnticipadaRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<AutorizacionSalidaAnticipadaResponse>>;
+    public registrarSalidaAnticipada(autorizacionSalidaAnticipadaRequest: AutorizacionSalidaAnticipadaRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (autorizacionSalidaAnticipadaRequest === null || autorizacionSalidaAnticipadaRequest === undefined) {
+            throw new Error('Required parameter autorizacionSalidaAnticipadaRequest was null or undefined when calling registrarSalidaAnticipada.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (BearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('BearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/asistencia/salidas-anticipadas`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<AutorizacionSalidaAnticipadaResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: autorizacionSalidaAnticipadaRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Resolver solicitud de excusa por Coordinación (UC-PROV-18)
+     * Aprobación, solicitud de subsanación o rechazo motivado con propagación atómica a evaluaciones supletorias en Módulo 07.
+     * @endpoint put /api/asistencia/excusas/{excusaId}/resolver
+     * @param excusaId 
+     * @param resolverSolicitudExcusaRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public resolverExcusa(excusaId: number, resolverSolicitudExcusaRequest: ResolverSolicitudExcusaRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<SolicitudExcusaAsistenciaResponse>;
+    public resolverExcusa(excusaId: number, resolverSolicitudExcusaRequest: ResolverSolicitudExcusaRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SolicitudExcusaAsistenciaResponse>>;
+    public resolverExcusa(excusaId: number, resolverSolicitudExcusaRequest: ResolverSolicitudExcusaRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SolicitudExcusaAsistenciaResponse>>;
+    public resolverExcusa(excusaId: number, resolverSolicitudExcusaRequest: ResolverSolicitudExcusaRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (excusaId === null || excusaId === undefined) {
+            throw new Error('Required parameter excusaId was null or undefined when calling resolverExcusa.');
+        }
+        if (resolverSolicitudExcusaRequest === null || resolverSolicitudExcusaRequest === undefined) {
+            throw new Error('Required parameter resolverSolicitudExcusaRequest was null or undefined when calling resolverExcusa.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (BearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('BearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/asistencia/excusas/${this.configuration.encodeParam({name: "excusaId", value: excusaId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}/resolver`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<SolicitudExcusaAsistenciaResponse>('put', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: resolverSolicitudExcusaRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

@@ -5381,6 +5381,330 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '403':
           $ref: '#/components/responses/ForbiddenError'
+  /api/asistencia/mis-asistencias:
+    get:
+      tags:
+      - Control de Asistencia
+      summary: Consultar asistencia propia del estudiante autenticado (UC-03)
+      description: Consulta contextual segura de asistencias, ausencias, retardos, evasiones y excusas del estudiante.
+      operationId: consultarMisAsistencias
+      parameters:
+      - name: periodoId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Asistencia propia obtenida exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsultaAsistenciaEstudianteResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/asistencia/acudiente/estudiante/{estudianteId}:
+    get:
+      tags:
+      - Control de Asistencia
+      summary: Consultar asistencia de estudiante vinculado para acudiente (UC-09)
+      description: Consulta contextual para acudientes con validación obligatoria de vínculo activo y ausencia de restricciones legales.
+      operationId: consultarAsistenciasAcudiente
+      parameters:
+      - name: estudianteId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: periodoId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Asistencia del menor obtenida exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsultaAsistenciaEstudianteResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/asistencia/excusas:
+    post:
+      tags:
+      - Control de Asistencia
+      summary: Radicar solicitud de excusa de inasistencia por rango de fechas (UC-PROV-18)
+      description: Radica justificación médica o de fuerza mayor con número de radicado y reserva de datos de salud.
+      operationId: radicarExcusa
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SolicitudExcusaAsistenciaRequest'
+      responses:
+        '200':
+          description: Excusa radicada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SolicitudExcusaAsistenciaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/asistencia/excusas/{excusaId}/resolver:
+    put:
+      tags:
+      - Control de Asistencia
+      summary: Resolver solicitud de excusa por Coordinación (UC-PROV-18)
+      description: Aprobación, solicitud de subsanación o rechazo motivado con propagación atómica a evaluaciones supletorias en Módulo 07.
+      operationId: resolverExcusa
+      parameters:
+      - name: excusaId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResolverSolicitudExcusaRequest'
+      responses:
+        '200':
+          description: Solicitud de excusa resuelta exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SolicitudExcusaAsistenciaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/asistencia/excusas/matricula/{matriculaId}:
+    get:
+      tags:
+      - Control de Asistencia
+      summary: Listar excusas de una matrícula
+      description: Retorna el historial de excusas radicadas y resueltas para un estudiante.
+      operationId: listarExcusasMatricula
+      parameters:
+      - name: matriculaId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Excusas obtenidas exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SolicitudExcusaAsistenciaResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  /api/asistencia/salidas-anticipadas:
+    post:
+      tags:
+      - Control de Asistencia
+      summary: Registrar salida anticipada de estudiante en portería (UC-PROV-18 A1)
+      description: Valida en tiempo real que el adulto esté autorizado para retiro físico y libre de medidas de protección legal.
+      operationId: registrarSalidaAnticipada
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AutorizacionSalidaAnticipadaRequest'
+      responses:
+        '200':
+          description: Salida anticipada autorizada y registrada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutorizacionSalidaAnticipadaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/asistencia/salidas-anticipadas/matricula/{matriculaId}:
+    get:
+      tags:
+      - Control de Asistencia
+      summary: Listar autorizaciones de salida anticipada de una matrícula
+      description: Retorna el registro de salidas en portería para un estudiante.
+      operationId: listarSalidasMatricula
+      parameters:
+      - name: matriculaId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Salidas obtenidas exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AutorizacionSalidaAnticipadaResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  /api/asistencia/seguimiento-ausentismo:
+    post:
+      tags:
+      - Control de Asistencia
+      summary: Registrar actuación de seguimiento al ausentismo o deserción (UC-PROV-19)
+      description: Documenta citaciones, actas de compromiso o constancia de protocolo de búsqueda familiar agotado.
+      operationId: registrarActuacionSeguimiento
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActuacionSeguimientoAusentismoRequest'
+      responses:
+        '200':
+          description: Actuación de seguimiento registrada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActuacionSeguimientoAusentismoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/asistencia/seguimiento-ausentismo/matricula/{matriculaId}:
+    get:
+      tags:
+      - Control de Asistencia
+      summary: Listar actuaciones de seguimiento al ausentismo de una matrícula
+      description: Retorna las gestiones y citaciones registradas para el expediente de permanencia escolar.
+      operationId: listarActuacionesMatricula
+      parameters:
+      - name: matriculaId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Actuaciones obtenidas exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ActuacionSeguimientoAusentismoResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  /api/asistencia/sabana:
+    get:
+      tags:
+      - Control de Asistencia
+      summary: Consultar sábana consolidada grupal de asistencia (UC-PROV-19)
+      description: Matriz integral de asistencia del curso por asignatura y jornada con control de acceso por Director de Grupo.
+      operationId: consultarSabanaGrupal
+      parameters:
+      - name: grupoId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: periodoId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Sábana grupal de asistencia obtenida exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SabanaAsistenciaGrupalResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+  /api/asistencia/control-sesiones:
+    get:
+      tags:
+      - Control de Asistencia
+      summary: Consultar tablero de control de toma de lista docente (UC-PROV-19 A1)
+      description: Monitoreo de cumplimiento de sesiones dictadas vs pendientes antes del cierre de periodo.
+      operationId: consultarControlSesiones
+      parameters:
+      - name: anioLectivoId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: periodoId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Tablero de control de sesiones obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ControlSesionesDocenteResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
   /api/documentos/consecutivos:
     post:
       tags:
@@ -8756,6 +9080,8 @@ components:
       - AUSENTE_JUSTIFICADA
       - RETARDO
       - RETIRO_ANTICIPADO
+      - EVASION_INTERNA_CLASE
+      - SALIDA_ANTICIPADA_AUTORIZADA
       example: PRESENTE
     TipoRegistroAsistencia:
       type: string
@@ -8920,6 +9246,9 @@ components:
         minutosRetardo:
           type: integer
           example: 0
+        motivoCorreccion:
+          type: string
+          example: Corrección justificada de estado por ingreso tardío
         observaciones:
           type: string
           example: Estudiante presente
@@ -9130,6 +9459,507 @@ components:
         nivelAlerta:
           type: string
           example: NINGUNA
+    AuditoriaAsistenciaResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        registroAsistenciaId:
+          type: integer
+          format: int64
+          example: 10
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        numeroMatricula:
+          type: string
+          example: MAT-2026-0001
+        estudianteNombreCompleto:
+          type: string
+          example: Isaac Newton
+        estadoAnterior:
+          $ref: '#/components/schemas/EstadoAsistencia'
+        estadoNuevo:
+          $ref: '#/components/schemas/EstadoAsistencia'
+        motivoCorreccion:
+          type: string
+          example: Corrección justificada por ingreso tardío con soporte
+        usuarioId:
+          type: integer
+          format: int64
+          example: 20
+        username:
+          type: string
+          example: einstein_a
+        fechaAuditoria:
+          type: string
+          format: date-time
+    SolicitudExcusaAsistenciaRequest:
+      type: object
+      required:
+      - matriculaId
+      - tipoJustificacion
+      - fechaInicio
+      - fechaFin
+      - motivoExplicacion
+      properties:
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        tipoJustificacion:
+          $ref: '#/components/schemas/TipoJustificacionAsistencia'
+        fechaInicio:
+          type: string
+          format: date
+          example: '2026-03-10'
+        fechaFin:
+          type: string
+          format: date
+          example: '2026-03-12'
+        motivoExplicacion:
+          type: string
+          example: Incapacidad médica expedida por EPS por cuadro viral agudo
+        soporteUrl:
+          type: string
+          example: https://colegio.edu.co/soportes/incapacidad-medica.pdf
+        esDatoSaludSensible:
+          type: boolean
+          example: true
+    ResolverSolicitudExcusaRequest:
+      type: object
+      required:
+      - decision
+      properties:
+        decision:
+          $ref: '#/components/schemas/DecisionSolicitudExcusa'
+        observacionesResolucion:
+          type: string
+          example: Incapacidad verificada y aprobada
+        fechaLimiteSubsanacion:
+          type: string
+          format: date
+          example: '2026-03-18'
+    SolicitudExcusaAsistenciaResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        numeroRadicado:
+          type: string
+          example: EXC-2026-00001
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        numeroMatricula:
+          type: string
+          example: MAT-2026-0001
+        estudianteId:
+          type: integer
+          format: int64
+          example: 7
+        estudianteNombreCompleto:
+          type: string
+          example: Isaac Newton
+        solicitanteUsuarioId:
+          type: integer
+          format: int64
+          example: 15
+        rolSolicitante:
+          $ref: '#/components/schemas/RolSolicitanteExcusa'
+        tipoJustificacion:
+          $ref: '#/components/schemas/TipoJustificacionAsistencia'
+        fechaInicio:
+          type: string
+          format: date
+          example: '2026-03-10'
+        fechaFin:
+          type: string
+          format: date
+          example: '2026-03-12'
+        motivoExplicacion:
+          type: string
+          example: Incapacidad médica por EPS
+        soporteUrl:
+          type: string
+          example: https://colegio.edu.co/soportes/incapacidad.pdf
+        esDatoSaludSensible:
+          type: boolean
+          example: true
+        estado:
+          $ref: '#/components/schemas/EstadoSolicitudExcusa'
+        fechaRadicacion:
+          type: string
+          format: date-time
+        fechaLimiteSubsanacion:
+          type: string
+          format: date
+          example: '2026-03-18'
+        observacionesResolucion:
+          type: string
+          example: Aprobada con evaluación diferida
+        usuarioResolutorNombre:
+          type: string
+          example: bohr_n
+        fechaResolucion:
+          type: string
+          format: date-time
+    AutorizacionSalidaAnticipadaRequest:
+      type: object
+      required:
+      - matriculaId
+      - horaSalida
+      - motivo
+      - adultoRetiraNombre
+      - adultoRetiraDocumento
+      - parentescoAutorizado
+      properties:
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        fecha:
+          type: string
+          format: date
+          example: '2026-03-15'
+        horaSalida:
+          type: string
+          example: '11:30'
+        motivo:
+          type: string
+          example: Cita médica odontológica de urgencia
+        adultoRetiraNombre:
+          type: string
+          example: María Newton
+        adultoRetiraDocumento:
+          type: string
+          example: '43210987'
+        parentescoAutorizado:
+          type: string
+          example: MADRE
+        observaciones:
+          type: string
+          example: Autorización verificada en portería
+    AutorizacionSalidaAnticipadaResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        numeroAutorizacion:
+          type: string
+          example: SAL-2026-0001
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        numeroMatricula:
+          type: string
+          example: MAT-2026-0001
+        estudianteId:
+          type: integer
+          format: int64
+          example: 7
+        estudianteNombreCompleto:
+          type: string
+          example: Isaac Newton
+        fecha:
+          type: string
+          format: date
+          example: '2026-03-15'
+        horaSalida:
+          type: string
+          example: '11:30'
+        motivo:
+          type: string
+          example: Cita médica
+        adultoRetiraNombre:
+          type: string
+          example: María Newton
+        adultoRetiraDocumento:
+          type: string
+          example: '43210987'
+        parentescoAutorizado:
+          type: string
+          example: MADRE
+        usuarioPorteriaValidadorNombre:
+          type: string
+          example: porteria_principal
+        estado:
+          $ref: '#/components/schemas/EstadoAutorizacionSalida'
+        observaciones:
+          type: string
+          example: Salida autorizada
+        fechaRegistro:
+          type: string
+          format: date-time
+    ActuacionSeguimientoAusentismoRequest:
+      type: object
+      required:
+      - matriculaId
+      - periodoAcademicoId
+      - tipoActuacion
+      - descripcionGestion
+      properties:
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        periodoAcademicoId:
+          type: integer
+          format: int64
+          example: 10
+        tipoActuacion:
+          $ref: '#/components/schemas/TipoActuacionSeguimiento'
+        fechaActuacion:
+          type: string
+          format: date
+          example: '2026-03-20'
+        descripcionGestion:
+          type: string
+          example: Citación presencial y suscripción de acta de compromiso de asistencia
+        compromisosAcordados:
+          type: string
+          example: Padre de familia se compromete a presentar excusas oportunas y evitar retardos
+        soporteActaUrl:
+          type: string
+          example: https://colegio.edu.co/actas/compromiso-001.pdf
+    ActuacionSeguimientoAusentismoResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        numeroMatricula:
+          type: string
+          example: MAT-2026-0001
+        estudianteId:
+          type: integer
+          format: int64
+          example: 7
+        estudianteNombreCompleto:
+          type: string
+          example: Isaac Newton
+        periodoAcademicoId:
+          type: integer
+          format: int64
+          example: 10
+        periodoNombre:
+          type: string
+          example: Primer Periodo
+        tipoActuacion:
+          $ref: '#/components/schemas/TipoActuacionSeguimiento'
+        fechaActuacion:
+          type: string
+          format: date
+          example: '2026-03-20'
+        descripcionGestion:
+          type: string
+          example: Citación presencial realizada
+        compromisosAcordados:
+          type: string
+          example: Asistencia regular
+        soporteActaUrl:
+          type: string
+          example: https://colegio.edu.co/actas/acta.pdf
+        usuarioActuanteNombre:
+          type: string
+          example: coordinador_convivencia
+        fechaRegistro:
+          type: string
+          format: date-time
+    SabanaAsistenciaGrupalResponse:
+      type: object
+      properties:
+        grupoId:
+          type: integer
+          format: int64
+          example: 5
+        grupoNombre:
+          type: string
+          example: 10-A
+        periodoId:
+          type: integer
+          format: int64
+          example: 10
+        periodoNombre:
+          type: string
+          example: Primer Periodo
+        directorGrupoNombre:
+          type: string
+          example: Albert Einstein
+        totalEstudiantes:
+          type: integer
+          example: 35
+        totalEstudiantesAlertaRoja:
+          type: integer
+          example: 2
+        totalEstudiantesAlertaAmarilla:
+          type: integer
+          example: 4
+    ControlSesionesDocenteResponse:
+      type: object
+      properties:
+        asignacionId:
+          type: integer
+          format: int64
+          example: 50
+        docenteId:
+          type: integer
+          format: int64
+          example: 20
+        docenteNombreCompleto:
+          type: string
+          example: Albert Einstein
+        grupoId:
+          type: integer
+          format: int64
+          example: 5
+        grupoNombre:
+          type: string
+          example: 10-A
+        asignaturaId:
+          type: integer
+          format: int64
+          example: 100
+        asignaturaNombre:
+          type: string
+          example: Física
+        sesionesRegistradas:
+          type: integer
+          format: int64
+          example: 38
+        sesionesPendientesEstimadas:
+          type: integer
+          example: 2
+        excusasPendientesRevision:
+          type: integer
+          format: int64
+          example: 1
+    ConsultaAsistenciaEstudianteResponse:
+      type: object
+      properties:
+        matriculaId:
+          type: integer
+          format: int64
+          example: 1000
+        numeroMatricula:
+          type: string
+          example: MAT-2026-0001
+        estudianteId:
+          type: integer
+          format: int64
+          example: 7
+        estudianteNombreCompleto:
+          type: string
+          example: Isaac Newton
+        anioLectivoId:
+          type: integer
+          format: int64
+          example: 1
+        anioLectivo:
+          type: integer
+          example: 2026
+        periodoAcademicoId:
+          type: integer
+          format: int64
+          example: 10
+        periodoNombre:
+          type: string
+          example: Primer Periodo
+        totalSesiones:
+          type: integer
+          format: int64
+          example: 40
+        totalPresente:
+          type: integer
+          format: int64
+          example: 36
+        totalAusenciasInjustificadas:
+          type: integer
+          format: int64
+          example: 2
+        totalAusenciasJustificadas:
+          type: integer
+          format: int64
+          example: 1
+        totalRetardos:
+          type: integer
+          format: int64
+          example: 1
+        totalEvasiones:
+          type: integer
+          format: int64
+          example: 0
+        porcentajeAsistencia:
+          type: number
+          format: float
+          example: 95.0
+        porcentajeInasistencia:
+          type: number
+          format: float
+          example: 5.0
+        nivelAlerta:
+          type: string
+          example: NINGUNA
+    RolSolicitanteExcusa:
+      type: string
+      enum:
+      - ESTUDIANTE
+      - ACUDIENTE
+      - SECRETARIA
+      example: ACUDIENTE
+    TipoJustificacionAsistencia:
+      type: string
+      enum:
+      - INCAPACIDAD_MEDICA_EPS
+      - CITA_MEDICA
+      - CALAMIDAD_DOMESTICA
+      - FUERZA_MAYOR
+      - REPRESENTACION_INSTITUCIONAL
+      example: INCAPACIDAD_MEDICA_EPS
+    EstadoSolicitudExcusa:
+      type: string
+      enum:
+      - PENDIENTE_REVISION
+      - APROBADA
+      - SUBSANACION_REQUERIDA
+      - RECHAZADA_MOTIVADA
+      example: PENDIENTE_REVISION
+    DecisionSolicitudExcusa:
+      type: string
+      enum:
+      - APROBAR
+      - SOLICITAR_SUBSANACION
+      - RECHAZAR
+      example: APROBAR
+    EstadoAutorizacionSalida:
+      type: string
+      enum:
+      - AUTORIZADA_VERIFICADA
+      - DENEGADA_RESTRICCION_LEGAL
+      example: AUTORIZADA_VERIFICADA
+    TipoActuacionSeguimiento:
+      type: string
+      enum:
+      - CONTACTO_TELEFONICO
+      - CITACION_ACUDIENTE
+      - ACTA_COMPROMISO
+      - VISITA_DOMICILIARIA
+      - CONSTANCIA_PROTOCOLO_DESERCION_AGOTADO
+      example: CITACION_ACUDIENTE
     TipoDocumentoAcademico:
       type: string
       enum:

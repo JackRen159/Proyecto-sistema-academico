@@ -19,6 +19,8 @@ public class RegistroAsistenciaItemRequest {
     @Size(max = 255, message = "Las observaciones no pueden superar 255 caracteres")
     private String observaciones;
 
+    private String motivoCorreccion;
+
     public RegistroAsistenciaItemRequest() {
     }
 
@@ -59,5 +61,13 @@ public class RegistroAsistenciaItemRequest {
 
     public void setObservaciones(String observaciones) {
         this.observaciones = observaciones;
+    }
+
+    public String getMotivoCorreccion() {
+        return motivoCorreccion;
+    }
+
+    public void setMotivoCorreccion(String motivoCorreccion) {
+        this.motivoCorreccion = motivoCorreccion;
     }
 }

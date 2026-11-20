@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +22,14 @@ public interface RegistroAsistenciaRepository extends JpaRepository<RegistroAsis
     List<RegistroAsistencia> findByMatriculaId(Long matriculaId);
 
     List<RegistroAsistencia> findByMatriculaIdAndSesionAsistenciaPeriodoAcademicoId(Long matriculaId, Long periodoId);
+
+    List<RegistroAsistencia> findByMatriculaIdAndSesionAsistenciaFecha(Long matriculaId, LocalDate fecha);
+
+    List<RegistroAsistencia> findByMatriculaIdAndSesionAsistenciaFechaBetween(
+            Long matriculaId, LocalDate fechaInicio, LocalDate fechaFin);
+
+    List<RegistroAsistencia> findBySesionAsistenciaGrupoIdAndSesionAsistenciaPeriodoAcademicoId(
+            Long grupoId, Long periodoId);
 
     @Query("SELECT COUNT(r) FROM RegistroAsistencia r WHERE r.matricula.id = :matriculaId AND r.sesionAsistencia.periodoAcademico.id = :periodoId AND r.sesionAsistencia.asignacionAcademica.id = :asignacionId")
     long countTotalSesionesEstudianteAsignatura(@Param("matriculaId") Long matriculaId,

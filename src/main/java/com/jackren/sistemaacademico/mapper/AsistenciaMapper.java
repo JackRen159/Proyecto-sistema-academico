@@ -191,4 +191,148 @@ public class AsistenciaMapper {
         response.setFechaCreacion(justificacion.getFechaCreacion());
         return response;
     }
+
+    public AuditoriaAsistenciaResponse toResponse(AuditoriaAsistencia audit) {
+        if (audit == null) {
+            return null;
+        }
+
+        AuditoriaAsistenciaResponse response = new AuditoriaAsistenciaResponse();
+        response.setId(audit.getId());
+        if (audit.getRegistroAsistencia() != null) {
+            response.setRegistroAsistenciaId(audit.getRegistroAsistencia().getId());
+        }
+        if (audit.getMatricula() != null) {
+            response.setMatriculaId(audit.getMatricula().getId());
+            response.setNumeroMatricula(audit.getMatricula().getNumeroMatricula());
+            if (audit.getMatricula().getEstudiante() != null) {
+                response.setEstudianteNombreCompleto(audit.getMatricula().getEstudiante().getNombres() + " " + audit.getMatricula().getEstudiante().getApellidos());
+            }
+        }
+        response.setEstadoAnterior(audit.getEstadoAnterior());
+        response.setEstadoNuevo(audit.getEstadoNuevo());
+        response.setMotivoCorreccion(audit.getMotivoCorreccion());
+        if (audit.getUsuario() != null) {
+            response.setUsuarioId(audit.getUsuario().getId());
+        }
+        response.setUsername(audit.getUsername());
+        response.setFechaAuditoria(audit.getFechaAuditoria());
+        return response;
+    }
+
+    public SolicitudExcusaAsistenciaResponse toResponse(SolicitudExcusaAsistencia excusa) {
+        if (excusa == null) {
+            return null;
+        }
+
+        SolicitudExcusaAsistenciaResponse response = new SolicitudExcusaAsistenciaResponse();
+        response.setId(excusa.getId());
+        response.setNumeroRadicado(excusa.getNumeroRadicado());
+
+        if (excusa.getMatricula() != null) {
+            Matricula mat = excusa.getMatricula();
+            response.setMatriculaId(mat.getId());
+            response.setNumeroMatricula(mat.getNumeroMatricula());
+            if (mat.getEstudiante() != null) {
+                response.setEstudianteId(mat.getEstudiante().getId());
+                response.setEstudianteNombreCompleto(mat.getEstudiante().getNombres() + " " + mat.getEstudiante().getApellidos());
+            }
+        }
+
+        if (excusa.getSolicitanteUsuario() != null) {
+            response.setSolicitanteUsuarioId(excusa.getSolicitanteUsuario().getId());
+        }
+
+        response.setRolSolicitante(excusa.getRolSolicitante());
+        response.setTipoJustificacion(excusa.getTipoJustificacion());
+        response.setFechaInicio(excusa.getFechaInicio());
+        response.setFechaFin(excusa.getFechaFin());
+        response.setMotivoExplicacion(excusa.getMotivoExplicacion());
+        response.setSoporteUrl(excusa.getSoporteUrl());
+        response.setEsDatoSaludSensible(excusa.getEsDatoSaludSensible());
+        response.setEstado(excusa.getEstado());
+        response.setFechaRadicacion(excusa.getFechaRadicacion());
+        response.setFechaLimiteSubsanacion(excusa.getFechaLimiteSubsanacion());
+        response.setObservacionesResolucion(excusa.getObservacionesResolucion());
+
+        if (excusa.getUsuarioResolutor() != null) {
+            response.setUsuarioResolutorNombre(excusa.getUsuarioResolutor().getUsername());
+        }
+
+        response.setFechaResolucion(excusa.getFechaResolucion());
+        return response;
+    }
+
+    public AutorizacionSalidaAnticipadaResponse toResponse(AutorizacionSalidaAnticipada salida) {
+        if (salida == null) {
+            return null;
+        }
+
+        AutorizacionSalidaAnticipadaResponse response = new AutorizacionSalidaAnticipadaResponse();
+        response.setId(salida.getId());
+        response.setNumeroAutorizacion(salida.getNumeroAutorizacion());
+
+        if (salida.getMatricula() != null) {
+            Matricula mat = salida.getMatricula();
+            response.setMatriculaId(mat.getId());
+            response.setNumeroMatricula(mat.getNumeroMatricula());
+            if (mat.getEstudiante() != null) {
+                response.setEstudianteId(mat.getEstudiante().getId());
+                response.setEstudianteNombreCompleto(mat.getEstudiante().getNombres() + " " + mat.getEstudiante().getApellidos());
+            }
+        }
+
+        response.setFecha(salida.getFecha());
+        response.setHoraSalida(salida.getHoraSalida());
+        response.setMotivo(salida.getMotivo());
+        response.setAdultoRetiraNombre(salida.getAdultoRetiraNombre());
+        response.setAdultoRetiraDocumento(salida.getAdultoRetiraDocumento());
+        response.setParentescoAutorizado(salida.getParentescoAutorizado());
+
+        if (salida.getUsuarioPorteriaValidador() != null) {
+            response.setUsuarioPorteriaValidadorNombre(salida.getUsuarioPorteriaValidador().getUsername());
+        }
+
+        response.setEstado(salida.getEstado());
+        response.setObservaciones(salida.getObservaciones());
+        response.setFechaRegistro(salida.getFechaRegistro());
+        return response;
+    }
+
+    public ActuacionSeguimientoAusentismoResponse toResponse(ActuacionSeguimientoAusentismo act) {
+        if (act == null) {
+            return null;
+        }
+
+        ActuacionSeguimientoAusentismoResponse response = new ActuacionSeguimientoAusentismoResponse();
+        response.setId(act.getId());
+
+        if (act.getMatricula() != null) {
+            Matricula mat = act.getMatricula();
+            response.setMatriculaId(mat.getId());
+            response.setNumeroMatricula(mat.getNumeroMatricula());
+            if (mat.getEstudiante() != null) {
+                response.setEstudianteId(mat.getEstudiante().getId());
+                response.setEstudianteNombreCompleto(mat.getEstudiante().getNombres() + " " + mat.getEstudiante().getApellidos());
+            }
+        }
+
+        if (act.getPeriodoAcademico() != null) {
+            response.setPeriodoAcademicoId(act.getPeriodoAcademico().getId());
+            response.setPeriodoNombre(act.getPeriodoAcademico().getNombre());
+        }
+
+        response.setTipoActuacion(act.getTipoActuacion());
+        response.setFechaActuacion(act.getFechaActuacion());
+        response.setDescripcionGestion(act.getDescripcionGestion());
+        response.setCompromisosAcordados(act.getCompromisosAcordados());
+        response.setSoporteActaUrl(act.getSoporteActaUrl());
+
+        if (act.getUsuarioActuante() != null) {
+            response.setUsuarioActuanteNombre(act.getUsuarioActuante().getUsername());
+        }
+
+        response.setFechaRegistro(act.getFechaRegistro());
+        return response;
+    }
 }

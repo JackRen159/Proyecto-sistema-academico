@@ -2,6 +2,9 @@ package com.jackren.sistemaacademico.controller;
 
 import com.jackren.sistemaacademico.dto.*;
 import com.jackren.sistemaacademico.service.AsistenciaService;
+import com.jackren.sistemaacademico.service.ExcusaAsistenciaService;
+import com.jackren.sistemaacademico.service.SalidaAnticipadaService;
+import com.jackren.sistemaacademico.service.SeguimientoAusentismoService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,9 +20,18 @@ import java.util.List;
 public class AsistenciaController {
 
     private final AsistenciaService asistenciaService;
+    private final ExcusaAsistenciaService excusaService;
+    private final SalidaAnticipadaService salidaService;
+    private final SeguimientoAusentismoService seguimientoService;
 
-    public AsistenciaController(AsistenciaService asistenciaService) {
+    public AsistenciaController(AsistenciaService asistenciaService,
+                                ExcusaAsistenciaService excusaService,
+                                SalidaAnticipadaService salidaService,
+                                SeguimientoAusentismoService seguimientoService) {
         this.asistenciaService = asistenciaService;
+        this.excusaService = excusaService;
+        this.salidaService = salidaService;
+        this.seguimientoService = seguimientoService;
     }
 
     // =========================================================================
@@ -42,7 +54,7 @@ public class AsistenciaController {
     }
 
     // =========================================================================
-    // 2. SESIONES DE ASISTENCIA
+    // 2. SESIONES DE ASISTENCIA (UC-19)
     // =========================================================================
 
     @PostMapping("/sesiones")
@@ -51,7 +63,8 @@ public class AsistenciaController {
             @Valid @RequestBody SesionAsistenciaRequest request,
             @AuthenticationPrincipal Jwt jwt) {
         Long usuarioId = extraerUsuarioId(jwt);
-        SesionAsistenciaResponse response = asistenciaService.crearSesion(request, usuarioId);
+        String rol = extraerRol(jwt);
+        SesionAsistenciaResponse response = asistenciaService.crearSesion(request, usuarioId, rol);
         URI location = URI.create("/api/asistencia/sesiones/" + response.getId());
         return ResponseEntity.created(location).body(response);
     }
@@ -78,14 +91,18 @@ public class AsistenciaController {
     }
 
     // =========================================================================
-    // 3. TOMA DE ASISTENCIA Y CONSULTA DE REGISTROS
+    // 3. TOMA DE ASISTENCIA Y MODIFICACIÓN AUDITADA (UC-19)
     // =========================================================================
 
     @PostMapping("/sesiones/planilla")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR', 'PROFESOR')")
     public ResponseEntity<List<RegistroAsistenciaResponse>> registrarPlanillaLote(
-            @Valid @RequestBody PlanillaAsistenciaLoteRequest request) {
-        return ResponseEntity.ok(asistenciaService.registrarPlanillaLote(request));
+            @Valid @RequestBody PlanillaAsistenciaLoteRequest request,
+            @AuthenticationPrincipal Jwt jwt) {
+        Long usuarioId = extraerUsuarioId(jwt);
+        String username = extraerUsername(jwt);
+        String rol = extraerRol(jwt);
+        return ResponseEntity.ok(asistenciaService.registrarPlanillaLote(request, usuarioId, username, rol));
     }
 
     @GetMapping("/sesiones/{sesionId}/registros")
@@ -96,7 +113,7 @@ public class AsistenciaController {
     }
 
     // =========================================================================
-    // 4. JUSTIFICACIÓN DE INASISTENCIA
+    // 4. JUSTIFICACIÓN DE INASISTENCIA (COMPATIBILIDAD)
     // =========================================================================
 
     @PostMapping("/registros/{registroId}/justificar")
@@ -111,7 +128,7 @@ public class AsistenciaController {
     }
 
     // =========================================================================
-    // 5. RESÚMENES, PORCENTAJES Y ALERTAS TEMPRANAS
+    // 5. RESÚMENES, PORCENTAJES Y CONSULTAS CONTEXTUALES (UC-03 y UC-09)
     // =========================================================================
 
     @GetMapping("/estudiante/{matriculaId}/resumen")
@@ -123,6 +140,25 @@ public class AsistenciaController {
         return ResponseEntity.ok(asistenciaService.obtenerResumenEstudianteAsignatura(matriculaId, periodoId, asignacionId));
     }
 
+    @GetMapping("/mis-asistencias")
+    @PreAuthorize("hasRole('ESTUDIANTE')")
+    public ResponseEntity<ConsultaAsistenciaEstudianteResponse> consultarMisAsistencias(
+            @RequestParam Long periodoId,
+            @AuthenticationPrincipal Jwt jwt) {
+        Long usuarioId = extraerUsuarioId(jwt);
+        return ResponseEntity.ok(asistenciaService.consultarMisAsistenciasEstudiante(usuarioId, periodoId));
+    }
+
+    @GetMapping("/acudiente/estudiante/{estudianteId}")
+    @PreAuthorize("hasRole('ACUDIENTE')")
+    public ResponseEntity<ConsultaAsistenciaEstudianteResponse> consultarAsistenciasAcudiente(
+            @PathVariable Long estudianteId,
+            @RequestParam Long periodoId,
+            @AuthenticationPrincipal Jwt jwt) {
+        Long usuarioId = extraerUsuarioId(jwt);
+        return ResponseEntity.ok(asistenciaService.consultarAsistenciasAcudiente(usuarioId, estudianteId, periodoId));
+    }
+
     @GetMapping("/grupo/{grupoId}/alertas")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR', 'SECRETARIA', 'PROFESOR')")
     public ResponseEntity<List<ResumenAsistenciaEstudianteResponse>> listarAlertasGrupo(
@@ -130,6 +166,99 @@ public class AsistenciaController {
             @RequestParam Long periodoId,
             @RequestParam Long asignacionId) {
         return ResponseEntity.ok(asistenciaService.listarAlertasPorGrupoYPeriodo(grupoId, periodoId, asignacionId));
+    }
+
+    // =========================================================================
+    // 6. GESTIÓN DE EXCUSAS POR RANGO DE FECHAS (UC-PROV-18)
+    // =========================================================================
+
+    @PostMapping("/excusas")
+    @PreAuthorize("hasAnyRole('ESTUDIANTE', 'ACUDIENTE', 'SECRETARIA', 'COORDINADOR')")
+    public ResponseEntity<SolicitudExcusaAsistenciaResponse> radicarExcusa(
+            @Valid @RequestBody SolicitudExcusaAsistenciaRequest request,
+            @AuthenticationPrincipal Jwt jwt) {
+        Long usuarioId = extraerUsuarioId(jwt);
+        return ResponseEntity.ok(excusaService.radicarExcusa(request, usuarioId));
+    }
+
+    @PutMapping("/excusas/{excusaId}/resolver")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR')")
+    public ResponseEntity<SolicitudExcusaAsistenciaResponse> resolverExcusa(
+            @PathVariable Long excusaId,
+            @Valid @RequestBody ResolverSolicitudExcusaRequest request,
+            @AuthenticationPrincipal Jwt jwt) {
+        Long usuarioId = extraerUsuarioId(jwt);
+        return ResponseEntity.ok(excusaService.resolverExcusa(excusaId, request, usuarioId));
+    }
+
+    @GetMapping("/excusas/matricula/{matriculaId}")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR', 'SECRETARIA', 'PROFESOR', 'ESTUDIANTE', 'ACUDIENTE')")
+    public ResponseEntity<List<SolicitudExcusaAsistenciaResponse>> listarExcusasMatricula(
+            @PathVariable Long matriculaId) {
+        return ResponseEntity.ok(excusaService.listarExcusasMatricula(matriculaId));
+    }
+
+    // =========================================================================
+    // 7. AUTORIZACIONES DE SALIDA ANTICIPADA EN PORTERÍA (UC-PROV-18 A1)
+    // =========================================================================
+
+    @PostMapping("/salidas-anticipadas")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR', 'SECRETARIA')")
+    public ResponseEntity<AutorizacionSalidaAnticipadaResponse> registrarSalidaAnticipada(
+            @Valid @RequestBody AutorizacionSalidaAnticipadaRequest request,
+            @AuthenticationPrincipal Jwt jwt) {
+        Long usuarioId = extraerUsuarioId(jwt);
+        return ResponseEntity.ok(salidaService.registrarSalidaAnticipada(request, usuarioId));
+    }
+
+    @GetMapping("/salidas-anticipadas/matricula/{matriculaId}")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR', 'SECRETARIA', 'PROFESOR')")
+    public ResponseEntity<List<AutorizacionSalidaAnticipadaResponse>> listarSalidasMatricula(
+            @PathVariable Long matriculaId) {
+        return ResponseEntity.ok(salidaService.listarSalidasMatricula(matriculaId));
+    }
+
+    // =========================================================================
+    // 8. ACTUACIONES DE SEGUIMIENTO AL AUSENTISMO Y DESERCIÓN (UC-PROV-19)
+    // =========================================================================
+
+    @PostMapping("/seguimiento-ausentismo")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR', 'PROFESOR')")
+    public ResponseEntity<ActuacionSeguimientoAusentismoResponse> registrarActuacionSeguimiento(
+            @Valid @RequestBody ActuacionSeguimientoAusentismoRequest request,
+            @AuthenticationPrincipal Jwt jwt) {
+        Long usuarioId = extraerUsuarioId(jwt);
+        return ResponseEntity.ok(seguimientoService.registrarActuacion(request, usuarioId));
+    }
+
+    @GetMapping("/seguimiento-ausentismo/matricula/{matriculaId}")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR', 'SECRETARIA', 'PROFESOR')")
+    public ResponseEntity<List<ActuacionSeguimientoAusentismoResponse>> listarActuacionesMatricula(
+            @PathVariable Long matriculaId) {
+        return ResponseEntity.ok(seguimientoService.listarActuacionesMatricula(matriculaId));
+    }
+
+    // =========================================================================
+    // 9. SÁBANA GRUPAL Y CONTROL DOCENTE (UC-PROV-19)
+    // =========================================================================
+
+    @GetMapping("/sabana")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR', 'PROFESOR')")
+    public ResponseEntity<SabanaAsistenciaGrupalResponse> consultarSabanaGrupal(
+            @RequestParam Long grupoId,
+            @RequestParam Long periodoId,
+            @AuthenticationPrincipal Jwt jwt) {
+        Long usuarioId = extraerUsuarioId(jwt);
+        String rol = extraerRol(jwt);
+        return ResponseEntity.ok(asistenciaService.consultarSabanaGrupal(grupoId, periodoId, usuarioId, rol));
+    }
+
+    @GetMapping("/control-sesiones")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR')")
+    public ResponseEntity<List<ControlSesionesDocenteResponse>> consultarControlSesiones(
+            @RequestParam Long anioLectivoId,
+            @RequestParam Long periodoId) {
+        return ResponseEntity.ok(asistenciaService.consultarControlSesionesDocente(anioLectivoId, periodoId));
     }
 
     private Long extraerUsuarioId(Jwt jwt) {
@@ -144,5 +273,18 @@ public class AsistenciaController {
 
     private String extraerUsername(Jwt jwt) {
         return jwt != null ? jwt.getSubject() : "sistema";
+    }
+
+    private String extraerRol(Jwt jwt) {
+        if (jwt != null && jwt.hasClaim("rol")) {
+            return jwt.getClaimAsString("rol");
+        }
+        if (jwt != null && jwt.hasClaim("roles")) {
+            Object rolesObj = jwt.getClaim("roles");
+            if (rolesObj instanceof List<?> list && !list.isEmpty()) {
+                return list.get(0).toString().replace("ROLE_", "");
+            }
+        }
+        return null;
     }
 }

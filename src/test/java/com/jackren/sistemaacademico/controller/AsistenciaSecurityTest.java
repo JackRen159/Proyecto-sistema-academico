@@ -51,6 +51,15 @@ class AsistenciaSecurityTest {
     private AsistenciaService asistenciaService;
 
     @MockitoBean
+    private com.jackren.sistemaacademico.service.ExcusaAsistenciaService excusaService;
+
+    @MockitoBean
+    private com.jackren.sistemaacademico.service.SalidaAnticipadaService salidaService;
+
+    @MockitoBean
+    private com.jackren.sistemaacademico.service.SeguimientoAusentismoService seguimientoService;
+
+    @MockitoBean
     private UsuarioRepository usuarioRepository;
 
     @Test
@@ -109,7 +118,7 @@ class AsistenciaSecurityTest {
         SesionAsistenciaResponse resp = new SesionAsistenciaResponse();
         resp.setId(10L);
         resp.setTema("Álgebra lineal");
-        when(asistenciaService.crearSesion(any(), any())).thenReturn(resp);
+        when(asistenciaService.crearSesion(any(), any(), any())).thenReturn(resp);
 
         mockMvc.perform(post("/api/asistencia/sesiones")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -125,7 +134,7 @@ class AsistenciaSecurityTest {
     @Test
     @DisplayName("POST /api/asistencia/sesiones/planilla con rol PROFESOR debe permitir registrar planilla (200 OK)")
     void postPlanilla_ConRolProfesor_DebeRetornar200() throws Exception {
-        when(asistenciaService.registrarPlanillaLote(any())).thenReturn(List.of());
+        when(asistenciaService.registrarPlanillaLote(any(), any(), any(), any())).thenReturn(List.of());
 
         mockMvc.perform(post("/api/asistencia/sesiones/planilla")
                         .contentType(MediaType.APPLICATION_JSON)

@@ -19,6 +19,10 @@ export enum EstadoAsistencia {
 
     Retardo = 'RETARDO',
 
-    RetiroAnticipado = 'RETIRO_ANTICIPADO'
+    RetiroAnticipado = 'RETIRO_ANTICIPADO',
+
+    EvasionInternaClase = 'EVASION_INTERNA_CLASE',
+
+    SalidaAnticipadaAutorizada = 'SALIDA_ANTICIPADA_AUTORIZADA'
 }
 
