@@ -14,6 +14,7 @@ api/calificaciones-ysiee.service.ts
 api/cierre-acadmico-y-promocin.service.ts
 api/configuracin-institucional.service.ts
 api/control-de-asistencia.service.ts
+api/convivencia-escolar.service.ts
 api/documentos-y-reportes-acadmicos.service.ts
 api/estructura-acadmica-aos-lectivos.service.ts
 api/estructura-acadmica-asignaturas.service.ts
@@ -39,12 +40,16 @@ git_push.sh
 index.ts
 model/acta-comision-periodica-request.ts
 model/acta-comision-periodica-response.ts
+model/acta-comite-convivencia-request.ts
+model/acta-comite-convivencia-response.ts
 model/acta-nivelacion-request.ts
 model/acta-nivelacion-response.ts
 model/acta-promocion-anual-request.ts
 model/acta-promocion-anual-response.ts
 model/actividad-evaluativa-request.ts
 model/actividad-evaluativa-response.ts
+model/actuacion-ruta-atencion-request.ts
+model/actuacion-ruta-atencion-response.ts
 model/actuacion-seguimiento-ausentismo-request.ts
 model/actuacion-seguimiento-ausentismo-response.ts
 model/actualizar-calificacion-request.ts
@@ -54,10 +59,15 @@ model/actualizar-manual-borrador-request.ts
 model/actualizar-parametro-request.ts
 model/acudiente-request.ts
 model/acudiente-response.ts
+model/adenda-observador-request.ts
+model/adenda-observador-response.ts
 model/agenda-docente-response.ts
 model/anio-lectivo-request.ts
 model/anio-lectivo-response.ts
+model/anotacion-observador-request.ts
+model/anotacion-observador-response.ts
 model/anulacion-emision-request.ts
+model/apertura-cargos-request.ts
 model/api-auth-cambiar-password-post200-response.ts
 model/api-auth-logout-post200-response.ts
 model/aprobar-graduacion-request.ts
@@ -90,6 +100,8 @@ model/calificacion-periodo-response.ts
 model/cambio-estado-matricula-request.ts
 model/cambio-password-request.ts
 model/caracter-institucion.ts
+model/caso-convivencia-request.ts
+model/caso-convivencia-response.ts
 model/categoria-evaluativa.ts
 model/certificado-estudio-response.ts
 model/cierre-periodo-request.ts
@@ -120,6 +132,7 @@ model/crear-usuario-request.ts
 model/decision-promocion-estudiante-item-request.ts
 model/decision-reclamacion.ts
 model/decision-solicitud-excusa.ts
+model/descargo-debido-proceso-response.ts
 model/desempeno-nacional.ts
 model/dia-no-lectivo-request.ts
 model/dia-no-lectivo-response.ts
@@ -160,6 +173,7 @@ model/estudiante-response.ts
 model/evolucion-documento-request.ts
 model/expediente-completo-request.ts
 model/expediente-completo-response.ts
+model/expediente-debido-proceso-response.ts
 model/exportacion-auditoria-request.ts
 model/ficha-escolar-estudiante-response-contactos-emergencia-inner.ts
 model/ficha-escolar-estudiante-response.ts
@@ -185,6 +199,8 @@ model/login-response.ts
 model/materia-vacante-response.ts
 model/matricula-request.ts
 model/matricula-response.ts
+model/medida-sancion-request.ts
+model/medida-sancion-response.ts
 model/modalidad-evaluativa.ts
 model/modalidad-titulo-bachiller.ts
 model/models.ts
@@ -205,6 +221,8 @@ model/parametro-institucional-response.ts
 model/parentesco.ts
 model/periodo-academico-request.ts
 model/periodo-academico-response.ts
+model/plan-continuidad-request.ts
+model/plan-continuidad-response.ts
 model/planilla-asistencia-lote-request.ts
 model/plantilla-franja-horaria-request.ts
 model/plantilla-franja-horaria-response.ts
@@ -214,10 +232,14 @@ model/profesor-request.ts
 model/profesor-response.ts
 model/promocion-anticipada-request.ts
 model/promocion-estudiante-response.ts
+model/radicar-descargos-request.ts
+model/radicar-recurso-request.ts
 model/radicar-solicitud-rectificacion-request.ts
 model/reapertura-periodo-request.ts
 model/reclamacion-calificacion-request.ts
 model/reclamacion-calificacion-response.ts
+model/reclasificar-caso-request.ts
+model/recurso-impugnacion-response.ts
 model/regimen-evaluacion.ts
 model/registrar-consentimiento-request.ts
 model/registro-asistencia-item-request.ts
@@ -228,6 +250,7 @@ model/registro-emision-response.ts
 model/registro-restriccion-legal-request.ts
 model/relevo-docente-request.ts
 model/resolver-reclamacion-request.ts
+model/resolver-recurso-request.ts
 model/resolver-solicitud-excusa-request.ts
 model/resolver-solicitud-rectificacion-request.ts
 model/restablecimiento-presencial-response.ts
@@ -239,6 +262,7 @@ model/rol-solicitante-reclamacion.ts
 model/rol.ts
 model/sabana-asistencia-grupal-response.ts
 model/sabana-consolidada-response.ts
+model/seguimiento-convivencia-estudiante-response.ts
 model/sesion-asistencia-request.ts
 model/sesion-asistencia-response.ts
 model/sexo-documental.ts
@@ -279,6 +303,7 @@ model/usuario-rol-response.ts
 model/validacion-horario-response.ts
 model/verificacion-integridad-response.ts
 model/verificar-matricula-activa-response.ts
+model/version-estudiante-request.ts
 param.ts
 provide-api.ts
 query.params.ts

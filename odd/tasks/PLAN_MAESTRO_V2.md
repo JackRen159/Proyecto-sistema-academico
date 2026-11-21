@@ -24,8 +24,8 @@
 
 ## Estado de seguimiento
 - [x] Frente 9 — Hardening Seguridad, Configuración Institucional V2 y Auditoría Global
-- [ ] Frente 10 — Módulo Horarios
-- [ ] Frente 11 — Cierre Académico, Promoción y Graduación
-- [ ] Frente 12 — Convivencia Escolar
+- [x] Frente 10 — Módulo Horarios
+- [x] Frente 11 — Cierre Académico, Promoción y Graduación
+- [x] Frente 12 — Convivencia Escolar
 - [ ] Frente 13 — Brechas funcionales V1→V2 en módulos `V1`–`V10`
 - [ ] Frente 14 — Frontend Angular SPA completo

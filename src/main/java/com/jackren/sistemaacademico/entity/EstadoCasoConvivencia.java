@@ -1,0 +1,10 @@
+package com.jackren.sistemaacademico.entity;
+
+public enum EstadoCasoConvivencia {
+    ABIERTO_PRELIMINAR_URGENTE,
+    EN_PROTOCOLO_ATENCION,
+    EN_DEBIDO_PROCESO,
+    EN_SEGUIMIENTO_COMITE,
+    CERRADO_SUPERADO,
+    SEGUIMIENTO_INTERNO_CUMPLIDO_EN_MANOS_AUTORIDAD_EXTERNA
+}

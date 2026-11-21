@@ -6806,6 +6806,678 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '409':
           $ref: '#/components/responses/ConflictError'
+  /api/convivencia/observador:
+    post:
+      tags:
+      - Convivencia Escolar
+      summary: Registrar anotación formativa o disciplinaria en el observador (UC-22)
+      description: Registra hechos verificables objetivos. Prohibido borrado físico o modificación in-situ (RN-CON-01).
+      operationId: registrarAnotacionObservador
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnotacionObservadorRequest'
+      responses:
+        '200':
+          description: Anotación registrada exitosamente de forma inmutable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnotacionObservadorResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/convivencia/observador/{anotacionId}/version-estudiante:
+    post:
+      tags:
+      - Convivencia Escolar
+      summary: Registrar versión libre o compromiso del estudiante (UC-22 A2)
+      operationId: registrarVersionEstudiante
+      parameters:
+      - name: anotacionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VersionEstudianteRequest'
+      responses:
+        '200':
+          description: Versión del menor registrada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnotacionObservadorResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/convivencia/observador/{anotacionId}/enterado-acudiente:
+    post:
+      tags:
+      - Convivencia Escolar
+      summary: Registrar constancia de enterado del acudiente verificado (UC-22 A2)
+      operationId: registrarEnteradoAcudiente
+      parameters:
+      - name: anotacionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Constancia de enterado registrada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnotacionObservadorResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/convivencia/observador/{anotacionId}/adendas:
+    post:
+      tags:
+      - Convivencia Escolar
+      summary: Agregar adenda inmutable a anotación del observador (UC-22 A3)
+      operationId: agregarAdendaObservador
+      parameters:
+      - name: anotacionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdendaObservadorRequest'
+      responses:
+        '200':
+          description: Adenda inmutable registrada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdendaObservadorResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/convivencia/observador/estudiante/{estudianteId}:
+    get:
+      tags:
+      - Convivencia Escolar
+      summary: Listar anotaciones del observador de un estudiante (UC-22)
+      operationId: listarAnotacionesEstudiante
+      parameters:
+      - name: estudianteId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Listado de anotaciones obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AnotacionObservadorResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/convivencia/observador/{anotacionId}:
+    get:
+      tags:
+      - Convivencia Escolar
+      summary: Obtener anotación del observador por ID (UC-22)
+      operationId: obtenerAnotacionPorId
+      parameters:
+      - name: anotacionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Anotación obtenida exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnotacionObservadorResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      tags:
+      - Convivencia Escolar
+      summary: Intento de borrado in-situ (Bloqueado por inmutabilidad E4)
+      operationId: bloquearBorradoObservador
+      parameters:
+      - name: anotacionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '409':
+          $ref: '#/components/responses/ConflictError'
+    put:
+      tags:
+      - Convivencia Escolar
+      summary: Intento de modificación in-situ (Bloqueado por inmutabilidad E4)
+      operationId: bloquearModificacionObservador
+      parameters:
+      - name: anotacionId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/convivencia/casos:
+    post:
+      tags:
+      - Convivencia Escolar
+      summary: Activar Ruta de Atención Integral y abrir caso de convivencia (UC-23)
+      operationId: abrirCasoConvivencia
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CasoConvivenciaRequest'
+      responses:
+        '200':
+          description: Caso de convivencia abierto exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CasoConvivenciaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/convivencia/casos/{casoId}/reclasificar:
+    put:
+      tags:
+      - Convivencia Escolar
+      summary: Reclasificar motivadamente un caso de convivencia (UC-23 A2)
+      operationId: reclasificarCasoConvivencia
+      parameters:
+      - name: casoId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReclasificarCasoRequest'
+      responses:
+        '200':
+          description: Caso reclasificado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CasoConvivenciaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/convivencia/casos/{casoId}/actuaciones:
+    post:
+      tags:
+      - Convivencia Escolar
+      summary: Registrar actuación de la Ruta de Atención Integral (UC-23)
+      operationId: registrarActuacionRuta
+      parameters:
+      - name: casoId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActuacionRutaAtencionRequest'
+      responses:
+        '200':
+          description: Actuación registrada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActuacionRutaAtencionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+    get:
+      tags:
+      - Convivencia Escolar
+      summary: Listar actuaciones de un caso de convivencia (UC-23)
+      operationId: listarActuacionesCaso
+      parameters:
+      - name: casoId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Listado de actuaciones obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ActuacionRutaAtencionResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/convivencia/casos/{casoId}/cerrar:
+    post:
+      tags:
+      - Convivencia Escolar
+      summary: Cerrar formalmente un caso de convivencia superado (UC-23, UC-PROV-26)
+      operationId: cerrarCasoConvivencia
+      parameters:
+      - name: casoId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: motivoCierre
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: codigoSiuce
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Caso cerrado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CasoConvivenciaResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/convivencia/casos/{casoId}:
+    get:
+      tags:
+      - Convivencia Escolar
+      summary: Obtener caso de convivencia por ID (UC-23)
+      operationId: obtenerCasoPorId
+      parameters:
+      - name: casoId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Caso obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CasoConvivenciaResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/convivencia/debido-proceso/apertura:
+    post:
+      tags:
+      - Convivencia Escolar
+      summary: Notificar auto de apertura y traslado de cargos (UC-PROV-25)
+      operationId: abrirExpedienteDebidoProceso
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AperturaCargosRequest'
+      responses:
+        '200':
+          description: Expediente de debido proceso abierto exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpedienteDebidoProcesoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/convivencia/debido-proceso/{expedienteId}/descargos:
+    post:
+      tags:
+      - Convivencia Escolar
+      summary: Radicar descargos y contradicción probatoria (UC-PROV-25)
+      operationId: radicarDescargosDebidoProceso
+      parameters:
+      - name: expedienteId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RadicarDescargosRequest'
+      responses:
+        '200':
+          description: Descargos radicados exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DescargoDebidoProcesoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/convivencia/debido-proceso/{expedienteId}/certificar-vencimiento:
+    post:
+      tags:
+      - Convivencia Escolar
+      summary: Certificar vencimiento de términos de descargos (UC-PROV-25 A2)
+      operationId: certificarVencimientoDescargos
+      parameters:
+      - name: expedienteId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: constancia
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Vencimiento certificado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpedienteDebidoProcesoResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/convivencia/debido-proceso/{expedienteId}:
+    get:
+      tags:
+      - Convivencia Escolar
+      summary: Obtener expediente de debido proceso por ID (UC-PROV-25)
+      operationId: obtenerExpedientePorId
+      parameters:
+      - name: expedienteId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Expediente obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpedienteDebidoProcesoResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/convivencia/medidas:
+    post:
+      tags:
+      - Convivencia Escolar
+      summary: Decidir y notificar medida pedagógica o sanción disciplinaria (UC-24)
+      description: Precondición bloqueante de debido proceso (RN-07). Plan de Continuidad Académica obligatorio en suspensiones (RN-08, Sentencia T-004 de 2026).
+      operationId: decidirMedidaOSancion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MedidaSancionRequest'
+      responses:
+        '200':
+          description: Decisión emitida y notificada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MedidaSancionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/convivencia/medidas/{medidaId}:
+    get:
+      tags:
+      - Convivencia Escolar
+      summary: Obtener medida o sanción por ID (UC-24)
+      operationId: obtenerMedidaPorId
+      parameters:
+      - name: medidaId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Medida obtenida exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MedidaSancionResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/convivencia/medidas/{medidaId}/recursos:
+    post:
+      tags:
+      - Convivencia Escolar
+      summary: Radicar recurso de reposición o apelación con efecto suspensivo (UC-PROV-25, RN-CON-08)
+      operationId: radicarRecursoConvivencia
+      parameters:
+      - name: medidaId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RadicarRecursoRequest'
+      responses:
+        '200':
+          description: Recurso radicado exitosamente con efecto suspensivo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecursoImpugnacionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/convivencia/recursos/{recursoId}/resolver:
+    post:
+      tags:
+      - Convivencia Escolar
+      summary: Resolver recurso de impugnación con segregación de instancias (UC-PROV-25 E3)
+      operationId: resolverRecursoConvivencia
+      parameters:
+      - name: recursoId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResolverRecursoRequest'
+      responses:
+        '200':
+          description: Recurso resuelto motivadamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecursoImpugnacionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/convivencia/comite/actas:
+    post:
+      tags:
+      - Convivencia Escolar
+      summary: Registrar acta numerada del Comité Escolar de Convivencia (UC-PROV-26, RN-SEG-01)
+      operationId: registrarActaComite
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActaComiteConvivenciaRequest'
+      responses:
+        '200':
+          description: Acta de comité registrada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActaComiteConvivenciaResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/convivencia/comite/actas/{actaId}:
+    get:
+      tags:
+      - Convivencia Escolar
+      summary: Obtener acta del Comité Escolar de Convivencia por ID (UC-PROV-26)
+      operationId: obtenerActaComitePorId
+      parameters:
+      - name: actaId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Acta obtenida exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActaComiteConvivenciaResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/convivencia/comite/actas/anio/{anioLectivoId}:
+    get:
+      tags:
+      - Convivencia Escolar
+      summary: Listar actas del Comité Escolar de Convivencia por año lectivo (UC-PROV-26)
+      operationId: listarActasComiteAnio
+      parameters:
+      - name: anioLectivoId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Listado de actas obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ActaComiteConvivenciaResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/convivencia/seguimiento/estudiante/{estudianteId}:
+    get:
+      tags:
+      - Convivencia Escolar
+      summary: Consultar seguimiento de convivencia con permisos y proyección minimizada (UC-25)
+      description: Proyección construida en el servidor anonimizando a terceros menores de edad (RN-09, RN-CON-10).
+      operationId: consultarSeguimientoEstudiante
+      parameters:
+      - name: estudianteId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Seguimiento obtenido exitosamente con proyección minimizada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeguimientoConvivenciaEstudianteResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
 components:
   securitySchemes:
     BearerAuth:
@@ -13769,8 +14441,743 @@ components:
                 type: boolean
               prioridad:
                 type: integer
+    AnotacionObservadorRequest:
+      type: object
+      required:
+      - estudianteId
+      - tipoAnotacion
+      - fechaHecho
+      - lugarHecho
+      - descripcionFactica
+      properties:
+        estudianteId:
+          type: integer
+          format: int64
+        periodoAcademicoId:
+          type: integer
+          format: int64
+        tipoAnotacion:
+          type: string
+          enum: [POSITIVA_RECONOCIMIENTO, SEGUIMIENTO_FORMATIVO, REPORTE_SITUACION_CONVIVENCIA]
+        fechaHecho:
+          type: string
+          format: date
+        horaHecho:
+          type: string
+          example: '10:30:00'
+        lugarHecho:
+          type: string
+          example: Aula 204
+        descripcionFactica:
+          type: string
+          example: El estudiante participa activamente en la actividad formativa
+        accionesPedagogicas:
+          type: string
+        esZonaComun:
+          type: boolean
+        requiereActivacionRuta:
+          type: boolean
+        tipoSituacionSugerida:
+          type: string
+          enum: [TIPO_I, TIPO_II, TIPO_III, FALTA_DISCIPLINARIA]
+    AnotacionObservadorResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        estudianteId:
+          type: integer
+          format: int64
+        nombreEstudiante:
+          type: string
+        periodoAcademicoId:
+          type: integer
+          format: int64
+        autorUsuarioId:
+          type: integer
+          format: int64
+        nombreAutor:
+          type: string
+        tipoAnotacion:
+          type: string
+        fechaHecho:
+          type: string
+          format: date
+        horaHecho:
+          type: string
+        lugarHecho:
+          type: string
+        descripcionFactica:
+          type: string
+        accionesPedagogicas:
+          type: string
+        esZonaComun:
+          type: boolean
+        requiereActivacionRuta:
+          type: boolean
+        casoConvivenciaId:
+          type: integer
+          format: int64
+        versionLibreEstudiante:
+          type: string
+        fechaVersionEstudiante:
+          type: string
+          format: date-time
+        enteradoAcudiente:
+          type: boolean
+        fechaEnteradoAcudiente:
+          type: string
+          format: date-time
+        anotacionFirmada:
+          type: boolean
+        fechaRegistro:
+          type: string
+          format: date-time
+        adendas:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdendaObservadorResponse'
+    AdendaObservadorRequest:
+      type: object
+      required:
+      - motivoAdenda
+      - contenidoAdenda
+      properties:
+        motivoAdenda:
+          type: string
+        contenidoAdenda:
+          type: string
+    AdendaObservadorResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        anotacionId:
+          type: integer
+          format: int64
+        autorUsuarioId:
+          type: integer
+          format: int64
+        nombreAutor:
+          type: string
+        motivoAdenda:
+          type: string
+        contenidoAdenda:
+          type: string
+        fechaAdenda:
+          type: string
+          format: date-time
+    VersionEstudianteRequest:
+      type: object
+      required:
+      - versionLibre
+      properties:
+        versionLibre:
+          type: string
+    CasoConvivenciaRequest:
+      type: object
+      required:
+      - anioLectivoId
+      - estudianteImplicadoId
+      - tipoSituacion
+      - fechaHechos
+      - lugarHechos
+      - descripcionSituacion
+      properties:
+        anioLectivoId:
+          type: integer
+          format: int64
+        estudianteImplicadoId:
+          type: integer
+          format: int64
+        tipoSituacion:
+          type: string
+          enum: [TIPO_I, TIPO_II, TIPO_III, FALTA_DISCIPLINARIA]
+        fechaHechos:
+          type: string
+          format: date
+        lugarHechos:
+          type: string
+        descripcionSituacion:
+          type: string
+        esReporteConfidencial:
+          type: boolean
+        atencionMedicaUrgente:
+          type: boolean
+        detalleAtencionMedica:
+          type: string
+        reservaProteccionContraAcudiente:
+          type: boolean
+        acudienteAgresorId:
+          type: integer
+          format: int64
+        remitidoAutoridadExterna:
+          type: boolean
+        autoridadExternaDetalle:
+          type: string
+        fechaRemisionExterna:
+          type: string
+          format: date
+        radicadoRemisionExterna:
+          type: string
+    CasoConvivenciaResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        codigoExpediente:
+          type: string
+        anioLectivoId:
+          type: integer
+          format: int64
+        estudianteImplicadoId:
+          type: integer
+          format: int64
+        nombreEstudiante:
+          type: string
+        tipoSituacion:
+          type: string
+        estadoCaso:
+          type: string
+        fechaHechos:
+          type: string
+          format: date
+        lugarHechos:
+          type: string
+        descripcionSituacion:
+          type: string
+        reportanteUsuarioId:
+          type: integer
+          format: int64
+        nombreReportante:
+          type: string
+        esReporteConfidencial:
+          type: boolean
+        atencionMedicaUrgente:
+          type: boolean
+        detalleAtencionMedica:
+          type: string
+        reservaProteccionContraAcudiente:
+          type: boolean
+        acudienteAgresorId:
+          type: integer
+          format: int64
+        codigoSiuce:
+          type: string
+        remitidoAutoridadExterna:
+          type: boolean
+        autoridadExternaDetalle:
+          type: string
+        fechaRemisionExterna:
+          type: string
+          format: date
+        radicadoRemisionExterna:
+          type: string
+        fechaApertura:
+          type: string
+          format: date-time
+        fechaCierre:
+          type: string
+          format: date-time
+        motivoCierre:
+          type: string
+    ReclasificarCasoRequest:
+      type: object
+      required:
+      - nuevaSituacion
+      - motivoReclasificacion
+      properties:
+        nuevaSituacion:
+          type: string
+          enum: [TIPO_I, TIPO_II, TIPO_III, FALTA_DISCIPLINARIA]
+        motivoReclasificacion:
+          type: string
+    ActuacionRutaAtencionRequest:
+      type: object
+      required:
+      - tipoActuacion
+      - descripcionActuacion
+      properties:
+        tipoActuacion:
+          type: string
+          enum: [ATENCION_SALUD, MEDIACION_CONCILIACION, MEDIDA_PROTECCION, COMUNICACION_ACUDIENTE, REMISION_EXTERNA, SEGUIMIENTO_ORIENTACION]
+        descripcionActuacion:
+          type: string
+        fechaVencimientoSeguimiento:
+          type: string
+          format: date
+        compromisosAcordados:
+          type: string
+    ActuacionRutaAtencionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        casoConvivenciaId:
+          type: integer
+          format: int64
+        tipoActuacion:
+          type: string
+        descripcionActuacion:
+          type: string
+        responsableUsuarioId:
+          type: integer
+          format: int64
+        nombreResponsable:
+          type: string
+        fechaActuacion:
+          type: string
+          format: date-time
+        fechaVencimientoSeguimiento:
+          type: string
+          format: date
+        compromisosAcordados:
+          type: string
+    AperturaCargosRequest:
+      type: object
+      required:
+      - casoConvivenciaId
+      - estudianteId
+      - autoAperturaHechos
+      - normasManualInfringidas
+      - pruebasTrasladadasAnonimizadas
+      properties:
+        casoConvivenciaId:
+          type: integer
+          format: int64
+        estudianteId:
+          type: integer
+          format: int64
+        autoAperturaHechos:
+          type: string
+        normasManualInfringidas:
+          type: string
+        pruebasTrasladadasAnonimizadas:
+          type: string
+        diasHabilesDescargos:
+          type: integer
+        acompanamientoPersonero:
+          type: boolean
+        conceptoOrientacion:
+          type: string
+    ExpedienteDebidoProcesoResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        numeroExpediente:
+          type: string
+        casoConvivenciaId:
+          type: integer
+          format: int64
+        codigoCaso:
+          type: string
+        estudianteId:
+          type: integer
+          format: int64
+        nombreEstudiante:
+          type: string
+        estadoExpediente:
+          type: string
+        instructorUsuarioId:
+          type: integer
+          format: int64
+        nombreInstructor:
+          type: string
+        autoAperturaHechos:
+          type: string
+        normasManualInfringidas:
+          type: string
+        pruebasTrasladadasAnonimizadas:
+          type: string
+        fechaNotificacionCargos:
+          type: string
+          format: date-time
+        diasHabilesDescargos:
+          type: integer
+        fechaLimiteDescargos:
+          type: string
+          format: date
+        constanciaVencimientoDescargos:
+          type: string
+        acompanamientoPersonero:
+          type: boolean
+        conceptoOrientacion:
+          type: string
+        descargos:
+          type: array
+          items:
+            $ref: '#/components/schemas/DescargoDebidoProcesoResponse'
+    RadicarDescargosRequest:
+      type: object
+      required:
+      - contenidoDescargos
+      properties:
+        contenidoDescargos:
+          type: string
+        pruebasAportadas:
+          type: string
+        esVersionLibreAudiencia:
+          type: boolean
+        participoPersonero:
+          type: boolean
+    DescargoDebidoProcesoResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        expedienteId:
+          type: integer
+          format: int64
+        presentadoPorUsuarioId:
+          type: integer
+          format: int64
+        nombrePresentador:
+          type: string
+        contenidoDescargos:
+          type: string
+        pruebasAportadas:
+          type: string
+        fechaRadicacion:
+          type: string
+          format: date-time
+        esVersionLibreAudiencia:
+          type: boolean
+        participoPersonero:
+          type: boolean
+    MedidaSancionRequest:
+      type: object
+      required:
+      - expedienteId
+      - tipoMedida
+      - motivacionHechosNormas
+      - analisisProporcionalidad
+      properties:
+        expedienteId:
+          type: integer
+          format: int64
+        tipoMedida:
+          type: string
+          enum: [COMPROMISO_PEDAGOGICO, AMONESTACION_ESCRITA, ACCION_RESTAURATIVA_COMUNITARIA, SUSPENSION_TEMPORAL_ASISTENCIA, CANCELACION_MATRICULA_EXPULSION, PERDIDA_CUPO_SIGUIENTE_ANIO]
+        esSancionDisciplinaria:
+          type: boolean
+        motivacionHechosNormas:
+          type: string
+        analisisProporcionalidad:
+          type: string
+        diasSuspension:
+          type: integer
+        fechaInicioSuspension:
+          type: string
+          format: date
+        fechaFinSuspension:
+          type: string
+          format: date
+        actaConsejoDirectivo:
+          type: string
+        fechaActaConsejoDirectivo:
+          type: string
+          format: date
+        planContinuidad:
+          $ref: '#/components/schemas/PlanContinuidadRequest'
+    PlanContinuidadRequest:
+      type: object
+      required:
+      - guiasTalleresDescripcion
+      - mecanismoEvaluacion
+      properties:
+        guiasTalleresDescripcion:
+          type: string
+        mecanismoEvaluacion:
+          type: string
+        docenteTutorSeguimientoId:
+          type: integer
+          format: int64
+    PlanContinuidadResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        medidaSancionId:
+          type: integer
+          format: int64
+        estudianteId:
+          type: integer
+          format: int64
+        nombreEstudiante:
+          type: string
+        fechaInicio:
+          type: string
+          format: date
+        fechaFin:
+          type: string
+          format: date
+        guiasTalleresDescripcion:
+          type: string
+        mecanismoEvaluacion:
+          type: string
+        docenteTutorSeguimientoId:
+          type: integer
+          format: int64
+        nombreTutor:
+          type: string
+        cumplidoSatisfactoriamente:
+          type: boolean
+        observacionesEvaluacion:
+          type: string
+        fechaRegistro:
+          type: string
+          format: date-time
+    MedidaSancionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        expedienteId:
+          type: integer
+          format: int64
+        numeroResolucion:
+          type: string
+        tipoMedida:
+          type: string
+        esSancionDisciplinaria:
+          type: boolean
+        motivacionHechosNormas:
+          type: string
+        analisisProporcionalidad:
+          type: string
+        diasSuspension:
+          type: integer
+        fechaInicioSuspension:
+          type: string
+          format: date
+        fechaFinSuspension:
+          type: string
+          format: date
+        actaConsejoDirectivo:
+          type: string
+        fechaActaConsejoDirectivo:
+          type: string
+          format: date
+        autoridadFirmanteId:
+          type: integer
+          format: int64
+        nombreFirmante:
+          type: string
+        rolFirmante:
+          type: string
+        estadoDecision:
+          type: string
+        fechaEmision:
+          type: string
+          format: date-time
+        fechaNotificacion:
+          type: string
+          format: date-time
+        fechaFirmeza:
+          type: string
+          format: date-time
+        planContinuidad:
+          $ref: '#/components/schemas/PlanContinuidadResponse'
+    RadicarRecursoRequest:
+      type: object
+      required:
+      - tipoRecurso
+      - sustentacionRecurso
+      properties:
+        tipoRecurso:
+          type: string
+          enum: [REPOSICION, APELACION, REPOSICION_Y_EN_SUBSIDIO_APELACION]
+        sustentacionRecurso:
+          type: string
+        pruebasAdjuntas:
+          type: string
+    ResolverRecursoRequest:
+      type: object
+      required:
+      - sentidoFallo
+      - motivoResolucion
+      properties:
+        sentidoFallo:
+          type: string
+          example: CONFIRMAR_DECISION
+        motivoResolucion:
+          type: string
+        actaConsejoDirectivo:
+          type: string
+    RecursoImpugnacionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        medidaSancionId:
+          type: integer
+          format: int64
+        tipoRecurso:
+          type: string
+        recurrenteUsuarioId:
+          type: integer
+          format: int64
+        nombreRecurrente:
+          type: string
+        sustentacionRecurso:
+          type: string
+        pruebasAdjuntas:
+          type: string
+        fechaRadicacion:
+          type: string
+          format: date-time
+        estadoRecurso:
+          type: string
+        resolutorUsuarioId:
+          type: integer
+          format: int64
+        nombreResolutor:
+          type: string
+        resolutorRol:
+          type: string
+        actaConsejoDirectivoResolucion:
+          type: string
+        motivoResolucionRecurso:
+          type: string
+        fechaResolucion:
+          type: string
+          format: date-time
+    ActaComiteConvivenciaRequest:
+      type: object
+      required:
+      - anioLectivoId
+      - numeroActa
+      - fechaSesion
+      - horaInicio
+      - lugarSesion
+      - integrantesAsistentesJson
+      - casosAnalizadosJson
+      - acuerdosCompromisosJson
+      - usuarioSecretarioId
+      - usuarioPresidenteId
+      properties:
+        anioLectivoId:
+          type: integer
+          format: int64
+        numeroActa:
+          type: string
+        fechaSesion:
+          type: string
+          format: date
+        horaInicio:
+          type: string
+          example: '08:00:00'
+        horaFin:
+          type: string
+          example: '10:00:00'
+        lugarSesion:
+          type: string
+        tipoSesion:
+          type: string
+          enum: [ORDINARIA, EXTRAORDINARIA]
+        integrantesAsistentesJson:
+          type: string
+        impedimentosDeclaradosJson:
+          type: string
+        casosAnalizadosJson:
+          type: string
+        acuerdosCompromisosJson:
+          type: string
+        accionesPrevencionPromocion:
+          type: string
+        usuarioSecretarioId:
+          type: integer
+          format: int64
+        usuarioPresidenteId:
+          type: integer
+          format: int64
+    ActaComiteConvivenciaResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        anioLectivoId:
+          type: integer
+          format: int64
+        numeroActa:
+          type: string
+        fechaSesion:
+          type: string
+          format: date
+        horaInicio:
+          type: string
+        horaFin:
+          type: string
+        lugarSesion:
+          type: string
+        tipoSesion:
+          type: string
+        integrantesAsistentesJson:
+          type: string
+        impedimentosDeclaradosJson:
+          type: string
+        casosAnalizadosJson:
+          type: string
+        acuerdosCompromisosJson:
+          type: string
+        accionesPrevencionPromocion:
+          type: string
+        usuarioSecretarioId:
+          type: integer
+          format: int64
+        nombreSecretario:
+          type: string
+        usuarioPresidenteId:
+          type: integer
+          format: int64
+        nombrePresidente:
+          type: string
+        fechaRegistro:
+          type: string
+          format: date-time
+    SeguimientoConvivenciaEstudianteResponse:
+      type: object
+      properties:
+        estudianteId:
+          type: integer
+          format: int64
+        nombreEstudiante:
+          type: string
+        anotaciones:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnotacionObservadorResponse'
+        casos:
+          type: array
+          items:
+            $ref: '#/components/schemas/CasoConvivenciaResponse'
+        expedientesDebidoProceso:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExpedienteDebidoProcesoResponse'
+        medidasSanciones:
+          type: array
+          items:
+            $ref: '#/components/schemas/MedidaSancionResponse'
+        planesContinuidad:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlanContinuidadResponse'
 
 tags:
+- name: Convivencia Escolar
+  description: Observador del estudiante inmutable, Ruta de Atención Integral (Situaciones Tipo I, II y III Ley 1620), instrucción del debido proceso disciplinario, medidas y sanciones con Plan de Continuidad Académica (Sentencia T-004 de 2026), seguimiento con proyección anonimizada y actas del Comité Escolar de Convivencia (UC-22, UC-23, UC-24, UC-25, UC-PROV-25, UC-PROV-26)
 - name: Profesores
   description: Gestión de docentes, datos profesionales y vinculación a cuentas de
     usuario
