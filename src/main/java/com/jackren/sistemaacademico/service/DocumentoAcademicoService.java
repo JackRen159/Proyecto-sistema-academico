@@ -6,6 +6,8 @@ import com.jackren.sistemaacademico.exception.ConflictoNegocioException;
 import com.jackren.sistemaacademico.exception.RecursoNoEncontradoException;
 import com.jackren.sistemaacademico.mapper.DocumentoMapper;
 import com.jackren.sistemaacademico.repository.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +31,24 @@ public class DocumentoAcademicoService {
     private final RegistroAsistenciaRepository registroAsistenciaRepository;
     private final ConfiguracionEscalaSieeRepository escalaSieeRepository;
     private final DocumentoMapper documentoMapper;
+
+    @Autowired(required = false)
+    private InstitucionDatosLegalesRepository institucionDatosLegalesRepository;
+
+    @Autowired(required = false)
+    private PromocionEstudianteAnualRepository promocionEstudianteAnualRepository;
+
+    @Autowired(required = false)
+    private AuditoriaGlobalService auditoriaGlobalService;
+
+    @Autowired(required = false)
+    private EstudianteAcudienteRepository estudianteAcudienteRepository;
+
+    @Autowired(required = false)
+    private AcudienteRepository acudienteRepository;
+
+    @Autowired(required = false)
+    private CasoConvivenciaRepository casoConvivenciaRepository;
 
     // Metadatos institucionales por defecto
     private static final String INSTITUCION_NOMBRE = "Colegio Integrado San José";
@@ -60,6 +80,145 @@ public class DocumentoAcademicoService {
         this.documentoMapper = documentoMapper;
     }
 
+    public DocumentoAcademicoService(ConsecutivoDocumentoRepository consecutivoRepository,
+                                     RegistroEmisionDocumentoRepository emisionRepository,
+                                     MatriculaRepository matriculaRepository,
+                                     PeriodoAcademicoRepository periodoRepository,
+                                     AnioLectivoRepository anioLectivoRepository,
+                                     GradoAsignaturaRepository gradoAsignaturaRepository,
+                                     AsignacionAcademicaRepository asignacionRepository,
+                                     CalificacionPeriodoRepository calificacionPeriodoRepository,
+                                     RegistroAsistenciaRepository registroAsistenciaRepository,
+                                     ConfiguracionEscalaSieeRepository escalaSieeRepository,
+                                     DocumentoMapper documentoMapper,
+                                     InstitucionDatosLegalesRepository institucionDatosLegalesRepository,
+                                     PromocionEstudianteAnualRepository promocionEstudianteAnualRepository,
+                                     AuditoriaGlobalService auditoriaGlobalService,
+                                     EstudianteAcudienteRepository estudianteAcudienteRepository,
+                                     AcudienteRepository acudienteRepository,
+                                     CasoConvivenciaRepository casoConvivenciaRepository) {
+        this(consecutivoRepository, emisionRepository, matriculaRepository, periodoRepository,
+             anioLectivoRepository, gradoAsignaturaRepository, asignacionRepository,
+             calificacionPeriodoRepository, registroAsistenciaRepository, escalaSieeRepository, documentoMapper);
+        this.institucionDatosLegalesRepository = institucionDatosLegalesRepository;
+        this.promocionEstudianteAnualRepository = promocionEstudianteAnualRepository;
+        this.auditoriaGlobalService = auditoriaGlobalService;
+        this.estudianteAcudienteRepository = estudianteAcudienteRepository;
+        this.acudienteRepository = acudienteRepository;
+        this.casoConvivenciaRepository = casoConvivenciaRepository;
+    }
+
+    // =========================================================================
+    // 0. CONTROL CONTEXTUAL DE AUTORIZACIÓN (UC-05, UC-11, RN-DOC-04)
+    // =========================================================================
+
+    public void validarAccesoContextualPorMatricula(Long matriculaId, Usuario usuario) {
+        if (usuario == null) return;
+        Matricula m = matriculaRepository.findById(matriculaId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Matrícula no encontrada con ID: " + matriculaId));
+        validarAccesoContextual(m.getEstudiante().getId(), usuario);
+    }
+
+    public void validarAccesoContextual(Long estudianteId, Usuario usuario) {
+        if (usuario == null) return;
+        Rol rol = usuario.getRol();
+        if (rol == Rol.ADMINISTRADOR || rol == Rol.RECTOR || rol == Rol.COORDINADOR ||
+            rol == Rol.COORDINADOR_ACADEMICO || rol == Rol.COORDINADOR_CONVIVENCIA || rol == Rol.SECRETARIA) {
+            return;
+        }
+
+        if (rol == Rol.ESTUDIANTE) {
+            if (usuario.getPersonaId() != null && !usuario.getPersonaId().equals(estudianteId)) {
+                throw new AccessDeniedException("No puede consultar ni emitir documentos de otro estudiante (E2, RN-DOC-04)");
+            }
+            return;
+        }
+
+        if (rol == Rol.ACUDIENTE) {
+            Acudiente acudiente = null;
+            if (acudienteRepository != null) {
+                if (usuario.getPersonaId() != null) {
+                    acudiente = acudienteRepository.findById(usuario.getPersonaId()).orElse(null);
+                }
+                if (acudiente == null) {
+                    acudiente = acudienteRepository.findByDocumento(usuario.getUsername()).orElse(null);
+                }
+            }
+            if (acudiente == null) {
+                throw new AccessDeniedException("No se encontró perfil de acudiente vinculado a la cuenta (E1)");
+            }
+
+            Estudiante estudiante = matriculaRepository.findByEstudianteIdOrderByFechaMatriculaDesc(estudianteId).stream()
+                    .findFirst().map(Matricula::getEstudiante).orElse(null);
+            if (estudiante == null) {
+                estudiante = new Estudiante();
+                estudiante.setId(estudianteId);
+            }
+
+            if (estudianteAcudienteRepository != null) {
+                EstudianteAcudiente vinculo = estudianteAcudienteRepository.findByEstudianteAndAcudiente(estudiante, acudiente)
+                        .orElseThrow(() -> new AccessDeniedException("No existe vínculo legal registrado con el estudiante (E1, RN-DOC-04)"));
+
+                if (vinculo.getEstadoVinculo() == EstadoVinculo.BLOQUEADO_RESTRICCION_LEGAL) {
+                    throw new AccessDeniedException("Acceso bloqueado por orden judicial o restricción legal (E1, UC-PROV-05, RN-DOC-04)");
+                }
+            }
+            return;
+        }
+
+        if (rol == Rol.PROFESOR) {
+            List<Matricula> matriculas = matriculaRepository.findByEstudianteIdOrderByFechaMatriculaDesc(estudianteId);
+            boolean asignado = false;
+            for (Matricula m : matriculas) {
+                if (m.getEstado() == EstadoMatricula.MATRICULADA || m.getEstado() == EstadoMatricula.MATRICULADO_ACTIVO) {
+                    if (asignacionRepository.existsByProfesorUsuarioIdAndGrupoIdAndActivoTrue(usuario.getId(), m.getGrupo().getId())) {
+                        asignado = true;
+                        break;
+                    }
+                }
+            }
+            if (!asignado) {
+                throw new AccessDeniedException("Docente sin asignación académica en el curso del estudiante (E2)");
+            }
+            return;
+        }
+
+        throw new AccessDeniedException("Rol no autorizado para acceder a documentos del estudiante");
+    }
+
+    private InstitucionDatosLegales obtenerInstitucion() {
+        if (institucionDatosLegalesRepository != null) {
+            Optional<InstitucionDatosLegales> instOpt = institucionDatosLegalesRepository.findFirstByActivoTrue();
+            if (instOpt.isPresent()) {
+                InstitucionDatosLegales inst = instOpt.get();
+                if (inst.getNombreOficial() != null && !inst.getNombreOficial().isBlank()) {
+                    return inst;
+                }
+            }
+        }
+        InstitucionDatosLegales fallback = new InstitucionDatosLegales();
+        fallback.setNombreOficial(INSTITUCION_NOMBRE);
+        fallback.setNit(INSTITUCION_NIT);
+        fallback.setCodigoDane(INSTITUCION_DANE);
+        fallback.setResolucionAprobacion(INSTITUCION_RESOLUCION);
+        fallback.setNombreRectorFirmante("Rector Institucional");
+        fallback.setNombreSecretarioFirmante("Secretaria Académica");
+        return fallback;
+    }
+
+    public void validarDatosLegalesParaCertificacion() {
+        if (institucionDatosLegalesRepository != null) {
+            InstitucionDatosLegales inst = institucionDatosLegalesRepository.findFirstByActivoTrue().orElse(null);
+            if (inst == null || inst.getCodigoDane() == null || inst.getCodigoDane().isBlank() ||
+                inst.getNit() == null || inst.getNit().isBlank() ||
+                inst.getResolucionAprobacion() == null || inst.getResolucionAprobacion().isBlank()) {
+                throw new ConflictoNegocioException(
+                        "Faltan datos oficiales del establecimiento o firmas autorizadas en configuración institucional (E1, RN-CFG-08)"
+                );
+            }
+        }
+    }
+
     // =========================================================================
     // 1. GESTIÓN DE CONSECUTIVOS Y FOLIADOS POR AÑO LECTIVO
     // =========================================================================
@@ -74,12 +233,25 @@ public class DocumentoAcademicoService {
 
         consecutivo.setAnioLectivo(anioLectivo);
         consecutivo.setTipoDocumento(request.getTipoDocumento());
-        consecutivo.setPrefijo(request.getPrefijo() != null ? request.getPrefijo() : "");
+        consecutivo.setPrefijo(request.getPrefijo() != null ? request.getPrefijo().trim().toUpperCase() : "");
         consecutivo.setUltimoNumero(request.getUltimoNumero() != null ? request.getUltimoNumero() : 0L);
         consecutivo.setLongitudRelleno(request.getLongitudRelleno() != null ? request.getLongitudRelleno() : 5);
         consecutivo.setTextoPiePagina(request.getTextoPiePagina());
 
         ConsecutivoDocumento guardado = consecutivoRepository.save(consecutivo);
+
+        if (auditoriaGlobalService != null) {
+            auditoriaGlobalService.registrarEvento(
+                    "CONFIGURACION_CONSECUTIVO_DOCUMENTO",
+                    "ConsecutivoDocumento",
+                    guardado.getId().toString(),
+                    "N/A",
+                    "Prefijo: " + guardado.getPrefijo() + ", Tipo: " + guardado.getTipoDocumento(),
+                    "Configuración formal de foliado anual atómico",
+                    "EXITOSO"
+            );
+        }
+
         return documentoMapper.toConsecutivoResponse(guardado);
     }
 
@@ -97,8 +269,10 @@ public class DocumentoAcademicoService {
                         case BOLETIN_PERIODO -> "BOL";
                         case BOLETIN_FINAL -> "BFIN";
                         case CERTIFICADO_ESTUDIO -> "CERT";
+                        case CERTIFICADO_NOTAS_PARCIALES_RETIRO -> "CPAR";
                         case CONSTANCIA_MATRICULA -> "CONST";
                         case ACTA_COMISION -> "ACTA";
+                        case COPIA_ACTA_INDIVIDUAL_GRADO -> "AGRD";
                     };
                     ConsecutivoDocumento nuevo = new ConsecutivoDocumento(
                             anioLectivo, tipo, prefijo, 0L, 5, "Documento oficial del Sistema Escolar"
@@ -125,11 +299,19 @@ public class DocumentoAcademicoService {
             throw new ConflictoNegocioException("El periodo académico no corresponde al año lectivo de la matrícula");
         }
 
+        InstitucionDatosLegales institucion = obtenerInstitucion();
+
         ConsecutivoDocumento consecutivo = obtenerOCrearConsecutivo(matricula.getAnioLectivo(), TipoDocumentoAcademico.BOLETIN_PERIODO);
         String numeroConsecutivo = consecutivo.incrementarYFormatear(matricula.getAnioLectivo().getAnio());
         String codigoVerificacion = UUID.randomUUID().toString();
 
-        // Registrar auditoría de emisión
+        String destinatario = (request != null && request.getDestinatario() != null && !request.getDestinatario().isBlank())
+                ? request.getDestinatario().trim()
+                : "A quien interese";
+        String motivo = (request != null && request.getMotivo() != null)
+                ? request.getMotivo().trim()
+                : "Boletín periódico oficial de calificaciones SIEE";
+
         RegistroEmisionDocumento emision = new RegistroEmisionDocumento(
                 consecutivo,
                 TipoDocumentoAcademico.BOLETIN_PERIODO,
@@ -141,13 +323,23 @@ public class DocumentoAcademicoService {
                 matricula.getGrupo(),
                 codigoVerificacion,
                 usuarioEmisor,
-                request != null ? request.getDestinatario() : "A quien interese",
-                request != null ? request.getMotivo() : "Boletín periódico oficial de calificaciones SIEE",
+                destinatario,
+                motivo,
                 null
         );
+
+        // Versionamiento ante regeneración (RN-DOC-03)
+        emisionRepository.findByMatriculaIdAndPeriodoAcademicoIdAndTipoDocumentoAndAnuladoFalse(
+                matriculaId, periodoAcademicoId, TipoDocumentoAcademico.BOLETIN_PERIODO
+        ).ifPresent(previa -> {
+            emision.setNumeroVersion(previa.getNumeroVersion() + 1);
+            emision.setEmisionPrevia(previa);
+            previa.setEstadoEmision(EstadoEmisionDocumento.HISTORICA_REEMPLAZADA_POR_RECTIFICACION);
+            emisionRepository.save(previa);
+        });
+
         emisionRepository.save(emision);
 
-        // Consultar escala SIEE del año
         ConfiguracionEscalaSiee escalaSiee = escalaSieeRepository.findByAnioLectivoId(matricula.getAnioLectivo().getId())
                 .orElseGet(() -> new ConfiguracionEscalaSiee(
                         matricula.getAnioLectivo(),
@@ -159,31 +351,25 @@ public class DocumentoAcademicoService {
                         new BigDecimal("4.60")
                 ));
 
-        // Asignaturas del plan de estudios del grado
         Long gradoId = matricula.getGrupo().getGrado().getId();
         List<GradoAsignatura> gradoAsignaturas = gradoAsignaturaRepository.findByGradoIdAndActivoTrue(gradoId);
 
-        // Calificaciones del periodo para la matrícula
         List<CalificacionPeriodo> calificaciones = calificacionPeriodoRepository
                 .findByMatriculaIdAndPeriodoAcademicoId(matriculaId, periodoAcademicoId);
         Map<Long, CalificacionPeriodo> califMap = calificaciones.stream()
                 .collect(Collectors.toMap(c -> c.getAsignatura().getId(), c -> c, (c1, c2) -> c1));
 
-        // Asistencias del periodo para la matrícula
         List<RegistroAsistencia> asistencias = registroAsistenciaRepository
                 .findByMatriculaIdAndSesionAsistenciaPeriodoAcademicoId(matriculaId, periodoAcademicoId);
 
-        // Mapear docentes asignados al grupo
         List<AsignacionAcademica> asignaciones = asignacionRepository.findByGrupoIdAndActivoTrue(matricula.getGrupo().getId());
         Map<Long, AsignacionAcademica> asignacionMap = asignaciones.stream()
                 .collect(Collectors.toMap(a -> a.getAsignatura().getId(), a -> a, (a1, a2) -> a1));
 
-        // Director de grupo
         String directorGrupo = asignacionRepository.findByGrupoIdAndEsDirectorGrupoTrueAndActivoTrue(matricula.getGrupo().getId())
                 .map(a -> a.getProfesor().getNombres() + " " + a.getProfesor().getApellidos())
                 .orElse("No asignado");
 
-        // Agrupar por áreas
         Map<Area, List<GradoAsignatura>> asignaturasPorArea = gradoAsignaturas.stream()
                 .collect(Collectors.groupingBy(ga -> ga.getAsignatura().getArea(), LinkedHashMap::new, Collectors.toList()));
 
@@ -219,7 +405,6 @@ public class DocumentoAcademicoService {
                 DesempenoNacional desempeno = cp != null ? cp.getDesempeno() : null;
                 String observaciones = cp != null ? cp.getObservaciones() : null;
 
-                // Conteo de asistencias por asignatura
                 long fallasJust = 0;
                 long fallasInjust = 0;
                 long ret = 0;
@@ -305,16 +490,16 @@ public class DocumentoAcademicoService {
                 escalaInfo
         );
 
+        Estudiante est = matricula.getEstudiante();
         BoletinPeriodoResponse response = new BoletinPeriodoResponse();
         response.setCodigoVerificacion(codigoVerificacion);
         response.setNumeroConsecutivo(numeroConsecutivo);
         response.setFechaEmision(emision.getFechaEmision());
-        response.setNombreInstitucion(INSTITUCION_NOMBRE);
-        response.setNitInstitucion(INSTITUCION_NIT);
-        response.setDaneInstitucion(INSTITUCION_DANE);
-        response.setResolucionAprobacion(INSTITUCION_RESOLUCION);
+        response.setNombreInstitucion(institucion.getNombreOficial());
+        response.setNitInstitucion(institucion.getNit());
+        response.setDaneInstitucion(institucion.getCodigoDane());
+        response.setResolucionAprobacion(institucion.getResolucionAprobacion());
 
-        Estudiante est = matricula.getEstudiante();
         response.setEstudianteId(est.getId());
         response.setNombreEstudiante(est.getNombres() + " " + est.getApellidos());
         response.setTipoDocumentoEstudiante("DOCUMENTO");
@@ -325,12 +510,25 @@ public class DocumentoAcademicoService {
         response.setGrado(matricula.getGrupo().getGrado().getNombre());
         response.setGrupo(matricula.getGrupo().getNombre());
         response.setJornada(matricula.getGrupo().getJornada() != null ? matricula.getGrupo().getJornada().name() : "MAÑANA");
+
         response.setPeriodoEvaluado(periodo.getNombre());
         response.setNumeroPeriodo(periodo.getNumero());
         response.setDirectorGrupo(directorGrupo);
 
         response.setAreas(areasDTO);
         response.setResumen(resumenDTO);
+
+        if (auditoriaGlobalService != null) {
+            auditoriaGlobalService.registrarEvento(
+                    "EMISION_BOLETIN_PERIODO",
+                    "RegistroEmisionDocumento",
+                    emision.getId() != null ? emision.getId().toString() : "N/A",
+                    "N/A",
+                    "Consecutivo: " + numeroConsecutivo + ", Estudiante: " + est.getId(),
+                    "Emisión oficial de boletín de periodo " + periodo.getNumero(),
+                    "EXITOSO"
+            );
+        }
 
         return response;
     }
@@ -344,6 +542,8 @@ public class DocumentoAcademicoService {
                                                                  Usuario usuarioEmisor) {
         Matricula matricula = matriculaRepository.findById(matriculaId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Matrícula no encontrada con ID: " + matriculaId));
+
+        InstitucionDatosLegales institucion = obtenerInstitucion();
 
         ConsecutivoDocumento consecutivo = obtenerOCrearConsecutivo(matricula.getAnioLectivo(), TipoDocumentoAcademico.CONSTANCIA_MATRICULA);
         String numeroConsecutivo = consecutivo.incrementarYFormatear(matricula.getAnioLectivo().getAnio());
@@ -372,7 +572,7 @@ public class DocumentoAcademicoService {
         emisionRepository.save(emision);
 
         Estudiante est = matricula.getEstudiante();
-        String textoCertificacion = "La Rectoría y Secretaría del " + INSTITUCION_NOMBRE +
+        String textoCertificacion = "La Rectoría y Secretaría del " + institucion.getNombreOficial() +
                 " certifican que el(la) estudiante " + est.getNombres().toUpperCase() + " " + est.getApellidos().toUpperCase() +
                 ", identificado(a) con documento " + est.getDocumento() +
                 ", se encuentra formalmente matriculado(a) y cursando el grado " +
@@ -386,10 +586,10 @@ public class DocumentoAcademicoService {
         response.setCodigoVerificacion(codigoVerificacion);
         response.setNumeroConsecutivo(numeroConsecutivo);
         response.setFechaEmision(emision.getFechaEmision());
-        response.setNombreInstitucion(INSTITUCION_NOMBRE);
-        response.setNitInstitucion(INSTITUCION_NIT);
-        response.setDaneInstitucion(INSTITUCION_DANE);
-        response.setResolucionAprobacion(INSTITUCION_RESOLUCION);
+        response.setNombreInstitucion(institucion.getNombreOficial());
+        response.setNitInstitucion(institucion.getNit());
+        response.setDaneInstitucion(institucion.getCodigoDane());
+        response.setResolucionAprobacion(institucion.getResolucionAprobacion());
 
         response.setEstudianteId(est.getId());
         response.setNombreEstudiante(est.getNombres() + " " + est.getApellidos());
@@ -406,11 +606,23 @@ public class DocumentoAcademicoService {
         response.setMotivo(motivo);
         response.setTextoCertificacion(textoCertificacion);
 
+        if (auditoriaGlobalService != null) {
+            auditoriaGlobalService.registrarEvento(
+                    "EMISION_CONSTANCIA_MATRICULA",
+                    "RegistroEmisionDocumento",
+                    emision.getId() != null ? emision.getId().toString() : "N/A",
+                    "N/A",
+                    "Consecutivo: " + numeroConsecutivo + ", Estudiante: " + est.getId(),
+                    "Emisión oficial de constancia de matrícula",
+                    "EXITOSO"
+            );
+        }
+
         return response;
     }
 
     // =========================================================================
-    // 4. GENERACIÓN DE CERTIFICADO OFICIAL DE ESTUDIO
+    // 4. GENERACIÓN DE CERTIFICADO OFICIAL DE ESTUDIO (UC-PROV-27, RN-DOC-01..03)
     // =========================================================================
 
     public CertificadoEstudioResponse generarCertificadoEstudio(Long matriculaId,
@@ -418,6 +630,16 @@ public class DocumentoAcademicoService {
                                                                Usuario usuarioEmisor) {
         Matricula matricula = matriculaRepository.findById(matriculaId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Matrícula no encontrada con ID: " + matriculaId));
+
+        // Invariante E2: Rechazo si el año lectivo solicitado aún se encuentra abierto
+        EstadoAnioLectivo estadoAnio = matricula.getAnioLectivo().getEstado();
+        if (estadoAnio != null && estadoAnio != EstadoAnioLectivo.CERRADO && estadoAnio != EstadoAnioLectivo.CERRADO_HISTORICO) {
+            throw new ConflictoNegocioException(
+                    "El año lectivo solicitado aún se encuentra abierto; no se puede emitir certificado definitivo anual (UC-PROV-27 E2). Utilice una Constancia de Estudio o Certificado de Notas Parciales."
+            );
+        }
+
+        InstitucionDatosLegales institucion = obtenerInstitucion();
 
         ConsecutivoDocumento consecutivo = obtenerOCrearConsecutivo(matricula.getAnioLectivo(), TipoDocumentoAcademico.CERTIFICADO_ESTUDIO);
         String numeroConsecutivo = consecutivo.incrementarYFormatear(matricula.getAnioLectivo().getAnio());
@@ -443,6 +665,17 @@ public class DocumentoAcademicoService {
                 motivo,
                 null
         );
+
+        // Versionamiento ante regeneración por rectificación (A3, RN-DOC-03)
+        emisionRepository.findByMatriculaIdAndTipoDocumentoAndAnuladoFalse(
+                matriculaId, TipoDocumentoAcademico.CERTIFICADO_ESTUDIO
+        ).ifPresent(previa -> {
+            emision.setNumeroVersion(previa.getNumeroVersion() + 1);
+            emision.setEmisionPrevia(previa);
+            previa.setEstadoEmision(EstadoEmisionDocumento.HISTORICA_REEMPLAZADA_POR_RECTIFICACION);
+            emisionRepository.save(previa);
+        });
+
         emisionRepository.save(emision);
 
         ConfiguracionEscalaSiee escalaSiee = escalaSieeRepository.findByAnioLectivoId(matricula.getAnioLectivo().getId())
@@ -459,7 +692,6 @@ public class DocumentoAcademicoService {
         List<GradoAsignatura> gradoAsignaturas = gradoAsignaturaRepository.findByGradoIdAndActivoTrue(matricula.getGrupo().getGrado().getId());
         List<CalificacionPeriodo> todasCalificaciones = calificacionPeriodoRepository.findByMatriculaId(matriculaId);
 
-        // Agrupar calificaciones por asignatura
         Map<Long, List<CalificacionPeriodo>> califPorAsig = todasCalificaciones.stream()
                 .collect(Collectors.groupingBy(c -> c.getAsignatura().getId()));
 
@@ -506,13 +738,16 @@ public class DocumentoAcademicoService {
                 : null;
         DesempenoNacional desempenoFinal = promedioFinal != null ? escalaSiee.homologarDesempeno(promedioFinal) : null;
 
-        String resultadoPromocion;
-        if (asignaturasConNota == 0) {
-            resultadoPromocion = "EN CURSO";
-        } else if (asignaturasReprobadas == 0) {
-            resultadoPromocion = "PROMOVIDO(A)";
-        } else {
-            resultadoPromocion = "NO PROMOVIDO(A)";
+        String resultadoPromocion = "EN CURSO";
+        if (promocionEstudianteAnualRepository != null) {
+            Optional<PromocionEstudianteAnual> promOpt = promocionEstudianteAnualRepository.findByMatriculaId(matriculaId);
+            if (promOpt.isPresent()) {
+                resultadoPromocion = promOpt.get().getEstadoPromocion().name();
+            } else if (asignaturasConNota > 0) {
+                resultadoPromocion = asignaturasReprobadas == 0 ? "PROMOVIDO(A)" : "NO PROMOVIDO(A)";
+            }
+        } else if (asignaturasConNota > 0) {
+            resultadoPromocion = asignaturasReprobadas == 0 ? "PROMOVIDO(A)" : "NO PROMOVIDO(A)";
         }
 
         Estudiante est = matricula.getEstudiante();
@@ -520,10 +755,10 @@ public class DocumentoAcademicoService {
         response.setCodigoVerificacion(codigoVerificacion);
         response.setNumeroConsecutivo(numeroConsecutivo);
         response.setFechaEmision(emision.getFechaEmision());
-        response.setNombreInstitucion(INSTITUCION_NOMBRE);
-        response.setNitInstitucion(INSTITUCION_NIT);
-        response.setDaneInstitucion(INSTITUCION_DANE);
-        response.setResolucionAprobacion(INSTITUCION_RESOLUCION);
+        response.setNombreInstitucion(institucion.getNombreOficial());
+        response.setNitInstitucion(institucion.getNit());
+        response.setDaneInstitucion(institucion.getCodigoDane());
+        response.setResolucionAprobacion(institucion.getResolucionAprobacion());
 
         response.setEstudianteId(est.getId());
         response.setNombreEstudiante(est.getNombres() + " " + est.getApellidos());
@@ -541,17 +776,165 @@ public class DocumentoAcademicoService {
         response.setDestinatario(destinatario);
         response.setMotivo(motivo);
 
+        if (auditoriaGlobalService != null) {
+            auditoriaGlobalService.registrarEvento(
+                    "EMISION_CERTIFICADO_ESTUDIO",
+                    "RegistroEmisionDocumento",
+                    emision.getId() != null ? emision.getId().toString() : "N/A",
+                    "N/A",
+                    "Consecutivo: " + numeroConsecutivo + ", Estudiante: " + est.getId() + ", Fallo: " + resultadoPromocion,
+                    "Emisión oficial de certificado de estudio anual (Decreto 1290)",
+                    "EXITOSO"
+            );
+        }
+
         return response;
     }
 
     // =========================================================================
-    // 5. AUDITORÍA, ANULACIÓN Y CONSULTA PÚBLICA DE EMISIONES
+    // 5. CERTIFICADO OFICIAL DE NOTAS PARCIALES POR RETIRO (UC-PROV-27 A1, RN-DOC-02)
+    // =========================================================================
+
+    public CertificadoEstudioResponse generarCertificadoNotasParciales(Long matriculaId,
+                                                                      EmisionDocumentoRequest request,
+                                                                      Usuario usuarioEmisor) {
+        Matricula matricula = matriculaRepository.findById(matriculaId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Matrícula no encontrada con ID: " + matriculaId));
+
+        InstitucionDatosLegales institucion = obtenerInstitucion();
+
+        ConsecutivoDocumento consecutivo = obtenerOCrearConsecutivo(matricula.getAnioLectivo(), TipoDocumentoAcademico.CERTIFICADO_NOTAS_PARCIALES_RETIRO);
+        String numeroConsecutivo = consecutivo.incrementarYFormatear(matricula.getAnioLectivo().getAnio());
+        String codigoVerificacion = UUID.randomUUID().toString();
+
+        String destinatario = (request != null && request.getDestinatario() != null && !request.getDestinatario().isBlank())
+                ? request.getDestinatario().trim()
+                : "Institución educativa receptora";
+        String motivo = (request != null && request.getMotivo() != null)
+                ? request.getMotivo().trim()
+                : "Certificado de notas parciales por retiro/traslado";
+
+        RegistroEmisionDocumento emision = new RegistroEmisionDocumento(
+                consecutivo,
+                TipoDocumentoAcademico.CERTIFICADO_NOTAS_PARCIALES_RETIRO,
+                numeroConsecutivo,
+                matricula.getAnioLectivo(),
+                matricula.getEstudiante(),
+                matricula,
+                null,
+                matricula.getGrupo(),
+                codigoVerificacion,
+                usuarioEmisor,
+                destinatario,
+                motivo,
+                null
+        );
+        emisionRepository.save(emision);
+
+        ConfiguracionEscalaSiee escalaSiee = escalaSieeRepository.findByAnioLectivoId(matricula.getAnioLectivo().getId())
+                .orElseGet(() -> new ConfiguracionEscalaSiee(
+                        matricula.getAnioLectivo(),
+                        new BigDecimal("1.00"),
+                        new BigDecimal("5.00"),
+                        new BigDecimal("3.00"),
+                        new BigDecimal("3.00"),
+                        new BigDecimal("4.00"),
+                        new BigDecimal("4.60")
+                ));
+
+        List<GradoAsignatura> gradoAsignaturas = gradoAsignaturaRepository.findByGradoIdAndActivoTrue(matricula.getGrupo().getGrado().getId());
+        List<CalificacionPeriodo> calificaciones = calificacionPeriodoRepository.findByMatriculaId(matriculaId);
+
+        Map<Long, List<CalificacionPeriodo>> califPorAsig = calificaciones.stream()
+                .collect(Collectors.groupingBy(c -> c.getAsignatura().getId()));
+
+        List<AsignaturaCertificadoDTO> asignaturasDTO = new ArrayList<>();
+        BigDecimal sumaPromedios = BigDecimal.ZERO;
+        int asignaturasConNota = 0;
+
+        for (GradoAsignatura ga : gradoAsignaturas) {
+            Asignatura asig = ga.getAsignatura();
+            List<CalificacionPeriodo> cps = califPorAsig.getOrDefault(asig.getId(), Collections.emptyList());
+
+            BigDecimal promedioAsig = null;
+            DesempenoNacional desempeno = null;
+            String estado = "EN CURSO AL RETIRO";
+
+            if (!cps.isEmpty()) {
+                BigDecimal suma = cps.stream()
+                        .map(CalificacionPeriodo::getNotaDefinitiva)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                promedioAsig = suma.divide(BigDecimal.valueOf(cps.size()), escalaSiee.getDecimalesRedondeo(), RoundingMode.HALF_UP);
+                desempeno = escalaSiee.homologarDesempeno(promedioAsig);
+                estado = escalaSiee.esAprobada(promedioAsig) ? "APROBADA PARCIAL" : "REPROBADA PARCIAL";
+
+                sumaPromedios = sumaPromedios.add(promedioAsig);
+                asignaturasConNota++;
+            }
+
+            asignaturasDTO.add(new AsignaturaCertificadoDTO(
+                    asig.getNombre(),
+                    ga.getIntensidadHoraria(),
+                    promedioAsig,
+                    desempeno,
+                    estado
+            ));
+        }
+
+        BigDecimal promedioFinal = asignaturasConNota > 0
+                ? sumaPromedios.divide(BigDecimal.valueOf(asignaturasConNota), escalaSiee.getDecimalesRedondeo(), RoundingMode.HALF_UP)
+                : null;
+        DesempenoNacional desempenoFinal = promedioFinal != null ? escalaSiee.homologarDesempeno(promedioFinal) : null;
+
+        Estudiante est = matricula.getEstudiante();
+        CertificadoEstudioResponse response = new CertificadoEstudioResponse();
+        response.setCodigoVerificacion(codigoVerificacion);
+        response.setNumeroConsecutivo(numeroConsecutivo);
+        response.setFechaEmision(emision.getFechaEmision());
+        response.setNombreInstitucion(institucion.getNombreOficial());
+        response.setNitInstitucion(institucion.getNit());
+        response.setDaneInstitucion(institucion.getCodigoDane());
+        response.setResolucionAprobacion(institucion.getResolucionAprobacion());
+
+        response.setEstudianteId(est.getId());
+        response.setNombreEstudiante(est.getNombres() + " " + est.getApellidos());
+        response.setTipoDocumentoEstudiante("DOCUMENTO");
+        response.setNumeroDocumentoEstudiante(est.getDocumento());
+
+        response.setAnioLectivo(matricula.getAnioLectivo().getAnio());
+        response.setGrado(matricula.getGrupo().getGrado().getNombre());
+        response.setJornada(matricula.getGrupo().getJornada() != null ? matricula.getGrupo().getJornada().name() : "MAÑANA");
+
+        response.setAsignaturas(asignaturasDTO);
+        response.setPromedioFinal(promedioFinal);
+        response.setDesempenoFinal(desempenoFinal);
+        response.setResultadoPromocion("PERIODO_PARCIAL_POR_RETIRO");
+        response.setDestinatario(destinatario);
+        response.setMotivo(motivo);
+
+        if (auditoriaGlobalService != null) {
+            auditoriaGlobalService.registrarEvento(
+                    "EMISION_CERTIFICADO_NOTAS_PARCIALES",
+                    "RegistroEmisionDocumento",
+                    emision.getId() != null ? emision.getId().toString() : "N/A",
+                    "N/A",
+                    "Consecutivo: " + numeroConsecutivo + ", Estudiante: " + est.getId(),
+                    "Certificado de notas parciales por retiro/traslado (Decreto 1290 Art. 17)",
+                    "EXITOSO"
+            );
+        }
+
+        return response;
+    }
+
+    // =========================================================================
+    // 6. CONSULTA PÚBLICA / VERIFICACIÓN DE AUTENTICIDAD Y ANULACIÓN
     // =========================================================================
 
     @Transactional(readOnly = true)
     public RegistroEmisionResponse consultarEmisionPorCodigoVerificacion(String codigoVerificacion) {
         RegistroEmisionDocumento emision = emisionRepository.findByCodigoVerificacion(codigoVerificacion)
-                .orElseThrow(() -> new RecursoNoEncontradoException("No existe ningún documento oficial emitido con el código: " + codigoVerificacion));
+                .orElseThrow(() -> new RecursoNoEncontradoException("No se encontró ningún documento con el código de verificación: " + codigoVerificacion));
         return documentoMapper.toRegistroEmisionResponse(emision);
     }
 
@@ -569,18 +952,34 @@ public class DocumentoAcademicoService {
                 .collect(Collectors.toList());
     }
 
-    public RegistroEmisionResponse anularEmision(Long emisionId,
-                                                AnulacionEmisionRequest request,
-                                                Usuario usuarioAnulador) {
+    public RegistroEmisionResponse anularEmision(Long emisionId, AnulacionEmisionRequest request, Usuario usuarioAnulador) {
         RegistroEmisionDocumento emision = emisionRepository.findById(emisionId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Emisión no encontrada con ID: " + emisionId));
 
         if (emision.getAnulado()) {
-            throw new ConflictoNegocioException("La emisión ya se encuentra formalmente anulada desde: " + emision.getFechaAnulacion());
+            throw new ConflictoNegocioException("La emisión ya se encuentra anulada previamente");
         }
 
-        emision.anular(request.getMotivoAnulacion(), usuarioAnulador);
-        RegistroEmisionDocumento guardado = emisionRepository.save(emision);
-        return documentoMapper.toRegistroEmisionResponse(guardado);
+        emision.setAnulado(true);
+        emision.setEstadoEmision(EstadoEmisionDocumento.ANULADA);
+        emision.setMotivoAnulacion(request.getMotivoAnulacion().trim());
+        emision.setFechaAnulacion(java.time.LocalDateTime.now());
+        emision.setUsuarioAnulador(usuarioAnulador);
+
+        RegistroEmisionDocumento guardada = emisionRepository.save(emision);
+
+        if (auditoriaGlobalService != null) {
+            auditoriaGlobalService.registrarEvento(
+                    "ANULACION_DOCUMENTO_OFICIAL",
+                    "RegistroEmisionDocumento",
+                    guardada.getId().toString(),
+                    "Estado: " + EstadoEmisionDocumento.PUBLICADA_VIGENTE,
+                    "Estado: " + EstadoEmisionDocumento.ANULADA,
+                    guardada.getMotivoAnulacion(),
+                    "EXITOSO"
+            );
+        }
+
+        return documentoMapper.toRegistroEmisionResponse(guardada);
     }
 }

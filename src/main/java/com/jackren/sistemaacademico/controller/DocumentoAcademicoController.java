@@ -1,6 +1,7 @@
 package com.jackren.sistemaacademico.controller;
 
 import com.jackren.sistemaacademico.dto.*;
+import com.jackren.sistemaacademico.entity.Rol;
 import com.jackren.sistemaacademico.entity.Usuario;
 import com.jackren.sistemaacademico.repository.UsuarioRepository;
 import com.jackren.sistemaacademico.service.DocumentoAcademicoService;
@@ -27,15 +28,14 @@ public class DocumentoAcademicoController {
     }
 
     // =========================================================================
-    // 1. CONFIGURACIÓN DE CONSECUTIVOS Y FOLIADOS
+    // 1. CONFIGURACIÓN Y CONSULTA DE CONSECUTIVOS POR AÑO
     // =========================================================================
 
     @PostMapping("/consecutivos")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'SECRETARIA')")
-    public ResponseEntity<ConfiguracionConsecutivoResponse> configurarConsecutivo(
+    public ResponseEntity<ConfiguracionConsecutivoResponse> guardarOActualizarConsecutivo(
             @Valid @RequestBody ConfiguracionConsecutivoRequest request) {
-        ConfiguracionConsecutivoResponse response = documentoService.guardarOActualizarConsecutivo(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(documentoService.guardarOActualizarConsecutivo(request));
     }
 
     @GetMapping("/consecutivos/anio-lectivo/{anioLectivoId}")
@@ -57,6 +57,7 @@ public class DocumentoAcademicoController {
             @RequestBody(required = false) EmisionDocumentoRequest request,
             @AuthenticationPrincipal Jwt jwt) {
         Usuario usuario = obtenerUsuarioAutenticado(jwt);
+        documentoService.validarAccesoContextualPorMatricula(matriculaId, usuario);
         BoletinPeriodoResponse response = documentoService.generarBoletinPeriodo(matriculaId, periodoId, request, usuario);
         return ResponseEntity.ok(response);
     }
@@ -72,12 +73,13 @@ public class DocumentoAcademicoController {
             @RequestBody(required = false) EmisionDocumentoRequest request,
             @AuthenticationPrincipal Jwt jwt) {
         Usuario usuario = obtenerUsuarioAutenticado(jwt);
+        documentoService.validarAccesoContextualPorMatricula(matriculaId, usuario);
         ConstanciaMatriculaResponse response = documentoService.generarConstanciaMatricula(matriculaId, request, usuario);
         return ResponseEntity.ok(response);
     }
 
     // =========================================================================
-    // 4. EMISIÓN DE CERTIFICADOS DE ESTUDIO
+    // 4. EMISIÓN DE CERTIFICADOS DE ESTUDIO (ANUAL Y PARCIAL POR RETIRO)
     // =========================================================================
 
     @PostMapping("/certificados/matricula/{matriculaId}")
@@ -87,7 +89,20 @@ public class DocumentoAcademicoController {
             @RequestBody(required = false) EmisionDocumentoRequest request,
             @AuthenticationPrincipal Jwt jwt) {
         Usuario usuario = obtenerUsuarioAutenticado(jwt);
+        documentoService.validarAccesoContextualPorMatricula(matriculaId, usuario);
         CertificadoEstudioResponse response = documentoService.generarCertificadoEstudio(matriculaId, request, usuario);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/certificados/notas-parciales/matricula/{matriculaId}")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR', 'SECRETARIA')")
+    public ResponseEntity<CertificadoEstudioResponse> generarCertificadoNotasParciales(
+            @PathVariable Long matriculaId,
+            @RequestBody(required = false) EmisionDocumentoRequest request,
+            @AuthenticationPrincipal Jwt jwt) {
+        Usuario usuario = obtenerUsuarioAutenticado(jwt);
+        documentoService.validarAccesoContextualPorMatricula(matriculaId, usuario);
+        CertificadoEstudioResponse response = documentoService.generarCertificadoNotasParciales(matriculaId, request, usuario);
         return ResponseEntity.ok(response);
     }
 
@@ -103,20 +118,26 @@ public class DocumentoAcademicoController {
     }
 
     // =========================================================================
-    // 6. HISTORIAL DE EMISIONES Y AUDITORÍA
+    // 6. HISTORIAL DE EMISIONES Y AUDITORÍA CON CONTROL CONTEXTUAL (UC-05, UC-11)
     // =========================================================================
 
     @GetMapping("/emisiones/estudiante/{estudianteId}")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR', 'SECRETARIA', 'PROFESOR', 'ESTUDIANTE', 'ACUDIENTE')")
     public ResponseEntity<List<RegistroEmisionResponse>> listarEmisionesPorEstudiante(
-            @PathVariable Long estudianteId) {
+            @PathVariable Long estudianteId,
+            @AuthenticationPrincipal Jwt jwt) {
+        Usuario usuario = obtenerUsuarioAutenticado(jwt);
+        documentoService.validarAccesoContextual(estudianteId, usuario);
         return ResponseEntity.ok(documentoService.consultarEmisionesPorEstudiante(estudianteId));
     }
 
     @GetMapping("/emisiones/matricula/{matriculaId}")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR', 'SECRETARIA', 'PROFESOR', 'ESTUDIANTE', 'ACUDIENTE')")
     public ResponseEntity<List<RegistroEmisionResponse>> listarEmisionesPorMatricula(
-            @PathVariable Long matriculaId) {
+            @PathVariable Long matriculaId,
+            @AuthenticationPrincipal Jwt jwt) {
+        Usuario usuario = obtenerUsuarioAutenticado(jwt);
+        documentoService.validarAccesoContextualPorMatricula(matriculaId, usuario);
         return ResponseEntity.ok(documentoService.consultarEmisionesPorMatricula(matriculaId));
     }
 
@@ -134,14 +155,8 @@ public class DocumentoAcademicoController {
         if (jwt == null) {
             return null;
         }
-        if (jwt.hasClaim("id")) {
-            Object idClaim = jwt.getClaim("id");
-            if (idClaim instanceof Number number) {
-                return usuarioRepository.findById(number.longValue()).orElse(null);
-            }
-        }
         String username = jwt.getSubject();
-        if (username != null) {
+        if (username != null && usuarioRepository != null) {
             return usuarioRepository.findByUsername(username).orElse(null);
         }
         return null;

@@ -32,6 +32,8 @@ api/matrculas-novedades-de-permanencia.service.ts
 api/matrculas.service.ts
 api/profesores-situacin-administrativa.service.ts
 api/profesores.service.ts
+api/reportes-institucionales.service.ts
+api/repositorio-documental-ytrd.service.ts
 api/usuarios-y-roles.service.ts
 api/vinculaciones.service.ts
 configuration.ts
@@ -62,11 +64,13 @@ model/acudiente-response.ts
 model/adenda-observador-request.ts
 model/adenda-observador-response.ts
 model/agenda-docente-response.ts
+model/alerta-seguridad-response.ts
 model/anio-lectivo-request.ts
 model/anio-lectivo-response.ts
 model/anotacion-observador-request.ts
 model/anotacion-observador-response.ts
 model/anulacion-emision-request.ts
+model/anular-documento-request.ts
 model/apertura-cargos-request.ts
 model/api-auth-cambiar-password-post200-response.ts
 model/api-auth-logout-post200-response.ts
@@ -100,6 +104,7 @@ model/calificacion-periodo-response.ts
 model/cambio-estado-matricula-request.ts
 model/cambio-password-request.ts
 model/caracter-institucion.ts
+model/cargar-documento-request.ts
 model/caso-convivencia-request.ts
 model/caso-convivencia-response.ts
 model/categoria-evaluativa.ts
@@ -142,6 +147,7 @@ model/diferencia-version-response-diferencias-inner.ts
 model/diferencia-version-response.ts
 model/disponibilidad-aula-response.ts
 model/emision-documento-request.ts
+model/enlace-descarga-response.ts
 model/error-response.ts
 model/estado-actividad-evaluativa.ts
 model/estado-administrativo-docente.ts
@@ -191,6 +197,8 @@ model/horario-bloque-response.ts
 model/horario-grupo-version-request.ts
 model/horario-grupo-version-response.ts
 model/institucion-datos-legales-response.ts
+model/item-cobertura-grado-dto.ts
+model/item-mortalidad-asignatura-dto.ts
 model/jornada.ts
 model/justificacion-asistencia-request.ts
 model/justificacion-asistencia-response.ts
@@ -208,6 +216,7 @@ model/nivel-educativo.ts
 model/novedad-horario-request.ts
 model/novedad-horario-response.ts
 model/novedad-matricula-request.ts
+model/nueva-version-documento-request.ts
 model/observacion-boletin-grupo-request.ts
 model/observacion-boletin-grupo-response.ts
 model/organo-colegiado-miembro-response.ts
@@ -249,6 +258,11 @@ model/registro-calificaciones-lote-request.ts
 model/registro-emision-response.ts
 model/registro-restriccion-legal-request.ts
 model/relevo-docente-request.ts
+model/reporte-cobertura-simat-response.ts
+model/reporte-convivencia-siuce-response.ts
+model/reporte-rendimiento-mortalidad-response.ts
+model/repositorio-documento-response.ts
+model/repositorio-documento-version-response.ts
 model/resolver-reclamacion-request.ts
 model/resolver-recurso-request.ts
 model/resolver-solicitud-excusa-request.ts

@@ -75,6 +75,17 @@ public class RegistroEmisionDocumento {
     @Column(nullable = false)
     private Boolean anulado = false;
 
+    @Column(name = "numero_version", nullable = false)
+    private Integer numeroVersion = 1;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "emision_previa_id")
+    private RegistroEmisionDocumento emisionPrevia;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado_emision", nullable = false, length = 45)
+    private EstadoEmisionDocumento estadoEmision = EstadoEmisionDocumento.PUBLICADA_VIGENTE;
+
     @Column(name = "motivo_anulacion", length = 255)
     private String motivoAnulacion;
 
@@ -126,6 +137,30 @@ public class RegistroEmisionDocumento {
         this.motivoAnulacion = motivo;
         this.usuarioAnulador = usuarioAnulador;
         this.fechaAnulacion = LocalDateTime.now();
+    }
+
+    public Integer getNumeroVersion() {
+        return numeroVersion;
+    }
+
+    public void setNumeroVersion(Integer numeroVersion) {
+        this.numeroVersion = numeroVersion;
+    }
+
+    public RegistroEmisionDocumento getEmisionPrevia() {
+        return emisionPrevia;
+    }
+
+    public void setEmisionPrevia(RegistroEmisionDocumento emisionPrevia) {
+        this.emisionPrevia = emisionPrevia;
+    }
+
+    public EstadoEmisionDocumento getEstadoEmision() {
+        return estadoEmision;
+    }
+
+    public void setEstadoEmision(EstadoEmisionDocumento estadoEmision) {
+        this.estadoEmision = estadoEmision;
     }
 
     public Long getId() {

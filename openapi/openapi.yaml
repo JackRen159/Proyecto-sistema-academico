@@ -7478,6 +7478,362 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '404':
           $ref: '#/components/responses/NotFoundError'
+  /api/documentos/certificados/notas-parciales/matricula/{matriculaId}:
+    post:
+      tags:
+      - Documentos y Reportes Académicos
+      summary: Expedir Certificado Oficial de Notas Parciales por Retiro o Traslado Saliente (UC-PROV-27 A1, RN-DOC-02)
+      operationId: generarCertificadoNotasParciales
+      parameters:
+      - name: matriculaId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmisionDocumentoRequest'
+      responses:
+        '200':
+          description: Certificado de notas parciales emitido exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificadoEstudioResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/repositorio/documentos:
+    post:
+      tags:
+      - Repositorio Documental y TRD
+      summary: Cargar y clasificar documento oficial o soporte en repositorio seguro (UC-PROV-28)
+      operationId: cargarDocumentoRepositorio
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CargarDocumentoRequest'
+      responses:
+        '200':
+          description: Documento cargado y clasificado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepositorioDocumentoResponse'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/repositorio/documentos/{id}/versiones:
+    post:
+      tags:
+      - Repositorio Documental y TRD
+      summary: Crear nueva versión inmutable de un documento (UC-PROV-28 A1)
+      operationId: crearNuevaVersionDocumento
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NuevaVersionDocumentoRequest'
+      responses:
+        '200':
+          description: Nueva versión creada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepositorioDocumentoVersionResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+    get:
+      tags:
+      - Repositorio Documental y TRD
+      summary: Listar historial de versiones inmutables de un documento (UC-PROV-28)
+      operationId: listarVersionesDocumento
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Historial de versiones obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RepositorioDocumentoVersionResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/repositorio/documentos/{id}/anular:
+    patch:
+      tags:
+      - Repositorio Documental y TRD
+      summary: Anulación lógica motivada de documento (UC-PROV-28 A2)
+      operationId: anularDocumentoRepositorio
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnularDocumentoRequest'
+      responses:
+        '200':
+          description: Documento anulado lógicamente con justificación.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepositorioDocumentoResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/repositorio/documentos/{id}:
+    get:
+      tags:
+      - Repositorio Documental y TRD
+      summary: Obtener metadatos de documento del repositorio por ID (UC-PROV-28)
+      operationId: obtenerDocumentoRepositorioPorId
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Documento obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepositorioDocumentoResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    delete:
+      tags:
+      - Repositorio Documental y TRD
+      summary: Intento de borrado físico (Bloqueado por Ley 594 de 2000 E3)
+      operationId: eliminarDocumentoRepositorioFisico
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '409':
+          $ref: '#/components/responses/ConflictError'
+  /api/repositorio/documentos/estudiante/{estudianteId}:
+    get:
+      tags:
+      - Repositorio Documental y TRD
+      summary: Listar documentos del repositorio por estudiante con permisos contextuales (UC-05, UC-11)
+      operationId: listarDocumentosRepositorioEstudiante
+      parameters:
+      - name: estudianteId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Documentos del estudiante obtenidos exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RepositorioDocumentoResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/repositorio/documentos/{id}/enlace-descarga:
+    get:
+      tags:
+      - Repositorio Documental y TRD
+      summary: Generar enlace temporal firmado de descarga efímero (UC-05 A3, UC-11 A4)
+      operationId: generarEnlaceDescargaEfimero
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Enlace efímero generado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnlaceDescargaResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/reportes/cobertura-simat/{anioLectivoId}:
+    get:
+      tags:
+      - Reportes Institucionales
+      summary: Generar reporte agregado de cobertura y matrícula oficial SIMAT/DANE (UC-27)
+      operationId: generarReporteCoberturaSimat
+      parameters:
+      - name: anioLectivoId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Reporte de cobertura obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReporteCoberturaSimatResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/reportes/rendimiento-mortalidad/{anioLectivoId}:
+    get:
+      tags:
+      - Reportes Institucionales
+      summary: Generar reporte institucional de rendimiento y mortalidad académica (UC-27)
+      operationId: generarReporteRendimientoMortalidad
+      parameters:
+      - name: anioLectivoId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Reporte de rendimiento obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReporteRendimientoMortalidadResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/reportes/convivencia-siuce/{anioLectivoId}:
+    get:
+      tags:
+      - Reportes Institucionales
+      summary: Generar reporte estadístico de convivencia escolar para SIUCE (UC-27, Ley 1620)
+      operationId: generarReporteConvivenciaSiuce
+      parameters:
+      - name: anioLectivoId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Reporte SIUCE obtenido exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReporteConvivenciaSiuceResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  /api/reportes/exportar:
+    get:
+      tags:
+      - Reportes Institucionales
+      summary: Exportar reporte institucional en formato oficial (CSV, XLSX, PDF) (UC-27 Paso 6)
+      operationId: exportarReporteInstitucional
+      parameters:
+      - name: tipoReporte
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: formato
+        in: query
+        required: false
+        schema:
+          type: string
+          default: CSV
+      - name: anioLectivoId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Archivo exportado exitosamente.
+          content:
+            text/plain:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+  /api/auditoria/alertas:
+    get:
+      tags:
+      - Auditoría Global
+      summary: Listar alertas automáticas de seguridad en tiempo real pendientes para Rectoría (UC-PROV-29 A2)
+      operationId: listarAlertasSeguridadPendientes
+      responses:
+        '200':
+          description: Alertas obtenidas exitosamente.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AlertaSeguridadResponse'
+  /api/auditoria/alertas/{alertaId}/leer:
+    patch:
+      tags:
+      - Auditoría Global
+      summary: Marcar alerta de seguridad como leída y gestionada por Rectoría (UC-PROV-29 A2)
+      operationId: marcarAlertaSeguridadLeida
+      parameters:
+      - name: alertaId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Alerta marcada como leída exitosamente.
 components:
   securitySchemes:
     BearerAuth:
@@ -15174,8 +15530,296 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PlanContinuidadResponse'
+    CargarDocumentoRequest:
+      type: object
+      required:
+      - titulo
+      - tipoDocumento
+      - nivelConfidencialidad
+      - nombreArchivoOriginal
+      - mimeType
+      properties:
+        titulo:
+          type: string
+        descripcion:
+          type: string
+        tipoDocumento:
+          type: string
+        nivelConfidencialidad:
+          type: string
+          enum: [PUBLICO_INSTITUCIONAL, ACADEMICO_ESTANDAR, ADMINISTRATIVO_EXPEDIENTE, CONFIDENCIAL_SALUD_E_INCLUSION, RESERVADO_CONVIVENCIA_Y_PROTECCION]
+        estudianteId:
+          type: integer
+          format: int64
+        matriculaId:
+          type: integer
+          format: int64
+        anioLectivoId:
+          type: integer
+          format: int64
+        trdId:
+          type: integer
+          format: int64
+        nombreArchivoOriginal:
+          type: string
+        mimeType:
+          type: string
+        tamanoBytes:
+          type: integer
+          format: int64
+        rutaAlmacenamiento:
+          type: string
+        contenidoBase64:
+          type: string
+    RepositorioDocumentoResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        codigoDocumento:
+          type: string
+        titulo:
+          type: string
+        descripcion:
+          type: string
+        tipoDocumento:
+          type: string
+        nivelConfidencialidad:
+          type: string
+        estadoCicloVida:
+          type: string
+        estudianteId:
+          type: integer
+          format: int64
+        nombreEstudiante:
+          type: string
+        matriculaId:
+          type: integer
+          format: int64
+        anioLectivoId:
+          type: integer
+          format: int64
+        trdId:
+          type: integer
+          format: int64
+        versionActual:
+          type: integer
+        hashSha256Actual:
+          type: string
+        nombreArchivoOriginal:
+          type: string
+        mimeType:
+          type: string
+        tamanoBytes:
+          type: integer
+          format: int64
+        usuarioCreadorId:
+          type: integer
+          format: int64
+        nombreCreador:
+          type: string
+        fechaCreacion:
+          type: string
+          format: date-time
+        fechaPublicacion:
+          type: string
+          format: date-time
+        motivoAnulacion:
+          type: string
+        enlaceDescargaEfimero:
+          type: string
+    NuevaVersionDocumentoRequest:
+      type: object
+      required:
+      - nombreArchivo
+      - mimeType
+      - tamanoBytes
+      - motivoVersion
+      properties:
+        nombreArchivo:
+          type: string
+        mimeType:
+          type: string
+        tamanoBytes:
+          type: integer
+          format: int64
+        rutaAlmacenamiento:
+          type: string
+        motivoVersion:
+          type: string
+        contenidoBase64:
+          type: string
+    RepositorioDocumentoVersionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        documentoId:
+          type: integer
+          format: int64
+        numeroVersion:
+          type: integer
+        hashSha256:
+          type: string
+        nombreArchivo:
+          type: string
+        mimeType:
+          type: string
+        tamanoBytes:
+          type: integer
+          format: int64
+        motivoVersion:
+          type: string
+        usuarioAutorId:
+          type: integer
+          format: int64
+        nombreAutor:
+          type: string
+        fechaRegistro:
+          type: string
+          format: date-time
+    AnularDocumentoRequest:
+      type: object
+      required:
+      - motivoAnulacion
+      properties:
+        motivoAnulacion:
+          type: string
+    EnlaceDescargaResponse:
+      type: object
+      properties:
+        codigoDocumento:
+          type: string
+        urlFirmada:
+          type: string
+        fechaExpiracion:
+          type: string
+          format: date-time
+    ItemCoberturaGradoDTO:
+      type: object
+      properties:
+        gradoId:
+          type: integer
+          format: int64
+        nombreGrado:
+          type: string
+        cuposTotales:
+          type: integer
+        matriculados:
+          type: integer
+        cuposDisponibles:
+          type: integer
+        masculino:
+          type: integer
+        femenino:
+          type: integer
+    ReporteCoberturaSimatResponse:
+      type: object
+      properties:
+        anioLectivoId:
+          type: integer
+          format: int64
+        anio:
+          type: integer
+        fechaCorte:
+          type: string
+          format: date
+        totalMatriculados:
+          type: integer
+        totalCupos:
+          type: integer
+        grados:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemCoberturaGradoDTO'
+    ItemMortalidadAsignaturaDTO:
+      type: object
+      properties:
+        asignaturaId:
+          type: integer
+          format: int64
+        nombreAsignatura:
+          type: string
+        area:
+          type: string
+        estudiantesEvaluados:
+          type: integer
+        reprobados:
+          type: integer
+        tasaReprobacionPorcentaje:
+          type: number
+    ReporteRendimientoMortalidadResponse:
+      type: object
+      properties:
+        anioLectivoId:
+          type: integer
+          format: int64
+        anio:
+          type: integer
+        promedioGeneralInstitucional:
+          type: number
+        tasaMortalidadGlobalPorcentaje:
+          type: number
+        asignaturasCriticas:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemMortalidadAsignaturaDTO'
+    ReporteConvivenciaSiuceResponse:
+      type: object
+      properties:
+        anioLectivoId:
+          type: integer
+          format: int64
+        anio:
+          type: integer
+        totalCasos:
+          type: integer
+        casosTipoI:
+          type: integer
+        casosTipoII:
+          type: integer
+        casosTipoIII:
+          type: integer
+        remitidosAutoridadExterna:
+          type: integer
+        casosCerradosSuperados:
+          type: integer
+        casosEnSeguimiento:
+          type: integer
+    AlertaSeguridadResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        tipoAlerta:
+          type: string
+        severidad:
+          type: string
+        descripcionEvento:
+          type: string
+        usuarioInvolucradoId:
+          type: integer
+          format: int64
+        usernameInvolucrado:
+          type: string
+        ipOrigen:
+          type: string
+        correlationId:
+          type: string
+        leidaPorRector:
+          type: boolean
+        fechaAlerta:
+          type: string
+          format: date-time
 
 tags:
+- name: Repositorio Documental y TRD
+  description: Repositorio documental seguro clasificado en 5 niveles de confidencialidad, versionamiento inmutable, URLs efímeras y Tablas de Retención Documental según Ley 594 de 2000 (UC-PROV-28)
+- name: Reportes Institucionales
+  description: Reportes agregados oficiales de cobertura SIMAT/DANE, mortalidad académica y convivencia escolar SIUCE con exportación multiformato (UC-27)
 - name: Convivencia Escolar
   description: Observador del estudiante inmutable, Ruta de Atención Integral (Situaciones Tipo I, II y III Ley 1620), instrucción del debido proceso disciplinario, medidas y sanciones con Plan de Continuidad Académica (Sentencia T-004 de 2026), seguimiento con proyección anonimizada y actas del Comité Escolar de Convivencia (UC-22, UC-23, UC-24, UC-25, UC-PROV-25, UC-PROV-26)
 - name: Profesores

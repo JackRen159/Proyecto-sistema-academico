@@ -1,11 +1,8 @@
 package com.jackren.sistemaacademico.service;
 
 import com.jackren.sistemaacademico.dto.*;
-import com.jackren.sistemaacademico.entity.AuditoriaEvento;
-import com.jackren.sistemaacademico.entity.ResultadoAuditoria;
-import com.jackren.sistemaacademico.entity.Usuario;
-import com.jackren.sistemaacademico.repository.AuditoriaEventoRepository;
-import com.jackren.sistemaacademico.repository.UsuarioRepository;
+import com.jackren.sistemaacademico.entity.*;
+import com.jackren.sistemaacademico.repository.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -16,6 +13,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +32,9 @@ public class AuditoriaGlobalService {
 
     private final AuditoriaEventoRepository auditoriaRepository;
     private final UsuarioRepository usuarioRepository;
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private AlertaSeguridadAuditoriaRepository alertaRepository;
 
     public AuditoriaGlobalService(AuditoriaEventoRepository auditoriaRepository,
                                   UsuarioRepository usuarioRepository) {
@@ -165,6 +166,14 @@ public class AuditoriaGlobalService {
             );
 
             if (!hashCalculado.equalsIgnoreCase(ev.getHashEvento())) {
+                registrarAlertaSeguridad(
+                        TipoAlertaSeguridad.DISCREPANCIA_CADENA_HASH,
+                        SeveridadAlertaSeguridad.CRITICA,
+                        "Discrepancia criptográfica en evento ID " + ev.getId(),
+                        ev.getUsuario() != null ? ev.getUsuario().getId() : null,
+                        ev.getDireccionIp(),
+                        ev.getCorrelationId()
+                );
                 return VerificacionIntegridadResponse.discrepancia(
                         i,
                         ev.getId(),
@@ -272,6 +281,50 @@ public class AuditoriaGlobalService {
             return HexFormat.of().formatHex(hashBytes);
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException("Algoritmo SHA-256 no disponible en la JVM", e);
+        }
+    }
+
+    public synchronized void registrarAlertaSeguridad(TipoAlertaSeguridad tipo, SeveridadAlertaSeguridad severidad,
+                                                      String descripcion, Long usuarioId, String ip, String correlationId) {
+        if (alertaRepository != null) {
+            AlertaSeguridadAuditoria alerta = new AlertaSeguridadAuditoria();
+            alerta.setTipoAlerta(tipo);
+            alerta.setSeveridad(severidad != null ? severidad : SeveridadAlertaSeguridad.ALTA);
+            alerta.setDescripcionEvento(descripcion);
+            if (usuarioId != null && usuarioRepository != null) {
+                alerta.setUsuarioInvolucrado(usuarioRepository.findById(usuarioId).orElse(null));
+            }
+            alerta.setIpOrigen(ip);
+            alerta.setCorrelationId(correlationId);
+            alerta.setLeidaPorRector(false);
+            alertaRepository.save(alerta);
+        }
+    }
+
+    public List<AlertaSeguridadResponse> listarAlertasPendientesRector() {
+        if (alertaRepository == null) return Collections.emptyList();
+        return alertaRepository.findByLeidaPorRectorFalseOrderByFechaAlertaDesc().stream()
+                .map(a -> new AlertaSeguridadResponse(
+                        a.getId(),
+                        a.getTipoAlerta(),
+                        a.getSeveridad(),
+                        a.getDescripcionEvento(),
+                        a.getUsuarioInvolucrado() != null ? a.getUsuarioInvolucrado().getId() : null,
+                        a.getUsuarioInvolucrado() != null ? a.getUsuarioInvolucrado().getUsername() : null,
+                        a.getIpOrigen(),
+                        a.getCorrelationId(),
+                        a.getLeidaPorRector(),
+                        a.getFechaAlerta()
+                ))
+                .toList();
+    }
+
+    public void marcarAlertaLeida(Long alertaId, Long rectorUsuarioId) {
+        if (alertaRepository != null) {
+            alertaRepository.findById(alertaId).ifPresent(a -> {
+                a.setLeidaPorRector(true);
+                alertaRepository.save(a);
+            });
         }
     }
 

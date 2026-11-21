@@ -66,4 +66,19 @@ public class AuditoriaGlobalController {
             @AuthenticationPrincipal Jwt jwt) {
         return ResponseEntity.ok(auditoriaService.exportarPaqueteAuditoria(request, jwt.getSubject()));
     }
+
+    @GetMapping("/alertas")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR')")
+    public ResponseEntity<List<AlertaSeguridadResponse>> listarAlertasPendientes() {
+        return ResponseEntity.ok(auditoriaService.listarAlertasPendientesRector());
+    }
+
+    @PatchMapping("/alertas/{alertaId}/leer")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR')")
+    public ResponseEntity<Void> marcarAlertaLeida(
+            @PathVariable Long alertaId,
+            @AuthenticationPrincipal Jwt jwt) {
+        auditoriaService.marcarAlertaLeida(alertaId, null);
+        return ResponseEntity.ok().build();
+    }
 }

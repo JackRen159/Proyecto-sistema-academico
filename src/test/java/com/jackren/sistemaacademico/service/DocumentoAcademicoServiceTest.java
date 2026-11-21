@@ -228,6 +228,7 @@ class DocumentoAcademicoServiceTest {
     @Test
     @DisplayName("generarCertificadoEstudio debe calcular promedios anuales y estado de promoción")
     void generarCertificadoEstudio_Exitoso() {
+        anioLectivo.setEstado(EstadoAnioLectivo.CERRADO);
         when(matriculaRepository.findById(50L)).thenReturn(Optional.of(matricula));
 
         ConsecutivoDocumento consecutivo = new ConsecutivoDocumento(
