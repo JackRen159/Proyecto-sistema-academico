@@ -8,13 +8,23 @@ S1: Conmutación de rol activo en sesión (`POST /api/auth/conmutar-rol`, `UC-01
 S2: Servicio centralizado de notificaciones y alertas integrado con `errorInterceptor` para traducir códigos HTTP `400`, `401`, `403`, `404`, `409`, `429`, `500` a mensajes orientados al usuario.
 S3: Shell y Layout maestro responsivo (`AppLayoutComponent`): Sidebar dinámico por rol RBAC, Navbar con selector de rol activo, datos de usuario autenticado y botón de cierre de sesión.
 S4: Enrutamiento base por módulos (`app.routes.ts`) con protección de acceso mediante `authGuard` y `roleGuard`, y suite de pruebas unitarias Angular pasando al 100%.
+S5: Recuperación de contraseña (`UC-PROV-03`): flujo de solicitud y confirmación por token sin enumerar cuentas (`POST /api/auth/recuperar-password/*`).
+S6: Activación forzosa en primer ingreso (`UC-01 A1`): cambio forzado de contraseña temporal y consentimiento de tratamiento de datos personales conforme a la Ley 1581 de 2012.
+S7: Formulario de expediente de estudiante completo (`UC-12`): datos personales, documentos migrantes (`PPT`/`PEP`/`NES`), salud/EPS y marcador confidencial PIAR.
+S8: Detalle de estudiante y gestión de acudientes (`UC-PROV-05`): designación obligatoria de acudiente principal atómico, autorizaciones de retiro físico y medidas judiciales `BLOQUEADO_RESTRICCION_LEGAL`.
 
 ## Tasks
 - [x] T1: S1 Implementar conmutación de rol en `AuthService` y refresco de estado reactivo (frontend) — *Completado, 4 pruebas en auth.service.spec.ts*
 - [x] T2: S2 Crear servicio de notificaciones `NotificationService`, componente visual Toast y conectar `errorInterceptor` — *Completado, 4 pruebas en notification.service.spec.ts, 3 pruebas en error.interceptor.spec.ts*
 - [x] T3: S3 Implementar componente `AppLayoutComponent` con navegación modular dinámica según el rol activo RBAC — *Completado, 6 pruebas en app-layout.component.spec.ts*
 - [x] T4: S4 Integrar `AppLayoutComponent` en `app.routes.ts`, adaptar `app.component` y verificar pruebas frontend — *Completado, 26 pruebas pasando al 100%, build limpio*
+- [x] T5: S5 Implementar vista de recuperación de contraseña `RecuperarPasswordComponent` (UC-PROV-03) — *Completado, 4 pruebas en recuperar-password.component.spec.ts*
+- [x] T6: S6 Implementar flujo de activación de primer ingreso `PrimerIngresoComponent` (UC-01 A1) — *Completado, 3 pruebas en primer-ingreso.component.spec.ts*
+- [x] T7: S7 Implementar formulario de registro y expediente completo de estudiante `EstudianteFormComponent` (UC-12) — *Completado, 2 pruebas en estudiante-form.component.spec.ts*
+- [x] T8: S8 Implementar vista de detalle del estudiante y administración de acudientes `EstudianteDetalleComponent` (UC-PROV-05) — *Completado, 3 pruebas en estudiante-detalle.component.spec.ts*
+- [x] T9: S4 Integrar rutas hijas en `app.routes.ts` y suite completa de pruebas unitarias frontend — *Completado, 38 pruebas pasando al 100%, build de producción limpio (411.41 kB)*
 
 ## Log
 - L1: "procede con el plan de accion propuesto para dejar el proyecto al 100%, comienza por la fase A"
 - L2: "procede con la fase B"
+- L3: "procede" (autorización de Fase C.1 - Módulos 01 y 02 en Frontend)

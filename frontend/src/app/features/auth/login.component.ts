@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -8,7 +8,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   template: `
     <div class="login-container">
       <div class="login-card">
@@ -63,6 +63,10 @@ import { HttpErrorResponse } from '@angular/common/http';
               <span>Ingresar</span>
             }
           </button>
+
+          <div class="login-footer">
+            <a routerLink="/recuperar-password" class="text-link">¿Olvidó su contraseña?</a>
+          </div>
         </form>
       </div>
     </div>
@@ -109,6 +113,9 @@ import { HttpErrorResponse } from '@angular/common/http';
       margin-top: 1rem;
     }
     .btn-primary:disabled { background: #93c5fd; cursor: not-allowed; }
+    .login-footer { margin-top: 1.25rem; text-align: center; }
+    .text-link { color: #2563eb; text-decoration: none; font-size: 0.88rem; }
+    .text-link:hover { text-decoration: underline; }
     .alert { padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.9rem; }
     .alert-danger { background: #fee2e2; color: #991b1b; }
     .alert-warning { background: #fef3c7; color: #92400e; }
@@ -147,10 +154,14 @@ export class LoginComponent {
     const { username, password } = this.loginForm.getRawValue();
 
     this.authService.login({ username: username!, password: password! }).subscribe({
-      next: () => {
+      next: (response) => {
         this.cargando.set(false);
-        const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/estudiantes';
-        this.router.navigateByUrl(returnUrl);
+        if (response.debeCambiarPassword) {
+          this.router.navigate(['/primer-ingreso']);
+        } else {
+          const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/estudiantes';
+          this.router.navigateByUrl(returnUrl);
+        }
       },
       error: (err: HttpErrorResponse) => {
         this.cargando.set(false);

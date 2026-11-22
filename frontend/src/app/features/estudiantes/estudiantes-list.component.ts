@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { EstudiantesService } from '../../core/api/generated/api/estudiantes.service';
 import { EstudianteResponse } from '../../core/api/generated/model/estudiante-response';
 import { PageMetadata } from '../../core/api/generated/model/page-metadata';
@@ -9,17 +9,16 @@ import { AuthService } from '../../core/services/auth.service';
 @Component({
   selector: 'app-estudiantes-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   template: `
     <div class="estudiantes-container">
       <header class="header">
         <div>
           <h2>Módulo de Estudiantes</h2>
-          <p class="subtitle">Gestión y consulta de estudiantes registrados</p>
+          <p class="subtitle">Gestión y consulta de expedientes escolares</p>
         </div>
-        <div class="user-info">
-          <span>Usuario: <strong>{{ authService.user()?.username }}</strong> ({{ authService.user()?.rol }})</span>
-          <button (click)="logout()" class="btn-logout">Cerrar Sesión</button>
+        <div class="header-actions">
+          <a routerLink="/estudiantes/nuevo" class="btn-primary-action">+ Nuevo Expediente (UC-12)</a>
         </div>
       </header>
 
@@ -47,6 +46,7 @@ import { AuthService } from '../../core/services/auth.service';
                 <th>Correo</th>
                 <th>Teléfono</th>
                 <th>Estado</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -61,6 +61,11 @@ import { AuthService } from '../../core/services/auth.service';
                     <span [class]="estudiante.activo ? 'badge-success' : 'badge-danger'">
                       {{ estudiante.activo ? 'Activo' : 'Inactivo' }}
                     </span>
+                  </td>
+                  <td>
+                    <a [routerLink]="['/estudiantes', estudiante.id]" class="btn-sm btn-link">
+                      Ver Ficha
+                    </a>
                   </td>
                 </tr>
               }
@@ -109,16 +114,28 @@ import { AuthService } from '../../core/services/auth.service';
     }
     h2 { margin: 0; color: #1e293b; }
     .subtitle { margin: 0.25rem 0 0; color: #64748b; font-size: 0.9rem; }
-    .user-info { display: flex; align-items: center; gap: 1rem; font-size: 0.9rem; color: #334155; }
-    .btn-logout {
-      padding: 0.4rem 0.8rem;
-      background: #ef4444;
+    .header-actions { display: flex; align-items: center; gap: 1rem; }
+    .btn-primary-action {
+      background: #2563eb;
       color: white;
-      border: none;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
       border-radius: 4px;
-      cursor: pointer;
-      font-weight: 500;
+      font-size: 0.88rem;
+      font-weight: 600;
+      transition: background 0.15s;
     }
+    .btn-primary-action:hover { background: #1d4ed8; }
+    .btn-link {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.85rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      background: #eff6ff;
+    }
+    .btn-link:hover { text-decoration: underline; background: #dbeafe; }
     .table-card {
       background: white;
       border: 1px solid #e2e8f0;
