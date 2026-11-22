@@ -42,6 +42,14 @@ export const routes: Routes = [
         loadComponent: () => import('./features/configuracion/configuracion-institucional.component').then(m => m.ConfiguracionInstitucionalComponent)
       },
       {
+        path: 'matriculas',
+        loadComponent: () => import('./features/matriculas/matriculas.component').then(m => m.MatriculasComponent)
+      },
+      {
+        path: 'profesores',
+        loadComponent: () => import('./features/profesores/profesores.component').then(m => m.ProfesoresComponent)
+      },
+      {
         path: '',
         redirectTo: 'estudiantes',
         pathMatch: 'full'
