@@ -12,7 +12,8 @@ describe('AuthService', () => {
   beforeEach(() => {
     mockAutenticacionService = {
       apiAuthLoginPost: vi.fn(),
-      apiAuthLogoutPost: vi.fn()
+      apiAuthLogoutPost: vi.fn(),
+      apiAuthConmutarRolPost: vi.fn()
     };
 
     TestBed.configureTestingModule({
@@ -68,5 +69,36 @@ describe('AuthService', () => {
     expect(service.getToken()).toBeNull();
     expect(service.isAuthenticated()).toBe(false);
     expect(service.user()).toBeNull();
+  });
+
+  it('debe conmutar el rol activo en sesión y refrescar el token JWT (UC-01 A2, RN-SEG-04)', () => {
+    const loginResp: LoginResponse = {
+      token: 'jwt.token.inicial',
+      tokenType: 'Bearer',
+      username: 'docente_acudiente',
+      rol: Rol.Profesor,
+      rolesDisponibles: [Rol.Profesor, Rol.Acudiente]
+    };
+    mockAutenticacionService.apiAuthLoginPost.mockReturnValue(of(loginResp));
+    service.login({ username: 'docente_acudiente', password: 'password' }).subscribe();
+
+    expect(service.rolActivo()).toBe(Rol.Profesor);
+    expect(service.rolesDisponibles()).toEqual([Rol.Profesor, Rol.Acudiente]);
+
+    const conmutarResp: LoginResponse = {
+      token: 'jwt.token.conmutado',
+      tokenType: 'Bearer',
+      username: 'docente_acudiente',
+      rol: Rol.Acudiente,
+      rolesDisponibles: [Rol.Profesor, Rol.Acudiente]
+    };
+    mockAutenticacionService.apiAuthConmutarRolPost.mockReturnValue(of(conmutarResp));
+
+    service.conmutarRol(Rol.Acudiente).subscribe();
+
+    expect(service.getToken()).toBe('jwt.token.conmutado');
+    expect(service.rolActivo()).toBe(Rol.Acudiente);
+    expect(service.hasRole(Rol.Acudiente)).toBe(true);
+    expect(service.hasRole(Rol.Profesor)).toBe(false);
   });
 });

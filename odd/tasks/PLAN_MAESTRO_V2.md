@@ -13,19 +13,19 @@
 ## Siguientes frentes ordenados por dependencia real (V11+)
 > **Regla:** No modificar migraciones `V1`–`V10`. Todo cambio nuevo entra en `V11+`.
 
-| Frente | Archivo de tareas | Migración estimada | Módulos / UCs V2 que cubre |
+| Frente | Archivo de tareas | Migración ejecutada | Módulos / UCs V2 que cubre |
 | :--- | :--- | :--- | :--- |
 | **Frente 9** | `odd/tasks/frente-9-hardening-seguridad-config-auditoria-v2.md` | `V11`–`V12` | Mód. 01 (`UC-PROV-01..03`, separar `COORDINADOR_ACADEMICO`/`COORDINADOR_CONVIVENCIA` + `ORIENTADOR_ESCOLAR`, órganos colegiados), Mód. 06 (`UC-26`, `UC-PROV-13..14` Política de Datos y DANE/firmas) y Mód. 12 base (`UC-PROV-29` auditoría global `append-only` SHA-256). |
-| **Frente 10** | `odd/tasks/frente-10-horarios.md` | `V13` | Mód. 09 (`UC-04`, `UC-10`, `UC-PROV-20..22`: aulas, franjas, Triple No-Colisión, IHS, novedades y horario docente). Alimenta sesiones válidas a Mód. 08. |
-| **Frente 11** | `odd/tasks/frente-11-cierre-promocion-graduacion.md` | `V14` | Mód. 10 (`UC-20`, `UC-21`, `UC-PROV-23..24`: comisiones periódicas, cierre/reapertura con boletín `V+1`, promoción anual/anticipada, habilitaciones finales y graduación de Media). |
-| **Frente 12** | `odd/tasks/frente-12-convivencia-escolar.md` | `V15` | Mód. 11 (`UC-22..25`, `UC-PROV-25..26`: observador inmutable, Ruta Tipo I–III, debido proceso con recursos, continuidad académica `RN-08` y Comité Escolar de Convivencia). |
-| **Frente 13** | `odd/tasks/frente-13-brechas-nucleo-y-documentos-v2.md` | `V16` | Cierre de brechas V1→V2 en módulos ya existentes: Mód. 02 (evolución RC/TI/CC/NES, Habeas Data, restricciones legales), Mód. 03 (días no lectivos, Preescolar), Mód. 04 (promoción anticipada/deserción), Mód. 05 (Ley 1918/suplencias), Mód. 07 (reclamaciones, convalidaciones, consolidación por Área), Mód. 08 (portería/salidas anticipadas/deserción) y Mód. 12 (ciclo documental TRD). |
-| **Frente 14** | `odd/tasks/frente-14-frontend-angular-v2.md` | N/A | Regenerar cliente OpenAPI y construir pantallas Angular progresivas por módulo (`features/`) conectadas al contrato oficial. |
+| **Frente 10** | `odd/tasks/modulo-09-horarios-v2.md` | `V20` | Mód. 09 (`UC-04`, `UC-10`, `UC-PROV-20..22`: aulas, franjas, Triple No-Colisión, IHS, novedades y horario docente). Alimenta sesiones válidas a Mód. 08. |
+| **Frente 11** | `odd/tasks/modulo-10-cierre-promocion-v2.md` | `V21` | Mód. 10 (`UC-20`, `UC-21`, `UC-PROV-23..24`: comisiones periódicas, cierre/reapertura con boletín `V+1`, promoción anual/anticipada, habilitaciones finales y graduación de Media). |
+| **Frente 12** | `odd/tasks/modulo-11-convivencia-escolar-v2.md` | `V22` | Mód. 11 (`UC-22..25`, `UC-PROV-25..26`: observador inmutable, Ruta Tipo I–III, debido proceso con recursos, continuidad académica `RN-08` y Comité Escolar de Convivencia). |
+| **Frente 13** | `odd/tasks/modulo-02..12-*-v2.md` | `V13`–`V19`, `V23` | Cierre integral y exhaustivo de brechas V1→V2 en todos los módulos: Mód. 02 (`V13`), Mód. 03 (`V14`), Mód. 04 (`V15`), Mód. 05 (`V16`), Mód. 06 (`V17`), Mód. 07 (`V18`), Mód. 08 (`V19`) y Mód. 12 (`V23`). Backend nivelado al 100% con 456 pruebas. |
+| **Frente 14** | `odd/tasks/frente-14-frontend-angular-v2.md` | N/A | Construir pantallas Angular progresivas por módulo (`features/`) conectadas al cliente tipado generado de OpenAPI. **(Frente Activo)** |
 
 ## Estado de seguimiento
-- [x] Frente 9 — Hardening Seguridad, Configuración Institucional V2 y Auditoría Global
-- [x] Frente 10 — Módulo Horarios
-- [x] Frente 11 — Cierre Académico, Promoción y Graduación
-- [x] Frente 12 — Convivencia Escolar
-- [ ] Frente 13 — Brechas funcionales V1→V2 en módulos `V1`–`V10`
-- [ ] Frente 14 — Frontend Angular SPA completo
+- [x] Frente 9 — Hardening Seguridad, Configuración Institucional V2 y Auditoría Global (`V11`–`V12`)
+- [x] Frente 10 — Módulo Horarios (`V20`)
+- [x] Frente 11 — Cierre Académico, Promoción y Graduación (`V21`)
+- [x] Frente 12 — Convivencia Escolar (`V22`)
+- [x] Frente 13 — Brechas funcionales V1→V2 en todos los módulos backend (`V13`–`V19`, `V23`)
+- [ ] Frente 14 — Frontend Angular SPA completo (Frente Activo)

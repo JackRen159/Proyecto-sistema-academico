@@ -6,6 +6,7 @@ import com.jackren.sistemaacademico.exception.ConflictoNegocioException;
 import com.jackren.sistemaacademico.exception.RecursoNoEncontradoException;
 import com.jackren.sistemaacademico.mapper.AsignacionAcademicaMapper;
 import com.jackren.sistemaacademico.repository.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +31,7 @@ public class AsignacionAcademicaService {
     private final AuditoriaGlobalService auditoriaGlobalService;
     private final AsignacionAcademicaMapper asignacionMapper;
 
+    @Autowired
     public AsignacionAcademicaService(AsignacionAcademicaRepository asignacionRepository,
                                      ProfesorRepository profesorRepository,
                                      GrupoRepository grupoRepository,

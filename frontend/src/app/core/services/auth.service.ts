@@ -24,6 +24,13 @@ export class AuthService {
   readonly token = this.tokenSignal.asReadonly();
   readonly user = this.userSignal.asReadonly();
   readonly isAuthenticated = computed(() => !!this.tokenSignal());
+  readonly rolActivo = computed(() => this.userSignal()?.rol ?? null);
+  readonly rolesDisponibles = computed<Rol[]>(() => {
+    const current = this.userSignal();
+    if (!current) return [];
+    if (current.roles && current.roles.length > 0) return current.roles;
+    return current.rol ? [current.rol] : [];
+  });
 
   constructor(private readonly autenticacionService: AutenticacinService) {}
 
@@ -35,7 +42,34 @@ export class AuthService {
           this.userSignal.set({
             username: response.username,
             rol: response.rol,
-            activo: true
+            activo: true,
+            debeCambiarPassword: response.debeCambiarPassword,
+            roles: response.rolesDisponibles && response.rolesDisponibles.length > 0
+              ? response.rolesDisponibles
+              : (response.rol ? [response.rol] : [])
+          });
+        }
+      })
+    );
+  }
+
+  /**
+   * Conmuta el rol activo en sesión (UC-01 A2, RN-SEG-04).
+   * Refresca el token JWT en memoria y actualiza los permisos contextuales.
+   */
+  conmutarRol(nuevoRol: Rol): Observable<LoginResponse> {
+    return this.autenticacionService.apiAuthConmutarRolPost({ rol: nuevoRol }).pipe(
+      tap((response: LoginResponse) => {
+        if (response.token) {
+          this.tokenSignal.set(response.token);
+          this.userSignal.set({
+            username: response.username,
+            rol: response.rol,
+            activo: true,
+            debeCambiarPassword: response.debeCambiarPassword,
+            roles: response.rolesDisponibles && response.rolesDisponibles.length > 0
+              ? response.rolesDisponibles
+              : (response.rol ? [response.rol] : [])
           });
         }
       })

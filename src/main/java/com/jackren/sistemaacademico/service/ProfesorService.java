@@ -11,6 +11,7 @@ import com.jackren.sistemaacademico.mapper.ProfesorMapper;
 import com.jackren.sistemaacademico.repository.AsignacionAcademicaRepository;
 import com.jackren.sistemaacademico.repository.ProfesorRepository;
 import com.jackren.sistemaacademico.repository.UsuarioRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ public class ProfesorService {
     private final AuditoriaGlobalService auditoriaGlobalService;
     private final ProfesorMapper profesorMapper;
 
+    @Autowired
     public ProfesorService(ProfesorRepository profesorRepository,
                            UsuarioRepository usuarioRepository,
                            AsignacionAcademicaRepository asignacionAcademicaRepository,

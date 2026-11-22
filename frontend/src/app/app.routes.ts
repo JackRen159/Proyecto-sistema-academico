@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './features/auth/login.component';
 import { EstudiantesListComponent } from './features/estudiantes/estudiantes-list.component';
+import { AppLayoutComponent } from './core/layout/app-layout.component';
 import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
@@ -9,17 +10,24 @@ export const routes: Routes = [
     component: LoginComponent
   },
   {
-    path: 'estudiantes',
-    component: EstudiantesListComponent,
-    canActivate: [authGuard]
-  },
-  {
     path: '',
-    redirectTo: '/estudiantes',
-    pathMatch: 'full'
+    component: AppLayoutComponent,
+    canActivate: [authGuard],
+    children: [
+      {
+        path: 'estudiantes',
+        component: EstudiantesListComponent
+      },
+      {
+        path: '',
+        redirectTo: 'estudiantes',
+        pathMatch: 'full'
+      }
+    ]
   },
   {
     path: '**',
     redirectTo: '/estudiantes'
   }
 ];
+

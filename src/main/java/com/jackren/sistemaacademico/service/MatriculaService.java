@@ -6,6 +6,7 @@ import com.jackren.sistemaacademico.exception.ConflictoNegocioException;
 import com.jackren.sistemaacademico.exception.RecursoNoEncontradoException;
 import com.jackren.sistemaacademico.mapper.MatriculaMapper;
 import com.jackren.sistemaacademico.repository.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,7 @@ public class MatriculaService {
     private final AuditoriaGlobalService auditoriaGlobalService;
     private final MatriculaMapper matriculaMapper;
 
+    @Autowired
     public MatriculaService(MatriculaRepository matriculaRepository,
                             HistorialTrasladoMatriculaRepository historialTrasladoRepository,
                             HistorialNovedadMatriculaRepository historialNovedadRepository,

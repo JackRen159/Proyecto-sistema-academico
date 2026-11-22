@@ -80,6 +80,7 @@ public class DocumentoAcademicoService {
         this.documentoMapper = documentoMapper;
     }
 
+    @Autowired
     public DocumentoAcademicoService(ConsecutivoDocumentoRepository consecutivoRepository,
                                      RegistroEmisionDocumentoRepository emisionRepository,
                                      MatriculaRepository matriculaRepository,
