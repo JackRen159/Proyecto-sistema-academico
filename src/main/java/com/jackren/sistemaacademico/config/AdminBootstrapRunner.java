@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-@Profile("dev")
 public class AdminBootstrapRunner implements ApplicationRunner {
 
     private static final Logger log = LoggerFactory.getLogger(AdminBootstrapRunner.class);
