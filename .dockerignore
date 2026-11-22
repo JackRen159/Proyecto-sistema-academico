@@ -1,0 +1,16 @@
+target/
+frontend/
+docs/
+odd/
+.git/
+.github/
+.agents/
+.atl/
+*.md
+application-local.properties
+application-local.yml
+.env
+.env.*
+!.env.example
+.vscode/
+.idea/

@@ -20,7 +20,8 @@
 | **Frente 11** | `odd/tasks/modulo-10-cierre-promocion-v2.md` | `V21` | Mód. 10 (`UC-20`, `UC-21`, `UC-PROV-23..24`: comisiones periódicas, cierre/reapertura con boletín `V+1`, promoción anual/anticipada, habilitaciones finales y graduación de Media). |
 | **Frente 12** | `odd/tasks/modulo-11-convivencia-escolar-v2.md` | `V22` | Mód. 11 (`UC-22..25`, `UC-PROV-25..26`: observador inmutable, Ruta Tipo I–III, debido proceso con recursos, continuidad académica `RN-08` y Comité Escolar de Convivencia). |
 | **Frente 13** | `odd/tasks/modulo-02..12-*-v2.md` | `V13`–`V19`, `V23` | Cierre integral y exhaustivo de brechas V1→V2 en todos los módulos: Mód. 02 (`V13`), Mód. 03 (`V14`), Mód. 04 (`V15`), Mód. 05 (`V16`), Mód. 06 (`V17`), Mód. 07 (`V18`), Mód. 08 (`V19`) y Mód. 12 (`V23`). Backend nivelado al 100% con 456 pruebas. |
-| **Frente 14** | `odd/tasks/frente-14-frontend-angular-v2.md` | N/A | Construir pantallas Angular progresivas por módulo (`features/`) conectadas al cliente tipado generado de OpenAPI. **(Frente Activo)** |
+| **Frente 14** | `odd/tasks/frente-14-frontend-angular-v2.md` | N/A | Construir pantallas Angular progresivas por módulo (`features/`) conectadas al cliente tipado generado de OpenAPI. |
+| **Frente 15** | `odd/tasks/frente-15-fase-d-infraestructura-ci-cd.md` | N/A | Fase D: Infraestructura Docker multi-stage (Spring Boot y Angular Nginx), orquestación con Docker Compose, variables de entorno seguras (`deploy.env.example`) y pipeline de CI en GitHub Actions (`.github/workflows/ci.yml`). **(Frente Activo)** |
 
 ## Estado de seguimiento
 - [x] Frente 9 — Hardening Seguridad, Configuración Institucional V2 y Auditoría Global (`V11`–`V12`)
@@ -29,3 +30,4 @@
 - [x] Frente 12 — Convivencia Escolar (`V22`)
 - [x] Frente 13 — Brechas funcionales V1→V2 en todos los módulos backend (`V13`–`V19`, `V23`)
 - [x] Frente 14 — Frontend Angular SPA completo (`features/` módulos 01 a 12 con lazy loading, 77 pruebas)
+- [x] Frente 15 — Fase D: Infraestructura Docker multi-stage, Compose y Pipeline CI/CD GitHub Actions

@@ -2,6 +2,7 @@ package com.jackren.sistemaacademico.config;
 
 import com.jackren.sistemaacademico.security.RestAccessDeniedHandler;
 import com.jackren.sistemaacademico.security.RestAuthenticationEntryPoint;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -18,6 +19,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -28,6 +30,9 @@ public class SecurityConfig {
     private final RestAuthenticationEntryPoint authenticationEntryPoint;
     private final RestAccessDeniedHandler accessDeniedHandler;
     private final JwtAuthenticationConverter jwtAuthenticationConverter;
+
+    @Value("${cors.allowed-origins:http://localhost:4200,http://localhost,http://localhost:80}")
+    private String corsAllowedOrigins;
 
     public SecurityConfig(RestAuthenticationEntryPoint authenticationEntryPoint,
                           RestAccessDeniedHandler accessDeniedHandler,
@@ -59,6 +64,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/recuperar-password/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
                 // Verificación pública de autenticidad de documentos oficiales emitidos (QR / hash)
                 .requestMatchers(HttpMethod.GET, "/api/documentos/verificar/**").permitAll()
                 // Consulta pública de configuración institucional vigente (UC-PROV-14)
@@ -90,8 +96,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Orígenes permitidos: Angular SPA en desarrollo local
-        configuration.setAllowedOrigins(List.of("http://localhost:4200"));
+        // Orígenes permitidos: configurables por entorno (desarrollo, proxy Nginx, producción)
+        List<String> origins = Arrays.stream(corsAllowedOrigins.split(","))
+            .map(String::trim)
+            .filter(s -> !s.isEmpty())
+            .toList();
+        configuration.setAllowedOrigins(origins);
         // Métodos HTTP explícitamente permitidos
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         // Cabeceras permitidas en las solicitudes

@@ -1,0 +1,101 @@
+name: CI - Sistema de Gestion Escolar V2
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── 1. Verificación y Pruebas Automatizadas de Backend (Spring Boot / Java 21)
+  backend-ci:
+    name: Backend (Java 21 / Maven Tests)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código fuente
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Asignar permisos de ejecución a Maven Wrapper
+        run: chmod +x ./mvnw
+
+      - name: Compilar y ejecutar suite completa de pruebas unitarias y de integración
+        run: ./mvnw test -B
+
+  # ── 2. Verificación y Pruebas Automatizadas de Frontend (Angular 19 / Node 22)
+  frontend-ci:
+    name: Frontend (Angular 19 / Vitest & Build)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código fuente
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
+
+      - name: Instalar dependencias limpias (npm ci)
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Ejecutar suite de pruebas unitarias (Vitest)
+        working-directory: ./frontend
+        run: npm test
+
+      - name: Compilar bundle optimizado para producción
+        working-directory: ./frontend
+        run: npm run build
+
+      - name: Validar integridad del artefacto estático generado
+        run: |
+          test -f frontend/dist/frontend/browser/index.html || { echo "ERROR: Falta index.html en build"; exit 1; }
+          echo "Artefacto frontend/dist/frontend/browser validado exitosamente."
+
+  # ── 3. Validación de Infraestructura y Contenedores Docker
+  docker-validation:
+    name: Infraestructura (Docker & Compose)
+    runs-on: ubuntu-latest
+    needs: [backend-ci, frontend-ci]
+    steps:
+      - name: Descargar código fuente
+        uses: actions/checkout@v4
+
+      - name: Configurar Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Validar sintaxis y esquema de docker-compose.yml
+        run: docker compose config
+
+      - name: Ejecutar script de validación estática de infraestructura
+        run: |
+          chmod +x scripts/verify-docker-setup.sh
+          ./scripts/verify-docker-setup.sh
+
+      - name: Validar construcción de imagen Docker del Backend
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          tags: sistema-escolar-backend:ci
+
+      - name: Validar construcción de imagen Docker del Frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: false
+          tags: sistema-escolar-frontend:ci
