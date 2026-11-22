@@ -50,6 +50,14 @@ export const routes: Routes = [
         loadComponent: () => import('./features/profesores/profesores.component').then(m => m.ProfesoresComponent)
       },
       {
+        path: 'horarios',
+        loadComponent: () => import('./features/horarios/horarios.component').then(m => m.HorariosComponent)
+      },
+      {
+        path: 'asistencia',
+        loadComponent: () => import('./features/asistencia/asistencia.component').then(m => m.AsistenciaComponent)
+      },
+      {
         path: '',
         redirectTo: 'estudiantes',
         pathMatch: 'full'

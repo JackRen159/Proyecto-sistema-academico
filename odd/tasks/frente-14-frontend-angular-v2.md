@@ -16,6 +16,8 @@ S9: Estructura Académica (`UC-14`, `UC-PROV-06..08`): años lectivos con ciclo 
 S10: Configuración Institucional y SIEE (`UC-26`, `UC-PROV-13..14`): datos del colegio, versiones inmutables del SIEE con escala continua, simulador de notas y ciclo del Manual de Convivencia.
 S11: Matrículas y Novedades (`UC-13`, `UC-PROV-09..10`): formalización con control de cupos, aceptación de reglamentos, y registro de novedades (traslados, retiros, promoción anticipada, deserción).
 S12: Profesores y Asignaciones (`UC-15`, `UC-PROV-11..12`): expediente docente con inhabilidades Ley 1918 de 2018, asignación de carga horaria por grupo/asignatura y directores de grupo.
+S13: Horarios Escolares y Aulas (`UC-04`, `UC-10`, `UC-PROV-20..22`): catálogo de aulas con aforo, visor de horario semanal, validación de Triple No-Colisión y agenda docente.
+S14: Asistencia Escolar y Ausentismo (`UC-19`, `UC-PROV-18..19`): planilla de toma de lista por sesión con evasión interna, radicación de excusas con reserva médica y salidas en portería.
 
 ## Tasks
 - [x] T1: S1 Implementar conmutación de rol en `AuthService` y refresco de estado reactivo (frontend) — *Completado, 4 pruebas en auth.service.spec.ts*
@@ -33,6 +35,9 @@ S12: Profesores y Asignaciones (`UC-15`, `UC-PROV-11..12`): expediente docente c
 - [x] T13: S11 Implementar componente de gestión de matrículas y novedades `MatriculasComponent` (UC-13, UC-PROV-09..10) — *Completado, 3 pruebas en matriculas.component.spec.ts*
 - [x] T14: S12 Implementar componente de profesores y asignaciones docentes `ProfesoresComponent` (UC-15, UC-PROV-11..12) — *Completado, 4 pruebas en profesores.component.spec.ts*
 - [x] T15: S4 Registrar rutas `/matriculas` y `/profesores` en `app.routes.ts` y pruebas unitarias frontend de Fase C.3 — *Completado, 51 pruebas unitarias pasando al 100%, bundle de producción limpio (293.37 kB inicial)*
+- [x] T16: S13 Implementar componente de gestión de horarios escolares y aulas `HorariosComponent` (UC-04, UC-10, UC-PROV-20..22) — *Completado, 3 pruebas en horarios.component.spec.ts*
+- [x] T17: S14 Implementar componente de control de asistencia escolar y excusas `AsistenciaComponent` (UC-19, UC-PROV-18..19) — *Completado, 5 pruebas en asistencia.component.spec.ts*
+- [x] T18: S4 Registrar rutas `/horarios` y `/asistencia` en `app.routes.ts` y pruebas unitarias frontend de Fase C.4 — *Completado, 59 pruebas unitarias pasando al 100%, bundle de producción limpio (293.57 kB inicial)*
 
 ## Log
 - L1: "procede con el plan de accion propuesto para dejar el proyecto al 100%, comienza por la fase A"
@@ -40,3 +45,4 @@ S12: Profesores y Asignaciones (`UC-15`, `UC-PROV-11..12`): expediente docente c
 - L3: "procede" (autorización de Fase C.1 - Módulos 01 y 02 en Frontend)
 - L4: "si por favor" (commit/push C.1 y autorización de Fase C.2 - Módulos 03 y 06 en Frontend)
 - L5: "si por favor" (commit/push C.2 y autorización de Fase C.3 - Módulos 04 y 05 en Frontend)
+- L6: "has el commit y subelo a github" (commit/push C.3 y autorización de Fase C.4 - Módulos 09 y 08 en Frontend)
