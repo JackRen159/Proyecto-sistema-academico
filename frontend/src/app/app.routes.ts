@@ -66,6 +66,18 @@ export const routes: Routes = [
         loadComponent: () => import('./features/cierre-promocion/cierre-promocion.component').then(m => m.CierrePromocionComponent)
       },
       {
+        path: 'convivencia',
+        loadComponent: () => import('./features/convivencia/convivencia.component').then(m => m.ConvivenciaComponent)
+      },
+      {
+        path: 'documentos',
+        loadComponent: () => import('./features/documentos/documentos.component').then(m => m.DocumentosComponent)
+      },
+      {
+        path: 'auditoria',
+        loadComponent: () => import('./features/auditoria/auditoria.component').then(m => m.AuditoriaComponent)
+      },
+      {
         path: '',
         redirectTo: 'estudiantes',
         pathMatch: 'full'

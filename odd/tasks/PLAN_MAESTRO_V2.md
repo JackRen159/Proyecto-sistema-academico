@@ -28,4 +28,4 @@
 - [x] Frente 11 — Cierre Académico, Promoción y Graduación (`V21`)
 - [x] Frente 12 — Convivencia Escolar (`V22`)
 - [x] Frente 13 — Brechas funcionales V1→V2 en todos los módulos backend (`V13`–`V19`, `V23`)
-- [ ] Frente 14 — Frontend Angular SPA completo (Frente Activo)
+- [x] Frente 14 — Frontend Angular SPA completo (`features/` módulos 01 a 12 con lazy loading, 77 pruebas)
