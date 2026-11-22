@@ -12,6 +12,8 @@ S5: Recuperación de contraseña (`UC-PROV-03`): flujo de solicitud y confirmaci
 S6: Activación forzosa en primer ingreso (`UC-01 A1`): cambio forzado de contraseña temporal y consentimiento de tratamiento de datos personales conforme a la Ley 1581 de 2012.
 S7: Formulario de expediente de estudiante completo (`UC-12`): datos personales, documentos migrantes (`PPT`/`PEP`/`NES`), salud/EPS y marcador confidencial PIAR.
 S8: Detalle de estudiante y gestión de acudientes (`UC-PROV-05`): designación obligatoria de acudiente principal atómico, autorizaciones de retiro físico y medidas judiciales `BLOQUEADO_RESTRICCION_LEGAL`.
+S9: Estructura Académica (`UC-14`, `UC-PROV-06..08`): años lectivos con ciclo de vida, periodos ponderados al 100% y grados/grupos con control de cupo máximo.
+S10: Configuración Institucional y SIEE (`UC-26`, `UC-PROV-13..14`): datos del colegio, versiones inmutables del SIEE con escala continua, simulador de notas y ciclo del Manual de Convivencia.
 
 ## Tasks
 - [x] T1: S1 Implementar conmutación de rol en `AuthService` y refresco de estado reactivo (frontend) — *Completado, 4 pruebas en auth.service.spec.ts*
@@ -23,8 +25,12 @@ S8: Detalle de estudiante y gestión de acudientes (`UC-PROV-05`): designación 
 - [x] T7: S7 Implementar formulario de registro y expediente completo de estudiante `EstudianteFormComponent` (UC-12) — *Completado, 2 pruebas en estudiante-form.component.spec.ts*
 - [x] T8: S8 Implementar vista de detalle del estudiante y administración de acudientes `EstudianteDetalleComponent` (UC-PROV-05) — *Completado, 3 pruebas en estudiante-detalle.component.spec.ts*
 - [x] T9: S4 Integrar rutas hijas en `app.routes.ts` y suite completa de pruebas unitarias frontend — *Completado, 38 pruebas pasando al 100%, build de producción limpio (411.41 kB)*
+- [x] T10: S9 Implementar componente de gestión de estructura académica `EstructuraAcademicaComponent` (UC-14, UC-PROV-06..08) — *Completado, 3 pruebas en estructura-academica.component.spec.ts*
+- [x] T11: S10 Implementar componente de configuración institucional y SIEE `ConfiguracionInstitucionalComponent` (UC-26, UC-PROV-13..14) — *Completado, 3 pruebas en configuracion-institucional.component.spec.ts*
+- [x] T12: S4 Registrar rutas `/estructura` y `/configuracion` en `app.routes.ts` y pruebas unitarias frontend de Fase C.2 — *Completado, lazy loading de componentes configurado, 44 pruebas pasando al 100%, bundle inicial optimizado a 293.18 kB*
 
 ## Log
 - L1: "procede con el plan de accion propuesto para dejar el proyecto al 100%, comienza por la fase A"
 - L2: "procede con la fase B"
 - L3: "procede" (autorización de Fase C.1 - Módulos 01 y 02 en Frontend)
+- L4: "si por favor" (commit/push C.1 y autorización de Fase C.2 - Módulos 03 y 06 en Frontend)

@@ -1,25 +1,19 @@
 import { Routes } from '@angular/router';
-import { LoginComponent } from './features/auth/login.component';
-import { RecuperarPasswordComponent } from './features/auth/recuperar-password.component';
-import { PrimerIngresoComponent } from './features/auth/primer-ingreso.component';
-import { EstudiantesListComponent } from './features/estudiantes/estudiantes-list.component';
-import { EstudianteFormComponent } from './features/estudiantes/estudiante-form.component';
-import { EstudianteDetalleComponent } from './features/estudiantes/estudiante-detalle.component';
 import { AppLayoutComponent } from './core/layout/app-layout.component';
 import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
     path: 'login',
-    component: LoginComponent
+    loadComponent: () => import('./features/auth/login.component').then(m => m.LoginComponent)
   },
   {
     path: 'recuperar-password',
-    component: RecuperarPasswordComponent
+    loadComponent: () => import('./features/auth/recuperar-password.component').then(m => m.RecuperarPasswordComponent)
   },
   {
     path: 'primer-ingreso',
-    component: PrimerIngresoComponent,
+    loadComponent: () => import('./features/auth/primer-ingreso.component').then(m => m.PrimerIngresoComponent),
     canActivate: [authGuard]
   },
   {
@@ -29,15 +23,23 @@ export const routes: Routes = [
     children: [
       {
         path: 'estudiantes',
-        component: EstudiantesListComponent
+        loadComponent: () => import('./features/estudiantes/estudiantes-list.component').then(m => m.EstudiantesListComponent)
       },
       {
         path: 'estudiantes/nuevo',
-        component: EstudianteFormComponent
+        loadComponent: () => import('./features/estudiantes/estudiante-form.component').then(m => m.EstudianteFormComponent)
       },
       {
         path: 'estudiantes/:id',
-        component: EstudianteDetalleComponent
+        loadComponent: () => import('./features/estudiantes/estudiante-detalle.component').then(m => m.EstudianteDetalleComponent)
+      },
+      {
+        path: 'estructura',
+        loadComponent: () => import('./features/estructura/estructura-academica.component').then(m => m.EstructuraAcademicaComponent)
+      },
+      {
+        path: 'configuracion',
+        loadComponent: () => import('./features/configuracion/configuracion-institucional.component').then(m => m.ConfiguracionInstitucionalComponent)
       },
       {
         path: '',
@@ -51,5 +53,6 @@ export const routes: Routes = [
     redirectTo: '/estudiantes'
   }
 ];
+
 
 
