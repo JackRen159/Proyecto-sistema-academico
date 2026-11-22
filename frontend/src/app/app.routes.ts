@@ -58,6 +58,14 @@ export const routes: Routes = [
         loadComponent: () => import('./features/asistencia/asistencia.component').then(m => m.AsistenciaComponent)
       },
       {
+        path: 'calificaciones',
+        loadComponent: () => import('./features/calificaciones/calificaciones.component').then(m => m.CalificacionesComponent)
+      },
+      {
+        path: 'cierre-promocion',
+        loadComponent: () => import('./features/cierre-promocion/cierre-promocion.component').then(m => m.CierrePromocionComponent)
+      },
+      {
         path: '',
         redirectTo: 'estudiantes',
         pathMatch: 'full'

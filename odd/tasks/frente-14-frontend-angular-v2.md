@@ -18,6 +18,8 @@ S11: Matrículas y Novedades (`UC-13`, `UC-PROV-09..10`): formalización con con
 S12: Profesores y Asignaciones (`UC-15`, `UC-PROV-11..12`): expediente docente con inhabilidades Ley 1918 de 2018, asignación de carga horaria por grupo/asignatura y directores de grupo.
 S13: Horarios Escolares y Aulas (`UC-04`, `UC-10`, `UC-PROV-20..22`): catálogo de aulas con aforo, visor de horario semanal, validación de Triple No-Colisión y agenda docente.
 S14: Asistencia Escolar y Ausentismo (`UC-19`, `UC-PROV-18..19`): planilla de toma de lista por sesión con evasión interna, radicación de excusas con reserva médica y salidas en portería.
+S15: Calificaciones y SIEE (`UC-16..18`, `UC-PROV-15..17`): planilla docente de digitación por actividades con guardado por lote, sábana grupal consolidada por áreas, actas de nivelación sin desmejoramiento y reclamaciones en doble instancia.
+S16: Cierre Académico y Promoción (`UC-20..21`, `UC-PROV-23..24`): asistente de pre-cierre con semáforo bloqueante, cierre de periodo con boletines versionados, observaciones de dirección de grupo, promoción anual y titulación de bachilleres.
 
 ## Tasks
 - [x] T1: S1 Implementar conmutación de rol en `AuthService` y refresco de estado reactivo (frontend) — *Completado, 4 pruebas en auth.service.spec.ts*
@@ -38,6 +40,9 @@ S14: Asistencia Escolar y Ausentismo (`UC-19`, `UC-PROV-18..19`): planilla de to
 - [x] T16: S13 Implementar componente de gestión de horarios escolares y aulas `HorariosComponent` (UC-04, UC-10, UC-PROV-20..22) — *Completado, 3 pruebas en horarios.component.spec.ts*
 - [x] T17: S14 Implementar componente de control de asistencia escolar y excusas `AsistenciaComponent` (UC-19, UC-PROV-18..19) — *Completado, 5 pruebas en asistencia.component.spec.ts*
 - [x] T18: S4 Registrar rutas `/horarios` y `/asistencia` en `app.routes.ts` y pruebas unitarias frontend de Fase C.4 — *Completado, 59 pruebas unitarias pasando al 100%, bundle de producción limpio (293.57 kB inicial)*
+- [x] T19: S15 Implementar componente de calificaciones y evaluación SIEE `CalificacionesComponent` (UC-16..18, UC-PROV-15..17) — *Completado, 3 pruebas en calificaciones.component.spec.ts*
+- [x] T20: S16 Implementar componente de cierre académico y promoción `CierrePromocionComponent` (UC-20..21, UC-PROV-23..24) — *Completado, 5 pruebas en cierre-promocion.component.spec.ts*
+- [x] T21: S4 Registrar rutas `/calificaciones` y `/cierre-promocion` en `app.routes.ts` y pruebas unitarias frontend de Fase C.5 — *Completado, 67 pruebas unitarias pasando al 100%, bundle de producción limpio (293.79 kB inicial)*
 
 ## Log
 - L1: "procede con el plan de accion propuesto para dejar el proyecto al 100%, comienza por la fase A"
@@ -46,3 +51,4 @@ S14: Asistencia Escolar y Ausentismo (`UC-19`, `UC-PROV-18..19`): planilla de to
 - L4: "si por favor" (commit/push C.1 y autorización de Fase C.2 - Módulos 03 y 06 en Frontend)
 - L5: "si por favor" (commit/push C.2 y autorización de Fase C.3 - Módulos 04 y 05 en Frontend)
 - L6: "has el commit y subelo a github" (commit/push C.3 y autorización de Fase C.4 - Módulos 09 y 08 en Frontend)
+- L7: "procede" (autorización de Fase C.5 - Módulos 07 y 10 en Frontend)
