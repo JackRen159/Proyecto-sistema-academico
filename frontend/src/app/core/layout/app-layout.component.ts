@@ -318,6 +318,7 @@ export class AppLayoutComponent {
       rolesPermitidos: [
         Rol.Administrador,
         Rol.Rector,
+        Rol.Coordinador,
         Rol.CoordinadorAcademico,
         Rol.CoordinadorConvivencia,
         Rol.Secretaria
@@ -330,6 +331,7 @@ export class AppLayoutComponent {
       rolesPermitidos: [
         Rol.Administrador,
         Rol.Rector,
+        Rol.Coordinador,
         Rol.CoordinadorAcademico
       ]
     },
@@ -340,6 +342,7 @@ export class AppLayoutComponent {
       rolesPermitidos: [
         Rol.Administrador,
         Rol.Rector,
+        Rol.Coordinador,
         Rol.CoordinadorAcademico,
         Rol.Secretaria
       ]
@@ -351,6 +354,7 @@ export class AppLayoutComponent {
       rolesPermitidos: [
         Rol.Administrador,
         Rol.Rector,
+        Rol.Coordinador,
         Rol.CoordinadorAcademico,
         Rol.Secretaria
       ]
@@ -362,6 +366,7 @@ export class AppLayoutComponent {
       rolesPermitidos: [
         Rol.Administrador,
         Rol.Rector,
+        Rol.Coordinador,
         Rol.CoordinadorAcademico,
         Rol.CoordinadorConvivencia
       ]
@@ -373,6 +378,7 @@ export class AppLayoutComponent {
       rolesPermitidos: [
         Rol.Administrador,
         Rol.Rector,
+        Rol.Coordinador,
         Rol.CoordinadorAcademico,
         Rol.Profesor,
         Rol.Estudiante,
@@ -386,6 +392,7 @@ export class AppLayoutComponent {
       rolesPermitidos: [
         Rol.Administrador,
         Rol.Rector,
+        Rol.Coordinador,
         Rol.CoordinadorAcademico,
         Rol.CoordinadorConvivencia,
         Rol.Profesor,
@@ -400,6 +407,7 @@ export class AppLayoutComponent {
       rolesPermitidos: [
         Rol.Administrador,
         Rol.Rector,
+        Rol.Coordinador,
         Rol.CoordinadorAcademico,
         Rol.Profesor,
         Rol.Estudiante,
@@ -413,6 +421,7 @@ export class AppLayoutComponent {
       rolesPermitidos: [
         Rol.Administrador,
         Rol.Rector,
+        Rol.Coordinador,
         Rol.CoordinadorAcademico
       ]
     },
@@ -423,6 +432,7 @@ export class AppLayoutComponent {
       rolesPermitidos: [
         Rol.Administrador,
         Rol.Rector,
+        Rol.Coordinador,
         Rol.CoordinadorConvivencia,
         Rol.OrientadorEscolar,
         Rol.Profesor,
@@ -437,6 +447,7 @@ export class AppLayoutComponent {
       rolesPermitidos: [
         Rol.Administrador,
         Rol.Rector,
+        Rol.Coordinador,
         Rol.CoordinadorAcademico,
         Rol.Secretaria,
         Rol.Estudiante,
@@ -498,6 +509,7 @@ export class AppLayoutComponent {
     switch (rol) {
       case Rol.Administrador: return 'Administrador';
       case Rol.Rector: return 'Rector';
+      case Rol.Coordinador: return 'Coordinador';
       case Rol.CoordinadorAcademico: return 'Coord. Académico';
       case Rol.CoordinadorConvivencia: return 'Coord. Convivencia';
       case Rol.OrientadorEscolar: return 'Orientador Escolar';

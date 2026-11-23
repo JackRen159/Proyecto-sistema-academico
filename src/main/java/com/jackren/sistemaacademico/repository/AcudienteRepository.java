@@ -12,6 +12,8 @@ public interface AcudienteRepository extends JpaRepository<Acudiente, Long> {
 
     Optional<Acudiente> findByDocumento(String documento);
 
+    Optional<Acudiente> findByCorreo(String correo);
+
     boolean existsByDocumento(String documento);
 
     boolean existsByCorreo(String correo);

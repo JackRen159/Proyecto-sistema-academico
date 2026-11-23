@@ -21,6 +21,8 @@ import { ApiAuthCambiarPasswordPost200Response } from '../model/api-auth-cambiar
 // @ts-ignore
 import { ApiAuthLogoutPost200Response } from '../model/api-auth-logout-post200-response';
 // @ts-ignore
+import { ApiAuthRecuperarPasswordSolicitarPost200Response } from '../model/api-auth-recuperar-password-solicitar-post200-response';
+// @ts-ignore
 import { CambioPasswordRequest } from '../model/cambio-password-request';
 // @ts-ignore
 import { ConfirmacionRecuperacionPasswordRequest } from '../model/confirmacion-recuperacion-password-request';
@@ -447,9 +449,9 @@ export class AutenticacinService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public apiAuthRecuperarPasswordSolicitarPost(solicitudRecuperacionPasswordRequest: SolicitudRecuperacionPasswordRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiAuthCambiarPasswordPost200Response>;
-    public apiAuthRecuperarPasswordSolicitarPost(solicitudRecuperacionPasswordRequest: SolicitudRecuperacionPasswordRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiAuthCambiarPasswordPost200Response>>;
-    public apiAuthRecuperarPasswordSolicitarPost(solicitudRecuperacionPasswordRequest: SolicitudRecuperacionPasswordRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiAuthCambiarPasswordPost200Response>>;
+    public apiAuthRecuperarPasswordSolicitarPost(solicitudRecuperacionPasswordRequest: SolicitudRecuperacionPasswordRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ApiAuthRecuperarPasswordSolicitarPost200Response>;
+    public apiAuthRecuperarPasswordSolicitarPost(solicitudRecuperacionPasswordRequest: SolicitudRecuperacionPasswordRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ApiAuthRecuperarPasswordSolicitarPost200Response>>;
+    public apiAuthRecuperarPasswordSolicitarPost(solicitudRecuperacionPasswordRequest: SolicitudRecuperacionPasswordRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ApiAuthRecuperarPasswordSolicitarPost200Response>>;
     public apiAuthRecuperarPasswordSolicitarPost(solicitudRecuperacionPasswordRequest: SolicitudRecuperacionPasswordRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (solicitudRecuperacionPasswordRequest === null || solicitudRecuperacionPasswordRequest === undefined) {
             throw new Error('Required parameter solicitudRecuperacionPasswordRequest was null or undefined when calling apiAuthRecuperarPasswordSolicitarPost.');
@@ -491,7 +493,7 @@ export class AutenticacinService extends BaseService {
 
         let localVarPath = `/api/auth/recuperar-password/solicitar`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<ApiAuthCambiarPasswordPost200Response>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<ApiAuthRecuperarPasswordSolicitarPost200Response>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 body: solicitudRecuperacionPasswordRequest,

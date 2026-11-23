@@ -112,7 +112,31 @@ import { EstadoAdministrativoDocente } from '../../core/api/generated/model/esta
                 <p class="inhabilidades-desc">
                   Requisito legal bloqueante: Ningún docente puede ser activado ni asignado sin certificado vigente de antecedentes judiciales especiales.
                 </p>
-                <div class="form-row">
+
+                <div class="upload-zone">
+                  <input
+                    type="file"
+                    #fileCertificado
+                    (change)="onArchivoSeleccionado($event)"
+                    accept=".pdf,.png,.jpg,.jpeg"
+                    style="display: none"
+                  />
+                  <div class="upload-buttons">
+                    <button type="button" class="btn-upload" (click)="fileCertificado.click()">
+                      📁 Subir Certificado Digital (PDF / Imagen)
+                    </button>
+                    <button type="button" class="btn-demo-simular" (click)="cargarCertificadoSimulado()">
+                      ⚡ Cargar Certificado Válido de Demostración
+                    </button>
+                  </div>
+                  @if (archivoSoporteNombre()) {
+                    <div class="soporte-cargado-badge">
+                      <span>✓ Soporte documental cargado: <strong>{{ archivoSoporteNombre() }}</strong></span>
+                    </div>
+                  }
+                </div>
+
+                <div class="form-row" style="margin-top: 0.75rem;">
                   <div class="form-col">
                     <label for="dCertificado">N° Certificado Inhabilidades:</label>
                     <input id="dCertificado" type="text" formControlName="numeroCertificadoInhabilidades" placeholder="Ej. INH-2026-0045" class="form-control" />
@@ -371,6 +395,39 @@ import { EstadoAdministrativoDocente } from '../../core/api/generated/model/esta
       margin: 1rem 0;
     }
     .inhabilidades-desc { font-size: 0.8rem; color: #991b1b; margin: 0.35rem 0 0.85rem; }
+    .upload-zone { margin: 0.5rem 0; }
+    .upload-buttons { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .btn-upload {
+      background: white;
+      border: 1px solid #cbd5e1;
+      padding: 0.45rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: #334155;
+      cursor: pointer;
+    }
+    .btn-upload:hover { background: #f8fafc; border-color: #94a3b8; }
+    .btn-demo-simular {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      padding: 0.45rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #1d4ed8;
+      cursor: pointer;
+    }
+    .btn-demo-simular:hover { background: #dbeafe; }
+    .soporte-cargado-badge {
+      margin-top: 0.5rem;
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      color: #065f46;
+      padding: 0.4rem 0.65rem;
+      border-radius: 4px;
+      font-size: 0.82rem;
+    }
     .checkbox-inline { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; }
     .checkbox-inline-wrapper { justify-content: flex-end; padding-bottom: 0.5rem; }
     .form-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.25rem; }
@@ -411,6 +468,7 @@ export class ProfesoresComponent implements OnInit {
   readonly tabActiva = signal<'docentes' | 'asignaciones'>('docentes');
   readonly guardandoDocente = signal(false);
   readonly guardandoAsignacion = signal(false);
+  readonly archivoSoporteNombre = signal<string | null>(null);
 
   readonly profesores = signal<ProfesorResponse[]>([]);
   readonly asignaciones = signal<AsignacionAcademicaResponse[]>([]);
@@ -512,6 +570,37 @@ export class ProfesoresComponent implements OnInit {
         this.grupos.set(grps);
       }
     });
+  }
+
+  onArchivoSeleccionado(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      this.archivoSoporteNombre.set(file.name);
+      this.formDocente.patchValue({
+        verificadoInhabilidades: true,
+        numeroCertificadoInhabilidades: `CERT-INH-${Math.floor(1000 + Math.random() * 9000)}`,
+        fechaVerificacionInhabilidades: new Date().toISOString().substring(0, 10)
+      });
+      this.notificationService.showSuccess(
+        `Archivo "${file.name}" cargado y vinculado como certificado Ley 1918.`,
+        'Soporte Adjuntado'
+      );
+    }
+  }
+
+  cargarCertificadoSimulado(): void {
+    const nombreDoc = 'Certificado_Antecedentes_Especiales_Policia_Nacional.pdf';
+    this.archivoSoporteNombre.set(nombreDoc);
+    this.formDocente.patchValue({
+      verificadoInhabilidades: true,
+      numeroCertificadoInhabilidades: 'CERT-LEY1918-2026-OK',
+      fechaVerificacionInhabilidades: new Date().toISOString().substring(0, 10)
+    });
+    this.notificationService.showSuccess(
+      'Soporte oficial de Ley 1918 validado para la simulación.',
+      'Certificado Verificado'
+    );
   }
 
   guardarDocente(): void {

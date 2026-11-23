@@ -68,7 +68,7 @@ public class EstudianteController {
 
     // ── REGISTRO ATÓMICO DEL EXPEDIENTE COMPLETO (UC-12) ─────────────────────────
     @PostMapping("/expediente-completo")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'SECRETARIA')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'COORDINADOR', 'COORDINADOR_ACADEMICO', 'SECRETARIA')")
     public ResponseEntity<ExpedienteCompletoResponse> registrarExpedienteCompleto(
             @Valid @RequestBody ExpedienteCompletoRequest request,
             @AuthenticationPrincipal Jwt jwt,

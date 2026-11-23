@@ -184,6 +184,9 @@ paths:
                 properties:
                   mensaje:
                     type: string
+                  tokenDemo:
+                    type: string
+                    description: Token temporal generado disponible en entornos de prueba o demostración
   /api/auth/recuperar-password/confirmar:
     post:
       tags:
