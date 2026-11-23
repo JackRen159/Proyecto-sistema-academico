@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CalificacionesYSIEEService } from '../../core/api/generated/api/calificaciones-ysiee.service';
@@ -15,6 +15,8 @@ import { MatriculaResponse } from '../../core/api/generated/model/matricula-resp
 import { GrupoResponse } from '../../core/api/generated/model/grupo-response';
 import { ActividadEvaluativaResponse } from '../../core/api/generated/model/actividad-evaluativa-response';
 import { EstadoCalificacionActividad } from '../../core/api/generated/model/estado-calificacion-actividad';
+import { CategoriaEvaluativa } from '../../core/api/generated/model/categoria-evaluativa';
+import { TipoComponenteEvaluativo } from '../../core/api/generated/model/tipo-componente-evaluativo';
 import { EstadoAnioLectivo } from '../../core/api/generated/model/estado-anio-lectivo';
 import { SabanaConsolidadaResponse } from '../../core/api/generated/model/sabana-consolidada-response';
 
@@ -113,11 +115,34 @@ interface FilaCalificacion {
           <!-- FORMULARIO NUEVA ACTIVIDAD -->
           @if (mostrarFormActividad()) {
             <form [formGroup]="formActividad" (ngSubmit)="crearActividad()" class="mini-form-card">
-              <h4>Crear Actividad Evaluativa (SIEE, tope 100%)</h4>
+              <h4>Crear Actividad Evaluativa (Dimensiones SIEE — Decreto 1290)</h4>
+              <p class="card-desc">
+                Porcentaje acumulado en este periodo: <strong>{{ porcentajeTotalActividades() }}%</strong> de 100%.
+              </p>
               <div class="form-row">
                 <div class="form-col">
                   <label for="actNombre">Nombre de la Actividad: *</label>
                   <input id="actNombre" type="text" formControlName="nombre" placeholder="Ej. Taller 1: Ecuaciones" class="form-control" />
+                </div>
+                <div class="form-col">
+                  <label for="actCategoria">Dimensión SIEE: *</label>
+                  <select id="actCategoria" formControlName="categoriaEvaluativa" class="form-control">
+                    <option [value]="CategoriaEvaluativa.Cognitiva">Cognitiva (Saber)</option>
+                    <option [value]="CategoriaEvaluativa.Procedimental">Procedimental (Hacer)</option>
+                    <option [value]="CategoriaEvaluativa.Actitudinal">Actitudinal (Ser / Convivencia)</option>
+                    <option [value]="CategoriaEvaluativa.Autoevaluacion">Autoevaluación</option>
+                  </select>
+                </div>
+                <div class="form-col">
+                  <label for="actTipo">Instrumento / Componente: *</label>
+                  <select id="actTipo" formControlName="tipoComponente" class="form-control">
+                    <option [value]="TipoComponenteEvaluativo.Taller">Taller Práctico</option>
+                    <option [value]="TipoComponenteEvaluativo.Examen">Examen / Evaluación</option>
+                    <option [value]="TipoComponenteEvaluativo.Quiz">Quiz Corto</option>
+                    <option [value]="TipoComponenteEvaluativo.Proyecto">Proyecto Formativo</option>
+                    <option [value]="TipoComponenteEvaluativo.Tarea">Tarea / Consulta</option>
+                    <option [value]="TipoComponenteEvaluativo.Sustentacion">Sustentación Oral</option>
+                  </select>
                 </div>
                 <div class="form-col">
                   <label for="actPorcentaje">Porcentaje (%): *</label>
@@ -132,6 +157,13 @@ interface FilaCalificacion {
               </div>
             </form>
           }
+
+          <div class="porcentaje-indicator" style="margin: 0.5rem 0 1rem; font-size: 0.88rem; color: #475569;">
+            <span>Ponderación planificada: <strong>{{ porcentajeTotalActividades() }}%</strong> de 100%.</span>
+            @if (porcentajeTotalActividades() > 100) {
+              <span class="text-danger" style="margin-left: 0.5rem; font-weight: 600;">⚠️ La suma de porcentajes supera el 100% reglamentario.</span>
+            }
+          </div>
 
           <!-- SELECTOR DE ACTIVIDAD Y ACCIONES -->
           @if (actividades().length > 0) {
@@ -491,10 +523,19 @@ export class CalificacionesComponent implements OnInit {
   readonly mostrarFormActividad = signal(false);
 
   readonly EstadoCalificacionActividad = EstadoCalificacionActividad;
+  readonly CategoriaEvaluativa = CategoriaEvaluativa;
+  readonly TipoComponenteEvaluativo = TipoComponenteEvaluativo;
+
+  readonly porcentajeTotalActividades = computed(() =>
+    this.actividades().reduce((sum, a) => sum + (a.porcentaje || 0), 0)
+  );
 
   readonly formActividad = this.fb.group({
     nombre: ['', [Validators.required]],
-    porcentaje: [20, [Validators.required, Validators.min(1), Validators.max(100)]]
+    categoriaEvaluativa: [CategoriaEvaluativa.Cognitiva, [Validators.required]],
+    tipoComponente: [TipoComponenteEvaluativo.Taller, [Validators.required]],
+    porcentaje: [20, [Validators.required, Validators.min(1), Validators.max(100)]],
+    fechaEvaluacion: [new Date().toISOString().substring(0, 10)]
   });
 
   readonly formNivelacion = this.fb.group({
@@ -664,11 +705,15 @@ export class CalificacionesComponent implements OnInit {
     if (this.formActividad.invalid) return;
 
     this.guardandoActividad.set(true);
+    const raw = this.formActividad.getRawValue();
     const req = {
       asignacionAcademicaId: this.asignacionSeleccionadaId(),
       periodoAcademicoId: this.periodoSeleccionadoId(),
-      nombre: this.formActividad.get('nombre')?.value!,
-      porcentaje: this.formActividad.get('porcentaje')?.value!
+      nombre: raw.nombre!,
+      categoriaEvaluativa: raw.categoriaEvaluativa,
+      tipoComponente: raw.tipoComponente,
+      porcentaje: raw.porcentaje!,
+      fechaEvaluacion: raw.fechaEvaluacion || new Date().toISOString().substring(0, 10)
     };
 
     this.calificacionService.crearActividadEvaluativa(req as any).subscribe({

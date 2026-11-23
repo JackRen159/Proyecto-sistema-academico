@@ -66,12 +66,12 @@ import { AlertaSeguridadResponse } from '../../core/api/generated/model/alerta-s
           @if (resultadoIntegridad()) {
             <div
               class="verif-card"
-              [class.card-integra]="resultadoIntegridad()?.estado === 'INTEGRA'"
-              [class.card-corrupta]="resultadoIntegridad()?.estado !== 'INTEGRA'"
+              [class.card-integra]="resultadoIntegridad()?.estado === 'CADENA_INTEGRA_VERIFICADA' || resultadoIntegridad()?.estado === 'INTEGRA'"
+              [class.card-corrupta]="resultadoIntegridad()?.estado !== 'CADENA_INTEGRA_VERIFICADA' && resultadoIntegridad()?.estado !== 'INTEGRA'"
             >
               <div class="res-header">
                 <h3>Dictamen Forense de Integridad</h3>
-                <span class="badge" [class.badge-success]="resultadoIntegridad()?.estado === 'INTEGRA'" [class.badge-danger]="resultadoIntegridad()?.estado !== 'INTEGRA'">
+                <span class="badge" [class.badge-success]="resultadoIntegridad()?.estado === 'CADENA_INTEGRA_VERIFICADA' || resultadoIntegridad()?.estado === 'INTEGRA'" [class.badge-danger]="resultadoIntegridad()?.estado !== 'CADENA_INTEGRA_VERIFICADA' && resultadoIntegridad()?.estado !== 'INTEGRA'">
                   {{ resultadoIntegridad()?.estado }}
                 </span>
               </div>
@@ -254,7 +254,7 @@ export class AuditoriaComponent implements OnInit {
       next: (res) => {
         this.auditando.set(false);
         this.resultadoIntegridad.set(res);
-        if (res.estado === 'INTEGRA') {
+        if (res.estado === 'CADENA_INTEGRA_VERIFICADA' || res.estado === 'INTEGRA') {
           this.notificationService.showSuccess('Cadena criptográfica SHA-256 íntegra. Sin alteraciones.');
         } else {
           this.notificationService.showError('¡ALERTA FORENSE! Discrepancia detectada en la cadena criptográfica.');

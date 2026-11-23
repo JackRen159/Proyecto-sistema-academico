@@ -3,6 +3,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { HorariosComponent } from './horarios.component';
 import { HorariosEscolaresService } from '../../core/api/generated/api/horarios-escolares.service';
+import { EstructuraAcadmicaAosLectivosService } from '../../core/api/generated/api/estructura-acadmica-aos-lectivos.service';
+import { EstructuraAcadmicaGruposService } from '../../core/api/generated/api/estructura-acadmica-grupos.service';
+import { EstudiantesService } from '../../core/api/generated/api/estudiantes.service';
 import { AuthService } from '../../core/services/auth.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { TipoEspacioFisico } from '../../core/api/generated/model/tipo-espacio-fisico';
@@ -49,6 +52,9 @@ describe('HorariosComponent', () => {
       imports: [HorariosComponent],
       providers: [
         { provide: HorariosEscolaresService, useValue: mockHorariosService },
+        { provide: EstructuraAcadmicaAosLectivosService, useValue: { apiAniosLectivosGet: vi.fn().mockReturnValue(of([{ id: 1, anio: 2026, estado: 'ACTIVO' }])) } },
+        { provide: EstructuraAcadmicaGruposService, useValue: { apiGruposGet: vi.fn().mockReturnValue(of([{ id: 10, nombre: '7A', jornada: 'MAÑANA' }])) } },
+        { provide: EstudiantesService, useValue: { apiEstudiantesGet: vi.fn().mockReturnValue(of({ content: [{ id: 1, nombres: 'Juan', apellidos: 'Pérez', documento: '1001' }] })) } },
         { provide: AuthService, useValue: mockAuthService },
         { provide: NotificationService, useValue: mockNotificationService }
       ]

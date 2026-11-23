@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { EstudiantesService } from '../../core/api/generated/api/estudiantes.service';
@@ -21,6 +21,26 @@ import { AuthService } from '../../core/services/auth.service';
           <a routerLink="/estudiantes/nuevo" class="btn-primary-action">+ Nuevo Expediente (UC-12)</a>
         </div>
       </header>
+
+      <div class="search-toolbar" style="margin-bottom: 1.25rem; display: flex; gap: 0.75rem; align-items: center;">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="🔍 Buscar por documento o nombres..."
+          [value]="textoBusqueda()"
+          (input)="onBusquedaInput($event)"
+          (keyup.enter)="ejecutarBusquedaDocumento()"
+          style="max-width: 380px; padding: 0.55rem 0.85rem; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.9rem;"
+        />
+        <button type="button" class="btn-search" (click)="ejecutarBusquedaDocumento()" style="padding: 0.55rem 0.9rem; background: #2563eb; color: white; border: none; border-radius: 4px; font-size: 0.85rem; font-weight: 500; cursor: pointer;">
+          Buscar
+        </button>
+        @if (textoBusqueda()) {
+          <button type="button" class="btn-clear" (click)="limpiarBusqueda()" style="padding: 0.55rem 0.8rem; background: #e2e8f0; color: #334155; border: none; border-radius: 4px; font-size: 0.85rem; cursor: pointer;">
+            Limpiar
+          </button>
+        }
+      </div>
 
       @if (cargando()) {
         <div class="state-card">
@@ -50,7 +70,7 @@ import { AuthService } from '../../core/services/auth.service';
               </tr>
             </thead>
             <tbody>
-              @for (estudiante of estudiantes(); track estudiante.id) {
+              @for (estudiante of estudiantesFiltrados(); track estudiante.id) {
                 <tr>
                   <td><code>{{ estudiante.documento }}</code></td>
                   <td>{{ estudiante.apellidos }}</td>
@@ -188,8 +208,45 @@ export class EstudiantesListComponent implements OnInit {
   readonly estudiantes = signal<EstudianteResponse[]>([]);
   readonly paginacion = signal<PageMetadata | undefined>(undefined);
   readonly paginaActual = signal(0);
+  readonly textoBusqueda = signal('');
+
+  readonly estudiantesFiltrados = computed(() => {
+    const t = this.textoBusqueda().toLowerCase().trim();
+    if (!t) return this.estudiantes();
+    return this.estudiantes().filter(e =>
+      (e.documento && e.documento.toLowerCase().includes(t)) ||
+      (e.nombres && e.nombres.toLowerCase().includes(t)) ||
+      (e.apellidos && e.apellidos.toLowerCase().includes(t))
+    );
+  });
 
   ngOnInit(): void {
+    this.cargarEstudiantes(0);
+  }
+
+  onBusquedaInput(event: Event): void {
+    this.textoBusqueda.set((event.target as HTMLInputElement).value);
+  }
+
+  ejecutarBusquedaDocumento(): void {
+    const doc = this.textoBusqueda().trim();
+    if (!doc) return;
+
+    this.cargando.set(true);
+    this.estudiantesService.apiEstudiantesDocumentoDocumentoGet(doc).subscribe({
+      next: (est) => {
+        this.cargando.set(false);
+        this.estudiantes.set([est]);
+      },
+      error: () => {
+        this.cargando.set(false);
+        // Mantener la lista actual filtrada por texto
+      }
+    });
+  }
+
+  limpiarBusqueda(): void {
+    this.textoBusqueda.set('');
     this.cargarEstudiantes(0);
   }
 

@@ -38,7 +38,10 @@ import { EstudianteAcudienteResponse } from '../../core/api/generated/model/estu
               Edad: <strong>{{ ficha()?.edadCalculada || '-' }} años</strong>
             </p>
           </div>
-          <div class="actions">
+          <div class="actions" style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+            <a routerLink="/matriculas" class="btn-action">✍️ Ir a Matrículas</a>
+            <a routerLink="/convivencia" class="btn-action">📖 Ver Observador</a>
+            <a routerLink="/documentos" class="btn-action">📜 Expedir Certificado</a>
             <a routerLink="/estudiantes" class="btn-secondary">← Volver al Listado</a>
           </div>
         </div>
@@ -238,6 +241,18 @@ import { EstudianteAcudienteResponse } from '../../core/api/generated/model/estu
       border: none;
     }
     .btn-secondary:hover { background: #cbd5e1; }
+    .btn-action {
+      padding: 0.45rem 0.85rem;
+      background: #eff6ff;
+      color: #2563eb;
+      border: 1px solid #bfdbfe;
+      text-decoration: none;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .btn-action:hover { background: #dbeafe; }
     .cards-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;

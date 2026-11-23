@@ -2,13 +2,19 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HorariosEscolaresService } from '../../core/api/generated/api/horarios-escolares.service';
+import { EstructuraAcadmicaAosLectivosService } from '../../core/api/generated/api/estructura-acadmica-aos-lectivos.service';
+import { EstructuraAcadmicaGruposService } from '../../core/api/generated/api/estructura-acadmica-grupos.service';
+import { EstudiantesService } from '../../core/api/generated/api/estudiantes.service';
 import { AuthService } from '../../core/services/auth.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { AulaResponse } from '../../core/api/generated/model/aula-response';
+import { GrupoResponse } from '../../core/api/generated/model/grupo-response';
+import { EstudianteResponse } from '../../core/api/generated/model/estudiante-response';
 import { TipoEspacioFisico } from '../../core/api/generated/model/tipo-espacio-fisico';
 import { EstadoAula } from '../../core/api/generated/model/estado-aula';
 import { AgendaDocenteResponse } from '../../core/api/generated/model/agenda-docente-response';
 import { UbicacionActualResponse } from '../../core/api/generated/model/ubicacion-actual-response';
+import { EstadoAnioLectivo } from '../../core/api/generated/model/estado-anio-lectivo';
 import { Rol } from '../../core/api/generated/model/rol';
 
 @Component({
@@ -156,8 +162,21 @@ import { Rol } from '../../core/api/generated/model/rol';
                   </select>
                 </div>
                 <div class="form-col">
-                  <label for="locId">ID del Recurso:</label>
-                  <input id="locId" type="number" [value]="idRecursoLocalizador()" (input)="onIdRecursoChange($event)" placeholder="Ej. 1" class="form-control" />
+                  @if (tipoBusquedaLocalizador() === 'GRUPO') {
+                    <label for="locId">Seleccione el Grupo: *</label>
+                    <select id="locId" class="form-control" [value]="idRecursoLocalizador()" (change)="onIdRecursoChange($event)">
+                      @for (g of grupos(); track g.id) {
+                        <option [value]="g.id">{{ g.nombre }} (Jornada: {{ g.jornada }})</option>
+                      }
+                    </select>
+                  } @else {
+                    <label for="locId">Seleccione el Estudiante: *</label>
+                    <select id="locId" class="form-control" [value]="idRecursoLocalizador()" (change)="onIdRecursoChange($event)">
+                      @for (e of estudiantes(); track e.id) {
+                        <option [value]="e.id">{{ e.nombres }} {{ e.apellidos }} (Doc: {{ e.documento }})</option>
+                      }
+                    </select>
+                  }
                 </div>
               </div>
 
@@ -297,6 +316,9 @@ import { Rol } from '../../core/api/generated/model/rol';
 export class HorariosComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly horariosService = inject(HorariosEscolaresService);
+  private readonly aniosService = inject(EstructuraAcadmicaAosLectivosService);
+  private readonly gruposService = inject(EstructuraAcadmicaGruposService);
+  private readonly estudiantesService = inject(EstudiantesService);
   readonly authService = inject(AuthService);
   private readonly notificationService = inject(NotificationService);
 
@@ -306,6 +328,8 @@ export class HorariosComponent implements OnInit {
   readonly esProfesor = computed(() => this.authService.rolActivo() === Rol.Profesor);
 
   readonly aulas = signal<AulaResponse[]>([]);
+  readonly grupos = signal<GrupoResponse[]>([]);
+  readonly estudiantes = signal<EstudianteResponse[]>([]);
   readonly agendaDocente = signal<AgendaDocenteResponse | null>(null);
   readonly ubicacionActual = signal<UbicacionActualResponse | null>(null);
 
@@ -326,6 +350,49 @@ export class HorariosComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarAulas();
+    this.cargarCatalogosAuxiliares();
+  }
+
+  cargarCatalogosAuxiliares(): void {
+    this.aniosService.apiAniosLectivosGet().subscribe({
+      next: (anios) => {
+        if (anios.length > 0) {
+          const activo = anios.find(a => a.estado === EstadoAnioLectivo.Activo) || anios[0];
+          this.gruposService.apiGruposGet(activo.id!).subscribe({
+            next: (grps) => {
+              this.grupos.set(grps);
+              if (grps.length > 0 && this.tipoBusquedaLocalizador() === 'GRUPO') {
+                this.idRecursoLocalizador.set(grps[0].id!);
+              }
+            }
+          });
+        }
+      }
+    });
+
+    this.estudiantesService.apiEstudiantesGet(0, 100).subscribe({
+      next: (paged) => {
+        const list = paged.content || [];
+        this.estudiantes.set(list);
+        if (list.length > 0 && this.tipoBusquedaLocalizador() === 'ESTUDIANTE') {
+          this.idRecursoLocalizador.set(list[0].id!);
+        }
+      }
+    });
+  }
+
+  onTipoBusquedaChange(event: Event): void {
+    const val = (event.target as HTMLSelectElement).value;
+    this.tipoBusquedaLocalizador.set(val);
+    if (val === 'GRUPO' && this.grupos().length > 0) {
+      this.idRecursoLocalizador.set(this.grupos()[0].id!);
+    } else if (val === 'ESTUDIANTE' && this.estudiantes().length > 0) {
+      this.idRecursoLocalizador.set(this.estudiantes()[0].id!);
+    }
+  }
+
+  onIdRecursoChange(event: Event): void {
+    this.idRecursoLocalizador.set(Number((event.target as HTMLSelectElement).value));
   }
 
   cargarAulas(): void {
@@ -361,13 +428,7 @@ export class HorariosComponent implements OnInit {
     });
   }
 
-  onTipoBusquedaChange(event: Event): void {
-    this.tipoBusquedaLocalizador.set((event.target as HTMLSelectElement).value);
-  }
 
-  onIdRecursoChange(event: Event): void {
-    this.idRecursoLocalizador.set(Number((event.target as HTMLInputElement).value));
-  }
 
   localizarUbicacion(): void {
     const tipo = this.tipoBusquedaLocalizador();
