@@ -74,8 +74,10 @@ import { ExpedienteCompletoRequest } from '../../core/api/generated/model/expedi
             <div class="form-col">
               <label for="sexo">Sexo Documental:</label>
               <select id="sexo" formControlName="sexo" class="form-control">
-                <option value="M">Masculino (M)</option>
-                <option value="F">Femenino (F)</option>
+                <option [value]="SexoDocumental.Masculino">Masculino</option>
+                <option [value]="SexoDocumental.Femenino">Femenino</option>
+                <option [value]="SexoDocumental.Otro">Otro</option>
+                <option [value]="SexoDocumental.NoEspecificado">No especificado</option>
               </select>
             </div>
             <div class="form-col">
@@ -331,6 +333,7 @@ export class EstudianteFormComponent {
 
   readonly guardando = signal(false);
 
+  readonly SexoDocumental = SexoDocumental;
   readonly tiposDocumento = Object.values(TipoDocumento);
   readonly parentescos = Object.values(Parentesco);
 
@@ -366,7 +369,34 @@ export class EstudianteFormComponent {
     if (this.form.invalid) return;
 
     this.guardando.set(true);
-    const req = this.form.getRawValue() as ExpedienteCompletoRequest;
+    const raw = this.form.getRawValue();
+    const req: ExpedienteCompletoRequest = {
+      nombres: raw.nombres!.trim(),
+      apellidos: raw.apellidos!.trim(),
+      tipoDocumento: raw.tipoDocumento!,
+      documento: raw.documento!.trim(),
+      fechaNacimiento: raw.fechaNacimiento!,
+      direccion: raw.direccion!.trim(),
+      sexo: raw.sexo || undefined,
+      correo: raw.correo?.trim() || undefined,
+      telefono: raw.telefono?.trim() || undefined,
+      eps: raw.eps?.trim() || 'Sin asegurar / En trámite',
+      grupoSanguineoRh: raw.grupoSanguineoRh?.trim() || 'O+',
+      tieneDiscapacidadPiar: Boolean(raw.tieneDiscapacidadPiar),
+      detallesSaludEmergencia: raw.detallesSaludEmergencia?.trim() || undefined,
+      acudienteNombres: raw.acudienteNombres!.trim(),
+      acudienteApellidos: raw.acudienteApellidos!.trim(),
+      acudienteTipoDocumento: raw.acudienteTipoDocumento || undefined,
+      acudienteDocumento: raw.acudienteDocumento!.trim(),
+      acudienteTelefono: raw.acudienteTelefono!.trim(),
+      acudienteCorreo: raw.acudienteCorreo?.trim() || undefined,
+      parentesco: raw.parentesco!,
+      representacionLegal: Boolean(raw.representacionLegal),
+      tieneCustodia: Boolean(raw.tieneCustodia),
+      autorizadoRetiro: Boolean(raw.autorizadoRetiro),
+      conviveConEstudiante: Boolean(raw.conviveConEstudiante),
+      autorizaUsoImagenFotografiaOpcional: Boolean(raw.autorizaUsoImagenFotografiaOpcional)
+    };
 
     this.estudiantesService.apiEstudiantesExpedienteCompletoPost(req).subscribe({
       next: (resp) => {

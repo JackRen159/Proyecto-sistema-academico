@@ -1,13 +1,15 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HorariosEscolaresService } from '../../core/api/generated/api/horarios-escolares.service';
+import { AuthService } from '../../core/services/auth.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { AulaResponse } from '../../core/api/generated/model/aula-response';
 import { TipoEspacioFisico } from '../../core/api/generated/model/tipo-espacio-fisico';
 import { EstadoAula } from '../../core/api/generated/model/estado-aula';
 import { AgendaDocenteResponse } from '../../core/api/generated/model/agenda-docente-response';
 import { UbicacionActualResponse } from '../../core/api/generated/model/ubicacion-actual-response';
+import { Rol } from '../../core/api/generated/model/rol';
 
 @Component({
   selector: 'app-horarios',
@@ -188,9 +190,16 @@ import { UbicacionActualResponse } from '../../core/api/generated/model/ubicacio
                 Horario estructurado con garantía de Triple No-Colisión: Cero solapamiento de docente, grupo o aula física (RN-HOR-01).
               </p>
 
-              <button type="button" class="btn-secondary" (click)="consultarAgenda()">
-                Cargar Mi Agenda Semanal
-              </button>
+              @if (esProfesor()) {
+                <button type="button" class="btn-secondary" (click)="consultarAgenda()">
+                  Cargar Mi Agenda Semanal
+                </button>
+              } @else {
+                <div class="rol-notice">
+                  <p>ℹ️ La agenda individual está reservada para usuarios con rol <strong>Docente / Profesor</strong>.</p>
+                  <p class="rol-subnotice">Rol activo: <code>{{ authService.rolActivo() || 'Administrativo' }}</code></p>
+                </div>
+              }
 
               @if (agendaDocente()) {
                 <div class="agenda-resumen">
@@ -280,15 +289,21 @@ import { UbicacionActualResponse } from '../../core/api/generated/model/ubicacio
     .res-val { color: #1e293b; font-weight: 600; }
     .text-primary { color: #2563eb; }
     .agenda-resumen { margin-top: 1rem; background: #f8fafc; padding: 0.85rem; border-radius: 6px; font-size: 0.85rem; line-height: 1.5; color: #334155; }
+    .rol-notice { margin-top: 0.75rem; background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.75rem; border-radius: 6px; font-size: 0.85rem; color: #475569; }
+    .rol-notice p { margin: 0; }
+    .rol-subnotice { margin-top: 0.25rem !important; font-size: 0.8rem; color: #64748b; }
   `]
 })
 export class HorariosComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly horariosService = inject(HorariosEscolaresService);
+  readonly authService = inject(AuthService);
   private readonly notificationService = inject(NotificationService);
 
   readonly tabActiva = signal<'aulas' | 'agenda'>('aulas');
   readonly guardandoAula = signal(false);
+
+  readonly esProfesor = computed(() => this.authService.rolActivo() === Rol.Profesor);
 
   readonly aulas = signal<AulaResponse[]>([]);
   readonly agendaDocente = signal<AgendaDocenteResponse | null>(null);
@@ -370,6 +385,13 @@ export class HorariosComponent implements OnInit {
   }
 
   consultarAgenda(): void {
+    if (!this.esProfesor()) {
+      this.notificationService.showWarning(
+        'La agenda lectiva individual requiere rol Docente / Profesor.',
+        'Perfil No Autorizado'
+      );
+      return;
+    }
     this.horariosService.consultarMiAgendaDocente().subscribe({
       next: (ag) => {
         this.agendaDocente.set(ag);

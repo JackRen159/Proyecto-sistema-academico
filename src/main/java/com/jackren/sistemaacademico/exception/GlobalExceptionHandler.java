@@ -1,7 +1,9 @@
 package com.jackren.sistemaacademico.exception;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
@@ -112,6 +114,31 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.badRequest().body(response);
+    }
+
+    // Manejo de JSON malformado o tipos no convertibles (HTTP 400)
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> manejarHttpMessageNotReadable(HttpMessageNotReadableException ex) {
+        ErrorResponse response = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "Formato de datos invalido",
+                "El cuerpo de la solicitud no es valido o contiene valores incompatibles: " +
+                        (ex.getMostSpecificCause() != null ? ex.getMostSpecificCause().getMessage() : ex.getMessage())
+        );
+
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    // Manejo de conflictos de integridad en base de datos (HTTP 409)
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> manejarDataIntegrityViolation(DataIntegrityViolationException ex) {
+        ErrorResponse response = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                "Conflicto de integridad de datos",
+                "Ya existe un registro con datos duplicados o no se cumple una restriccion de integridad en base de datos"
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
     // Manejo de errores no controlados / inesperados

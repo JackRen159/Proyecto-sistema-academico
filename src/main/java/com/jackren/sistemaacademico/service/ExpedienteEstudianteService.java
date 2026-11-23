@@ -41,19 +41,19 @@ public class ExpedienteEstudianteService {
         // 1. Verificar o crear Estudiante
         Optional<Estudiante> estudianteExistente = estudianteRepository.findByDocumento(request.getDocumento());
         Estudiante estudiante = estudianteExistente.orElseGet(Estudiante::new);
-        estudiante.setNombres(request.getNombres());
-        estudiante.setApellidos(request.getApellidos());
+        estudiante.setNombres(request.getNombres() != null ? request.getNombres().trim() : null);
+        estudiante.setApellidos(request.getApellidos() != null ? request.getApellidos().trim() : null);
         estudiante.setTipoDocumento(request.getTipoDocumento());
-        estudiante.setDocumento(request.getDocumento());
+        estudiante.setDocumento(request.getDocumento() != null ? request.getDocumento().trim() : null);
         estudiante.setFechaNacimiento(request.getFechaNacimiento());
-        estudiante.setCorreo(request.getCorreo());
-        estudiante.setTelefono(request.getTelefono());
-        estudiante.setDireccion(request.getDireccion());
-        estudiante.setSexo(request.getSexo());
-        estudiante.setEps(request.getEps());
-        estudiante.setGrupoSanguineoRh(request.getGrupoSanguineoRh());
-        estudiante.setTieneDiscapacidadPiar(request.getTieneDiscapacidadPiar());
-        estudiante.setDetallesSaludEmergencia(request.getDetallesSaludEmergencia());
+        estudiante.setCorreo(request.getCorreo() != null && !request.getCorreo().isBlank() ? request.getCorreo().trim() : null);
+        estudiante.setTelefono(request.getTelefono() != null && !request.getTelefono().isBlank() ? request.getTelefono().trim() : null);
+        estudiante.setDireccion(request.getDireccion() != null ? request.getDireccion().trim() : null);
+        estudiante.setSexo(request.getSexo() != null ? request.getSexo() : SexoDocumental.NO_ESPECIFICADO);
+        estudiante.setEps(request.getEps() != null && !request.getEps().isBlank() ? request.getEps().trim() : "Sin asegurar / En trámite");
+        estudiante.setGrupoSanguineoRh(request.getGrupoSanguineoRh() != null && !request.getGrupoSanguineoRh().isBlank() ? request.getGrupoSanguineoRh().trim() : "O+");
+        estudiante.setTieneDiscapacidadPiar(Boolean.TRUE.equals(request.getTieneDiscapacidadPiar()));
+        estudiante.setDetallesSaludEmergencia(request.getDetallesSaludEmergencia() != null && !request.getDetallesSaludEmergencia().isBlank() ? request.getDetallesSaludEmergencia().trim() : null);
         estudiante.setActivo(true);
         estudiante.setEstadoExpediente(EstadoExpediente.LISTO_PARA_MATRICULA);
 
@@ -62,14 +62,14 @@ public class ExpedienteEstudianteService {
         // 2. Verificar o crear Acudiente Principal
         Optional<Acudiente> acudienteExistente = acudienteRepository.findByDocumento(request.getAcudienteDocumento());
         Acudiente acudiente = acudienteExistente.orElseGet(Acudiente::new);
-        acudiente.setNombres(request.getAcudienteNombres());
-        acudiente.setApellidos(request.getAcudienteApellidos());
+        acudiente.setNombres(request.getAcudienteNombres() != null ? request.getAcudienteNombres().trim() : null);
+        acudiente.setApellidos(request.getAcudienteApellidos() != null ? request.getAcudienteApellidos().trim() : null);
         acudiente.setTipoDocumento(request.getAcudienteTipoDocumento());
-        acudiente.setDocumento(request.getAcudienteDocumento());
-        acudiente.setTelefono(request.getAcudienteTelefono());
-        acudiente.setCorreo(request.getAcudienteCorreo());
-        acudiente.setDireccion(request.getAcudienteDireccion() != null ? request.getAcudienteDireccion() : request.getDireccion());
-        acudiente.setOcupacion(request.getAcudienteOcupacion() != null ? request.getAcudienteOcupacion() : "No especificada");
+        acudiente.setDocumento(request.getAcudienteDocumento() != null ? request.getAcudienteDocumento().trim() : null);
+        acudiente.setTelefono(request.getAcudienteTelefono() != null && !request.getAcudienteTelefono().isBlank() ? request.getAcudienteTelefono().trim() : null);
+        acudiente.setCorreo(request.getAcudienteCorreo() != null && !request.getAcudienteCorreo().isBlank() ? request.getAcudienteCorreo().trim() : null);
+        acudiente.setDireccion(request.getAcudienteDireccion() != null && !request.getAcudienteDireccion().isBlank() ? request.getAcudienteDireccion().trim() : estudiante.getDireccion());
+        acudiente.setOcupacion(request.getAcudienteOcupacion() != null && !request.getAcudienteOcupacion().isBlank() ? request.getAcudienteOcupacion().trim() : "No especificada");
         acudiente.setActivo(true);
 
         Acudiente acudienteGuardado = acudienteRepository.save(acudiente);

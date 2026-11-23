@@ -3,13 +3,16 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { HorariosComponent } from './horarios.component';
 import { HorariosEscolaresService } from '../../core/api/generated/api/horarios-escolares.service';
+import { AuthService } from '../../core/services/auth.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { TipoEspacioFisico } from '../../core/api/generated/model/tipo-espacio-fisico';
+import { Rol } from '../../core/api/generated/model/rol';
 
 describe('HorariosComponent', () => {
   let component: HorariosComponent;
   let fixture: ComponentFixture<HorariosComponent>;
   let mockHorariosService: any;
+  let mockAuthService: any;
   let mockNotificationService: any;
 
   const mockAulas = [
@@ -31,16 +34,22 @@ describe('HorariosComponent', () => {
       consultarMiAgendaDocente: vi.fn().mockReturnValue(of({ profesorNombreCompleto: 'Juan Pérez', totalBloquesSemanales: 20 }))
     };
 
+    mockAuthService = {
+      rolActivo: vi.fn().mockReturnValue(Rol.Profesor)
+    };
+
     mockNotificationService = {
       showSuccess: vi.fn(),
       showInfo: vi.fn(),
-      showError: vi.fn()
+      showError: vi.fn(),
+      showWarning: vi.fn()
     };
 
     await TestBed.configureTestingModule({
       imports: [HorariosComponent],
       providers: [
         { provide: HorariosEscolaresService, useValue: mockHorariosService },
+        { provide: AuthService, useValue: mockAuthService },
         { provide: NotificationService, useValue: mockNotificationService }
       ]
     }).compileComponents();
