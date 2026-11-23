@@ -50,5 +50,7 @@ frontend/.openapitools/
 
 # ── Tooling local ───────────────────────────────────────────────────────────
 .codegraph-wsl/
+.postman/
+postman/
 
 

@@ -481,6 +481,18 @@ export class AsistenciaComponent implements OnInit {
         this.sesionActiva.set(sesion);
         this.cargarAlumnosParaPlanilla(grupoId);
         this.notificationService.showSuccess(`Planilla abierta para el ${sesion.fecha}.`);
+      },
+      error: () => {
+        this.asistenciaService.listarSesionesAsistencia(periodoId, undefined, grupoId).subscribe({
+          next: (sesiones: any[]) => {
+            const sesionExistente = sesiones.find((s: any) => s.fecha === fecha) || sesiones[0];
+            if (sesionExistente) {
+              this.sesionActiva.set(sesionExistente);
+              this.cargarAlumnosParaPlanilla(grupoId);
+              this.notificationService.showInfo(`Sesión existente cargada para el ${sesionExistente.fecha}.`);
+            }
+          }
+        });
       }
     });
   }

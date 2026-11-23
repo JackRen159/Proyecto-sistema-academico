@@ -115,7 +115,12 @@ interface FilaCalificacion {
           <!-- FORMULARIO NUEVA ACTIVIDAD -->
           @if (mostrarFormActividad()) {
             <form [formGroup]="formActividad" (ngSubmit)="crearActividad()" class="mini-form-card">
-              <h4>Crear Actividad Evaluativa (Dimensiones SIEE — Decreto 1290)</h4>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <h4 style="margin: 0;">Crear Actividad Evaluativa (Dimensiones SIEE — Decreto 1290)</h4>
+                <button type="button" class="btn-demo-simular" (click)="rellenarActividadGuion()">
+                  ⚡ Rellenar Actividad del Guion (Taller 1: Cinemática Vectorial - 100%)
+                </button>
+              </div>
               <p class="card-desc">
                 Porcentaje acumulado en este periodo: <strong>{{ porcentajeTotalActividades() }}%</strong> de 100%.
               </p>
@@ -178,6 +183,9 @@ interface FilaCalificacion {
               </div>
 
               <div class="botones-acciones">
+                <button type="button" class="btn-demo-simular" (click)="calificarSofia45()">
+                  ⚡ Asignar Nota 4.5 (Paso 7 del Guion)
+                </button>
                 <button type="button" class="btn-secondary" (click)="consolidarDefinitivas()">
                   ⚡ Consolidar Definitivas
                 </button>
@@ -460,6 +468,17 @@ interface FilaCalificacion {
     .actividad-selector { display: flex; align-items: center; gap: 0.75rem; }
     .inline-select { min-width: 200px; }
     .botones-acciones { display: flex; gap: 0.5rem; }
+    .btn-demo-simular {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      padding: 0.45rem 0.85rem;
+      border-radius: 4px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #1d4ed8;
+      cursor: pointer;
+    }
+    .btn-demo-simular:hover { background: #dbeafe; }
     .table-card {
       background: white;
       border: 1px solid #e2e8f0;
@@ -699,6 +718,32 @@ export class CalificacionesComponent implements OnInit {
 
   onObservacionChange(fila: FilaCalificacion, event: Event): void {
     fila.observaciones = (event.target as HTMLInputElement).value;
+  }
+
+  rellenarActividadGuion(): void {
+    this.formActividad.patchValue({
+      nombre: 'Taller 1: Cinemática Vectorial',
+      categoriaEvaluativa: CategoriaEvaluativa.Cognitiva,
+      tipoComponente: TipoComponenteEvaluativo.Taller,
+      porcentaje: 100,
+      fechaEvaluacion: '2026-02-15'
+    });
+    this.notificationService.showSuccess(
+      'Actividad "Taller 1: Cinemática Vectorial (100%)" diligenciada conforme al guion.',
+      'Actividad Preparada'
+    );
+  }
+
+  calificarSofia45(): void {
+    const filas = this.filasCalificaciones();
+    if (filas.length > 0) {
+      filas[0].valor = 4.50;
+      filas[0].observaciones = 'Excelente sustentación conceptual';
+      this.notificationService.showSuccess(
+        'Calificación 4.50 asignada con observación del guion.',
+        'Nota Asignada'
+      );
+    }
   }
 
   crearActividad(): void {
