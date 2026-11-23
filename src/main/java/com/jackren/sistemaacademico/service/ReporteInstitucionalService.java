@@ -58,12 +58,9 @@ public class ReporteInstitucionalService {
         List<Matricula> matriculasAnio = matriculaRepository.findByAnioLectivoIdAndEstado(anioLectivoId, EstadoMatricula.MATRICULADA);
         if (matriculasAnio == null || matriculasAnio.isEmpty()) {
             try {
-                org.springframework.data.domain.Page<Matricula> page = matriculaRepository.findByAnioLectivoId(anioLectivoId, org.springframework.data.domain.Pageable.unpaged());
-                if (page != null && page.getContent() != null) {
-                    matriculasAnio = page.getContent().stream()
-                            .filter(m -> m.getEstado() == EstadoMatricula.MATRICULADA || m.getEstado() == EstadoMatricula.MATRICULADO_ACTIVO)
-                            .toList();
-                }
+                matriculasAnio = matriculaRepository.findByAnioLectivoId(anioLectivoId).stream()
+                        .filter(m -> m.getEstado() == EstadoMatricula.MATRICULADA || m.getEstado() == EstadoMatricula.MATRICULADO_ACTIVO)
+                        .toList();
             } catch (Exception ignored) {
             }
         }
@@ -87,7 +84,7 @@ public class ReporteInstitucionalService {
             // Calcular cupos desde grupos del grado
             int cuposGrado = grupoRepository.findByAnioLectivoIdAndActivoTrue(anioLectivoId).stream()
                     .filter(grp -> grp.getGrado() != null && grp.getGrado().getId().equals(g.getId()))
-                    .mapToInt(Grupo::getCupoMaximo)
+                    .mapToInt(grp -> grp.getCupoMaximo() != null ? grp.getCupoMaximo() : 35)
                     .sum();
             if (cuposGrado == 0) cuposGrado = matriculadosGrado + 10;
             totalCuposGlobal += cuposGrado;
@@ -267,6 +264,9 @@ public class ReporteInstitucionalService {
         String formNorm = formato.toUpperCase(Locale.ROOT);
 
         StringBuilder sb = new StringBuilder();
+        if ("CSV".equalsIgnoreCase(formNorm)) {
+            sb.append('\uFEFF'); // Byte Order Mark para compatibilidad UTF-8 en Excel
+        }
 
         if ("COBERTURA_SIMAT".equals(tipoNorm)) {
             ReporteCoberturaSimatResponse r = generarReporteCoberturaSimat(anioLectivoId, usuarioId);

@@ -63,6 +63,14 @@ import { EstadoAnioLectivo } from '../../core/api/generated/model/estado-anio-le
             </p>
 
             <div class="form-row">
+              <div class="form-col" style="max-width: 220px;">
+                <label for="docAnio">Año Lectivo:</label>
+                <select id="docAnio" class="form-control" [value]="anioSeleccionadoId()" (change)="onAnioDocumentosChange($event)">
+                  @for (a of anios(); track a.id) {
+                    <option [value]="a.id">Año {{ a.anio }} ({{ a.estado }})</option>
+                  }
+                </select>
+              </div>
               <div class="form-col">
                 <label for="tipoDoc">Tipo de Documento Oficial: *</label>
                 <select id="tipoDoc" formControlName="tipoDocumento" class="form-control">
@@ -74,7 +82,11 @@ import { EstadoAnioLectivo } from '../../core/api/generated/model/estado-anio-le
               <div class="form-col">
                 <label for="matId">Estudiante Matriculado: *</label>
                 <select id="matId" formControlName="matriculaId" class="form-control">
-                  <option [ngValue]="null">-- Seleccione Estudiante Matriculado --</option>
+                  @if (matriculas().length === 0) {
+                    <option [ngValue]="null">-- Sin estudiantes matriculados en este año --</option>
+                  } @else {
+                    <option [ngValue]="null">-- Seleccione Estudiante Matriculado --</option>
+                  }
                   @for (m of matriculas(); track m.id) {
                     <option [ngValue]="m.id">
                       {{ m.estudianteNombreCompleto || m.estudianteDocumento }} ({{ m.numeroMatricula || ('MAT-' + m.id) }} - Grupo: {{ m.grupoNombre }})
@@ -154,6 +166,15 @@ import { EstadoAnioLectivo } from '../../core/api/generated/model/estado-anio-le
       <!-- TAB 3: REPORTES SECTORIALES -->
       @if (tabActiva() === 'reportes') {
         <div class="tab-content">
+          <div class="content-toolbar" style="margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.75rem;">
+            <label for="repAnio" style="font-weight: 600;">Año Lectivo de Reporte:</label>
+            <select id="repAnio" class="form-control" style="width: auto; min-width: 200px;" [value]="anioSeleccionadoId()" (change)="onAnioDocumentosChange($event)">
+              @for (a of anios(); track a.id) {
+                <option [value]="a.id">Año {{ a.anio }} ({{ a.estado }})</option>
+              }
+            </select>
+          </div>
+
           <div class="cards-grid">
             <div class="reporte-card">
               <h4>Reporte de Cobertura SIMAT / DANE (UC-27)</h4>
@@ -296,15 +317,24 @@ export class DocumentosComponent implements OnInit {
   }
 
   cargarMatriculas(anioId: number): void {
-    this.matriculasService.listarMatriculasPorAnioLectivo(anioId).subscribe({
+    this.matriculasService.listarMatriculasPorAnioLectivo(anioId, 0, 100).subscribe({
       next: (paged) => {
         const list = paged.content || [];
         this.matriculas.set(list);
         if (list.length > 0 && !this.formExpedicion.get('matriculaId')?.value) {
           this.formExpedicion.patchValue({ matriculaId: list[0].id! });
+        } else if (list.length === 0) {
+          this.formExpedicion.patchValue({ matriculaId: null });
         }
       }
     });
+  }
+
+  onAnioDocumentosChange(event: Event): void {
+    const aId = Number((event.target as HTMLSelectElement).value);
+    this.anioSeleccionadoId.set(aId);
+    this.cargarMatriculas(aId);
+    this.reporteSimat.set(null);
   }
 
   onCodigoChange(event: Event): void {
@@ -382,7 +412,8 @@ export class DocumentosComponent implements OnInit {
     const anioId = this.anioSeleccionadoId() || 1;
     this.reportesService.exportarReporteInstitucional(tipo, anioId, 'CSV').subscribe({
       next: (blobData: any) => {
-        const blob = blobData instanceof Blob ? blobData : new Blob([blobData], { type: 'text/csv;charset=utf-8;' });
+        const content = blobData instanceof Blob ? blobData : blobData;
+        const blob = new Blob(['\uFEFF', content], { type: 'text/csv;charset=utf-8;' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;

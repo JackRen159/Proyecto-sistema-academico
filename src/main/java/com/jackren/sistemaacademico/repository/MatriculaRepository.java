@@ -43,6 +43,8 @@ public interface MatriculaRepository extends JpaRepository<Matricula, Long> {
 
     List<Matricula> findByAnioLectivoIdAndEstado(Long anioLectivoId, EstadoMatricula estado);
 
+    List<Matricula> findByAnioLectivoId(Long anioLectivoId);
+
     Page<Matricula> findByAnioLectivoId(Long anioLectivoId, Pageable pageable);
 
     /**

@@ -30,6 +30,23 @@ import { ModalidadTituloBachiller } from '../../core/api/generated/model/modalid
       </header>
 
       <!-- TABS -->
+      <div class="content-toolbar" style="margin-bottom: 1.25rem;">
+        <div class="selector-row" style="display: flex; align-items: center; gap: 0.75rem;">
+          <label for="selectAnioCierre" style="font-weight: 600; color: #1e293b;">Año Lectivo de Trabajo:</label>
+          <select
+            id="selectAnioCierre"
+            class="form-control"
+            style="width: auto; min-width: 220px;"
+            [value]="anioSeleccionadoId()"
+            (change)="onAnioCierreChange($event)"
+          >
+            @for (a of anios(); track a.id) {
+              <option [value]="a.id">Año {{ a.anio }} ({{ a.estado }})</option>
+            }
+          </select>
+        </div>
+      </div>
+
       <div class="tabs-bar">
         <button
           type="button"
@@ -65,6 +82,9 @@ import { ModalidadTituloBachiller } from '../../core/api/generated/model/modalid
               <div class="form-col">
                 <label for="cPeriodo">Periodo Académico a Diagnosticar:</label>
                 <select id="cPeriodo" [value]="periodoSeleccionadoId()" (change)="onPeriodoChange($event)" class="form-control">
+                  @if (periodos().length === 0) {
+                    <option [value]="null">-- Sin periodos registrados en el año seleccionado --</option>
+                  }
                   @for (p of periodos(); track p.id) {
                     <option [value]="p.id">{{ p.nombre }} ({{ p.estado }})</option>
                   }
@@ -133,6 +153,9 @@ import { ModalidadTituloBachiller } from '../../core/api/generated/model/modalid
               <div class="form-col">
                 <label for="promGrupo">Grupo a Preclasificar:</label>
                 <select id="promGrupo" [value]="grupoSeleccionadoId()" (change)="onGrupoChange($event)" class="form-control">
+                  @if (grupos().length === 0) {
+                    <option [value]="null">-- Sin grupos registrados en el año seleccionado --</option>
+                  }
                   @for (g of grupos(); track g.id) {
                     <option [value]="g.id">{{ g.nombre }}</option>
                   }
@@ -198,7 +221,11 @@ import { ModalidadTituloBachiller } from '../../core/api/generated/model/modalid
               <div class="form-col">
                 <label for="tMatricula">Estudiante Candidato a Grado: *</label>
                 <select id="tMatricula" formControlName="matriculaId" class="form-control">
-                  <option [ngValue]="null">-- Seleccione Estudiante --</option>
+                  @if (matriculas().length === 0) {
+                    <option [ngValue]="null">-- Sin estudiantes matriculados en el año seleccionado --</option>
+                  } @else {
+                    <option [ngValue]="null">-- Seleccione Estudiante --</option>
+                  }
                   @for (m of matriculas(); track m.id) {
                     <option [ngValue]="m.id">
                       {{ m.estudianteNombreCompleto || m.estudianteDocumento }} ({{ m.numeroMatricula || ('MAT-' + m.id) }} - Grupo: {{ m.grupoNombre }})
@@ -389,33 +416,54 @@ export class CierrePromocionComponent implements OnInit {
           const activo = anios.find(a => a.estado === EstadoAnioLectivo.Activo) || anios[0];
           const aId = activo.id!;
           this.anioSeleccionadoId.set(aId);
-
-          this.periodosService.apiAniosLectivosAnioIdPeriodosGet(aId).subscribe({
-            next: (pers) => {
-              this.periodos.set(pers);
-              if (pers.length > 0) this.periodoSeleccionadoId.set(pers[0].id!);
-            }
-          });
-
-          this.gruposService.apiGruposGet(aId).subscribe({
-            next: (grps) => {
-              this.grupos.set(grps);
-              if (grps.length > 0) this.grupoSeleccionadoId.set(grps[0].id!);
-            }
-          });
-
-          this.matriculasService.listarMatriculasPorAnioLectivo(aId).subscribe({
-            next: (paged) => {
-              const list = paged.content || [];
-              this.matriculas.set(list);
-              if (list.length > 0 && !this.formTitulacion.get('matriculaId')?.value) {
-                this.formTitulacion.patchValue({ matriculaId: list[0].id! });
-              }
-            }
-          });
+          this.cargarCatalogosPorAnio(aId);
         }
       }
     });
+  }
+
+  cargarCatalogosPorAnio(aId: number): void {
+    this.periodosService.apiAniosLectivosAnioIdPeriodosGet(aId).subscribe({
+      next: (pers) => {
+        this.periodos.set(pers);
+        if (pers.length > 0) {
+          this.periodoSeleccionadoId.set(pers[0].id!);
+        } else {
+          this.periodoSeleccionadoId.set(null as any);
+        }
+      }
+    });
+
+    this.gruposService.apiGruposGet(aId).subscribe({
+      next: (grps) => {
+        this.grupos.set(grps);
+        if (grps.length > 0) {
+          this.grupoSeleccionadoId.set(grps[0].id!);
+        } else {
+          this.grupoSeleccionadoId.set(null as any);
+        }
+      }
+    });
+
+    this.matriculasService.listarMatriculasPorAnioLectivo(aId, 0, 100).subscribe({
+      next: (paged) => {
+        const list = paged.content || [];
+        this.matriculas.set(list);
+        if (list.length > 0 && !this.formTitulacion.get('matriculaId')?.value) {
+          this.formTitulacion.patchValue({ matriculaId: list[0].id! });
+        } else if (list.length === 0) {
+          this.formTitulacion.patchValue({ matriculaId: null });
+        }
+      }
+    });
+  }
+
+  onAnioCierreChange(event: Event): void {
+    const aId = Number((event.target as HTMLSelectElement).value);
+    this.anioSeleccionadoId.set(aId);
+    this.diagnostico.set(null);
+    this.preclasificaciones.set([]);
+    this.cargarCatalogosPorAnio(aId);
   }
 
   onPeriodoChange(event: Event): void {
