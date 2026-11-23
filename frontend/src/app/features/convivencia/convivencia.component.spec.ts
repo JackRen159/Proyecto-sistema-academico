@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { ConvivenciaComponent } from './convivencia.component';
 import { ConvivenciaEscolarService } from '../../core/api/generated/api/convivencia-escolar.service';
+import { EstudiantesService } from '../../core/api/generated/api/estudiantes.service';
 import { NotificationService } from '../../core/services/notification.service';
 import {
   AnotacionObservadorRequestTipoAnotacionEnum
@@ -13,6 +14,7 @@ describe('ConvivenciaComponent', () => {
   let component: ConvivenciaComponent;
   let fixture: ComponentFixture<ConvivenciaComponent>;
   let mockConvivenciaService: any;
+  let mockEstudiantesService: any;
   let mockNotificationService: any;
 
   const mockAnotaciones = [
@@ -35,6 +37,10 @@ describe('ConvivenciaComponent', () => {
       abrirCasoConvivencia: vi.fn().mockReturnValue(of({ id: 10, codigoExpediente: 'CASO-2026-001' }))
     };
 
+    mockEstudiantesService = {
+      apiEstudiantesGet: vi.fn().mockReturnValue(of({ content: [{ id: 1, nombres: 'Santiago', apellidos: 'Gómez', documento: '10203040' }] }))
+    };
+
     mockNotificationService = {
       showSuccess: vi.fn(),
       showWarning: vi.fn(),
@@ -45,6 +51,7 @@ describe('ConvivenciaComponent', () => {
       imports: [ConvivenciaComponent],
       providers: [
         { provide: ConvivenciaEscolarService, useValue: mockConvivenciaService },
+        { provide: EstudiantesService, useValue: mockEstudiantesService },
         { provide: NotificationService, useValue: mockNotificationService }
       ]
     }).compileComponents();

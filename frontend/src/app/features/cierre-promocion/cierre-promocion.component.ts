@@ -4,9 +4,14 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CierreAcadmicoYPromocinService } from '../../core/api/generated/api/cierre-acadmico-y-promocin.service';
 import { EstructuraAcadmicaPeriodosService } from '../../core/api/generated/api/estructura-acadmica-periodos.service';
 import { EstructuraAcadmicaGruposService } from '../../core/api/generated/api/estructura-acadmica-grupos.service';
+import { EstructuraAcadmicaAosLectivosService } from '../../core/api/generated/api/estructura-acadmica-aos-lectivos.service';
+import { MatrculasService } from '../../core/api/generated/api/matrculas.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { PeriodoAcademicoResponse } from '../../core/api/generated/model/periodo-academico-response';
 import { GrupoResponse } from '../../core/api/generated/model/grupo-response';
+import { AnioLectivoResponse } from '../../core/api/generated/model/anio-lectivo-response';
+import { MatriculaResponse } from '../../core/api/generated/model/matricula-response';
+import { EstadoAnioLectivo } from '../../core/api/generated/model/estado-anio-lectivo';
 import { DiagnosticoPreCierreResponse } from '../../core/api/generated/model/diagnostico-pre-cierre-response';
 import { PreclasificacionPromocionResponse } from '../../core/api/generated/model/preclasificacion-promocion-response';
 import { ModalidadTituloBachiller } from '../../core/api/generated/model/modalidad-titulo-bachiller';
@@ -191,8 +196,18 @@ import { ModalidadTituloBachiller } from '../../core/api/generated/model/modalid
 
             <div class="form-row">
               <div class="form-col">
-                <label for="tMatricula">ID Matrícula del Graduando: *</label>
-                <input id="tMatricula" type="number" formControlName="matriculaId" class="form-control" />
+                <label for="tMatricula">Estudiante Candidato a Grado: *</label>
+                <select id="tMatricula" formControlName="matriculaId" class="form-control">
+                  <option [ngValue]="null">-- Seleccione Estudiante --</option>
+                  @for (m of matriculas(); track m.id) {
+                    <option [ngValue]="m.id">
+                      {{ m.estudianteNombreCompleto || m.estudianteDocumento }} ({{ m.numeroMatricula || ('MAT-' + m.id) }} - Grupo: {{ m.grupoNombre }})
+                    </option>
+                  }
+                </select>
+                @if (formTitulacion.get('matriculaId')?.touched && formTitulacion.get('matriculaId')?.invalid) {
+                  <small class="text-danger">Debe seleccionar un estudiante.</small>
+                }
               </div>
               <div class="form-col">
                 <label for="tModalidad">Modalidad de Título: *</label>
@@ -329,8 +344,10 @@ import { ModalidadTituloBachiller } from '../../core/api/generated/model/modalid
 export class CierrePromocionComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly cierreService = inject(CierreAcadmicoYPromocinService);
+  private readonly aniosService = inject(EstructuraAcadmicaAosLectivosService);
   private readonly periodosService = inject(EstructuraAcadmicaPeriodosService);
   private readonly gruposService = inject(EstructuraAcadmicaGruposService);
+  private readonly matriculasService = inject(MatrculasService);
   private readonly notificationService = inject(NotificationService);
 
   readonly tabActiva = signal<'cierre' | 'promocion' | 'titulacion'>('cierre');
@@ -339,8 +356,11 @@ export class CierrePromocionComponent implements OnInit {
   readonly preclasificando = signal(false);
   readonly guardandoTitulacion = signal(false);
 
+  readonly anios = signal<AnioLectivoResponse[]>([]);
   readonly periodos = signal<PeriodoAcademicoResponse[]>([]);
   readonly grupos = signal<GrupoResponse[]>([]);
+  readonly matriculas = signal<MatriculaResponse[]>([]);
+  readonly anioSeleccionadoId = signal<number | null>(null);
   readonly periodoSeleccionadoId = signal<number>(1);
   readonly grupoSeleccionadoId = signal<number>(10);
 
@@ -362,17 +382,38 @@ export class CierrePromocionComponent implements OnInit {
   }
 
   cargarCatalogos(): void {
-    this.periodosService.apiAniosLectivosAnioIdPeriodosGet(1).subscribe({
-      next: (pers) => {
-        this.periodos.set(pers);
-        if (pers.length > 0) this.periodoSeleccionadoId.set(pers[0].id!);
-      }
-    });
+    this.aniosService.apiAniosLectivosGet().subscribe({
+      next: (anios) => {
+        this.anios.set(anios);
+        if (anios.length > 0) {
+          const activo = anios.find(a => a.estado === EstadoAnioLectivo.Activo) || anios[0];
+          const aId = activo.id!;
+          this.anioSeleccionadoId.set(aId);
 
-    this.gruposService.apiGruposGet(1).subscribe({
-      next: (grps) => {
-        this.grupos.set(grps);
-        if (grps.length > 0) this.grupoSeleccionadoId.set(grps[0].id!);
+          this.periodosService.apiAniosLectivosAnioIdPeriodosGet(aId).subscribe({
+            next: (pers) => {
+              this.periodos.set(pers);
+              if (pers.length > 0) this.periodoSeleccionadoId.set(pers[0].id!);
+            }
+          });
+
+          this.gruposService.apiGruposGet(aId).subscribe({
+            next: (grps) => {
+              this.grupos.set(grps);
+              if (grps.length > 0) this.grupoSeleccionadoId.set(grps[0].id!);
+            }
+          });
+
+          this.matriculasService.listarMatriculasPorAnioLectivo(aId).subscribe({
+            next: (paged) => {
+              const list = paged.content || [];
+              this.matriculas.set(list);
+              if (list.length > 0 && !this.formTitulacion.get('matriculaId')?.value) {
+                this.formTitulacion.patchValue({ matriculaId: list[0].id! });
+              }
+            }
+          });
+        }
       }
     });
   }

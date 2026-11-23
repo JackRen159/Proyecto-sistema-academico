@@ -170,8 +170,26 @@ interface FilaPlanilla {
 
             <div class="form-row">
               <div class="form-col">
-                <label for="eMatricula">ID de Matrícula del Alumno: *</label>
-                <input id="eMatricula" type="number" formControlName="matriculaId" placeholder="ID matrícula" class="form-control" />
+                <label for="eGrupo">Grupo del Estudiante:</label>
+                <select id="eGrupo" class="form-control" [value]="grupoSeleccionadoId()" (change)="onGrupoChange($event)">
+                  @for (g of grupos(); track g.id) {
+                    <option [value]="g.id">{{ g.nombre }}</option>
+                  }
+                </select>
+              </div>
+              <div class="form-col">
+                <label for="eMatricula">Estudiante Matriculado: *</label>
+                <select id="eMatricula" formControlName="matriculaId" class="form-control">
+                  <option [ngValue]="null">-- Seleccione Estudiante --</option>
+                  @for (m of matriculasGrupo(); track m.id) {
+                    <option [ngValue]="m.id">
+                      {{ m.estudianteNombreCompleto || m.estudianteDocumento }} ({{ m.numeroMatricula || ('MAT-' + m.id) }})
+                    </option>
+                  }
+                </select>
+                @if (formExcusa.get('matriculaId')?.touched && formExcusa.get('matriculaId')?.invalid) {
+                  <small class="text-danger">Debe seleccionar un estudiante matriculado.</small>
+                }
               </div>
               <div class="form-col">
                 <label for="eTipo">Tipo de Justificación: *</label>
@@ -336,6 +354,7 @@ export class AsistenciaComponent implements OnInit {
 
   readonly periodos = signal<PeriodoAcademicoResponse[]>([]);
   readonly grupos = signal<GrupoResponse[]>([]);
+  readonly matriculasGrupo = signal<MatriculaResponse[]>([]);
   readonly sesionActiva = signal<SesionAsistenciaResponse | null>(null);
   readonly filasPlanilla = signal<FilaPlanilla[]>([]);
 
@@ -375,9 +394,24 @@ export class AsistenciaComponent implements OnInit {
         this.gruposService.apiGruposGet(anioId).subscribe({
           next: (grps) => {
             this.grupos.set(grps);
-            if (grps.length > 0) this.grupoSeleccionadoId.set(grps[0].id!);
+            if (grps.length > 0) {
+              const gId = grps[0].id!;
+              this.grupoSeleccionadoId.set(gId);
+              this.cargarMatriculasGrupo(gId);
+            }
           }
         });
+      }
+    });
+  }
+
+  cargarMatriculasGrupo(grupoId: number): void {
+    this.matriculasService.listarMatriculas(grupoId).subscribe({
+      next: (mats) => {
+        this.matriculasGrupo.set(mats);
+        if (mats.length > 0 && !this.formExcusa.get('matriculaId')?.value) {
+          this.formExcusa.patchValue({ matriculaId: mats[0].id! });
+        }
       }
     });
   }
@@ -387,7 +421,9 @@ export class AsistenciaComponent implements OnInit {
   }
 
   onGrupoChange(event: Event): void {
-    this.grupoSeleccionadoId.set(Number((event.target as HTMLSelectElement).value));
+    const gId = Number((event.target as HTMLSelectElement).value);
+    this.grupoSeleccionadoId.set(gId);
+    this.cargarMatriculasGrupo(gId);
   }
 
   onFechaChange(event: Event): void {

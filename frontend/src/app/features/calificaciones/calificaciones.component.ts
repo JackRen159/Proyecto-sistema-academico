@@ -11,6 +11,7 @@ import { NotificationService } from '../../core/services/notification.service';
 import { AsignacionAcademicaResponse } from '../../core/api/generated/model/asignacion-academica-response';
 import { PeriodoAcademicoResponse } from '../../core/api/generated/model/periodo-academico-response';
 import { AnioLectivoResponse } from '../../core/api/generated/model/anio-lectivo-response';
+import { MatriculaResponse } from '../../core/api/generated/model/matricula-response';
 import { GrupoResponse } from '../../core/api/generated/model/grupo-response';
 import { ActividadEvaluativaResponse } from '../../core/api/generated/model/actividad-evaluativa-response';
 import { EstadoCalificacionActividad } from '../../core/api/generated/model/estado-calificacion-actividad';
@@ -269,16 +270,37 @@ interface FilaCalificacion {
 
             <div class="form-row">
               <div class="form-col">
-                <label for="nivMatricula">ID Matrícula del Alumno: *</label>
-                <input id="nivMatricula" type="number" formControlName="matriculaId" class="form-control" />
+                <label for="nivAsignacion">Asignación Académica / Asignatura: *</label>
+                <select id="nivAsignacion" class="form-control" (change)="onAsignacionNivelacionChange($event)">
+                  <option [ngValue]="null">-- Seleccione Asignatura y Grupo --</option>
+                  @for (a of asignaciones(); track a.id) {
+                    <option [value]="a.id">
+                      {{ a.asignaturaNombre }} - Grupo: {{ a.grupoNombre }} (Docente: {{ a.profesorNombreCompleto || 'Titular' }})
+                    </option>
+                  }
+                </select>
               </div>
               <div class="form-col">
-                <label for="nivAsignatura">ID Asignatura: *</label>
-                <input id="nivAsignatura" type="number" formControlName="asignaturaId" class="form-control" />
+                <label for="nivPeriodo">Periodo Académico: *</label>
+                <select id="nivPeriodo" formControlName="periodoId" class="form-control">
+                  @for (p of periodos(); track p.id) {
+                    <option [ngValue]="p.id">{{ p.nombre }}</option>
+                  }
+                </select>
               </div>
               <div class="form-col">
-                <label for="nivPeriodo">ID Periodo Académico: *</label>
-                <input id="nivPeriodo" type="number" formControlName="periodoId" class="form-control" />
+                <label for="nivMatricula">Estudiante a Nivelar: *</label>
+                <select id="nivMatricula" formControlName="matriculaId" class="form-control">
+                  <option [ngValue]="null">-- Seleccione Estudiante --</option>
+                  @for (m of matriculasNivelacion(); track m.id) {
+                    <option [ngValue]="m.id">
+                      {{ m.estudianteNombreCompleto || m.estudianteDocumento }} ({{ m.numeroMatricula || ('MAT-' + m.id) }})
+                    </option>
+                  }
+                </select>
+                @if (formNivelacion.get('matriculaId')?.touched && formNivelacion.get('matriculaId')?.invalid) {
+                  <small class="text-danger">Debe seleccionar un estudiante.</small>
+                }
               </div>
             </div>
 
@@ -427,6 +449,7 @@ export class CalificacionesComponent implements OnInit {
   readonly grupos = signal<GrupoResponse[]>([]);
   readonly actividades = signal<ActividadEvaluativaResponse[]>([]);
   readonly filasCalificaciones = signal<FilaCalificacion[]>([]);
+  readonly matriculasNivelacion = signal<MatriculaResponse[]>([]);
   readonly sabana = signal<SabanaConsolidadaResponse | null>(null);
 
   readonly anioSeleccionadoId = signal<number | null>(null);
@@ -474,6 +497,13 @@ export class CalificacionesComponent implements OnInit {
               if (asigs.length > 0) {
                 this.asignacionSeleccionadaId.set(asigs[0].id!);
                 this.cargarActividades(asigs[0].id!, this.periodoSeleccionadoId());
+                if (asigs[0].grupoId) {
+                  this.formNivelacion.patchValue({
+                    asignaturaId: asigs[0].asignaturaId,
+                    periodoId: this.periodoSeleccionadoId()
+                  });
+                  this.cargarMatriculasNivelacion(asigs[0].grupoId);
+                }
               }
             }
           });
@@ -497,6 +527,26 @@ export class CalificacionesComponent implements OnInit {
         }
       }
     });
+  }
+
+  cargarMatriculasNivelacion(grupoId: number): void {
+    this.matriculasService.listarMatriculas(grupoId).subscribe({
+      next: (mats) => {
+        this.matriculasNivelacion.set(mats);
+        if (mats.length > 0 && !this.formNivelacion.get('matriculaId')?.value) {
+          this.formNivelacion.patchValue({ matriculaId: mats[0].id! });
+        }
+      }
+    });
+  }
+
+  onAsignacionNivelacionChange(event: Event): void {
+    const asigId = Number((event.target as HTMLSelectElement).value);
+    const asig = this.asignaciones().find(a => a.id === asigId);
+    if (asig && asig.grupoId) {
+      this.formNivelacion.patchValue({ asignaturaId: asig.asignaturaId });
+      this.cargarMatriculasNivelacion(asig.grupoId);
+    }
   }
 
   onAsignacionChange(event: Event): void {

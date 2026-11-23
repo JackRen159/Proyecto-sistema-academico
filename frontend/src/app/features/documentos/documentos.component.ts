@@ -3,9 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DocumentosYReportesAcadmicosService } from '../../core/api/generated/api/documentos-y-reportes-acadmicos.service';
 import { ReportesInstitucionalesService } from '../../core/api/generated/api/reportes-institucionales.service';
+import { EstructuraAcadmicaAosLectivosService } from '../../core/api/generated/api/estructura-acadmica-aos-lectivos.service';
+import { MatrculasService } from '../../core/api/generated/api/matrculas.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { RegistroEmisionResponse } from '../../core/api/generated/model/registro-emision-response';
 import { ReporteCoberturaSimatResponse } from '../../core/api/generated/model/reporte-cobertura-simat-response';
+import { AnioLectivoResponse } from '../../core/api/generated/model/anio-lectivo-response';
+import { MatriculaResponse } from '../../core/api/generated/model/matricula-response';
+import { EstadoAnioLectivo } from '../../core/api/generated/model/estado-anio-lectivo';
 
 @Component({
   selector: 'app-documentos',
@@ -67,8 +72,18 @@ import { ReporteCoberturaSimatResponse } from '../../core/api/generated/model/re
                 </select>
               </div>
               <div class="form-col">
-                <label for="matId">ID de Matrícula: *</label>
-                <input id="matId" type="number" formControlName="matriculaId" placeholder="Ej. 101" class="form-control" />
+                <label for="matId">Estudiante Matriculado: *</label>
+                <select id="matId" formControlName="matriculaId" class="form-control">
+                  <option [ngValue]="null">-- Seleccione Estudiante Matriculado --</option>
+                  @for (m of matriculas(); track m.id) {
+                    <option [ngValue]="m.id">
+                      {{ m.estudianteNombreCompleto || m.estudianteDocumento }} ({{ m.numeroMatricula || ('MAT-' + m.id) }} - Grupo: {{ m.grupoNombre }})
+                    </option>
+                  }
+                </select>
+                @if (formExpedicion.get('matriculaId')?.touched && formExpedicion.get('matriculaId')?.invalid) {
+                  <small class="text-danger">Debe seleccionar un estudiante matriculado.</small>
+                }
               </div>
             </div>
 
@@ -235,16 +250,22 @@ import { ReporteCoberturaSimatResponse } from '../../core/api/generated/model/re
     .badge-success { background: #dcfce7; color: #166534; }
   `]
 })
-export class DocumentosComponent {
+export class DocumentosComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly documentosService = inject(DocumentosYReportesAcadmicosService);
   private readonly reportesService = inject(ReportesInstitucionalesService);
+  private readonly aniosService = inject(EstructuraAcadmicaAosLectivosService);
+  private readonly matriculasService = inject(MatrculasService);
   private readonly notificationService = inject(NotificationService);
 
   readonly tabActiva = signal<'expedicion' | 'verificacion' | 'reportes'>('expedicion');
   readonly expidiendo = signal(false);
   readonly verificando = signal(false);
   readonly cargandoReporte = signal(false);
+
+  readonly anios = signal<AnioLectivoResponse[]>([]);
+  readonly matriculas = signal<MatriculaResponse[]>([]);
+  readonly anioSeleccionadoId = signal<number | null>(null);
 
   readonly documentoGenerado = signal<any | null>(null);
   readonly documentoVerificado = signal<RegistroEmisionResponse | null>(null);
@@ -256,6 +277,35 @@ export class DocumentosComponent {
     tipoDocumento: ['CONSTANCIA', [Validators.required]],
     matriculaId: [null as number | null, [Validators.required]]
   });
+
+  ngOnInit(): void {
+    this.cargarAnios();
+  }
+
+  cargarAnios(): void {
+    this.aniosService.apiAniosLectivosGet().subscribe({
+      next: (data) => {
+        this.anios.set(data);
+        if (data.length > 0) {
+          const activo = data.find(a => a.estado === EstadoAnioLectivo.Activo) || data[0];
+          this.anioSeleccionadoId.set(activo.id!);
+          this.cargarMatriculas(activo.id!);
+        }
+      }
+    });
+  }
+
+  cargarMatriculas(anioId: number): void {
+    this.matriculasService.listarMatriculasPorAnioLectivo(anioId).subscribe({
+      next: (paged) => {
+        const list = paged.content || [];
+        this.matriculas.set(list);
+        if (list.length > 0 && !this.formExpedicion.get('matriculaId')?.value) {
+          this.formExpedicion.patchValue({ matriculaId: list[0].id! });
+        }
+      }
+    });
+  }
 
   onCodigoChange(event: Event): void {
     this.codigoVerificacionBusqueda.set((event.target as HTMLInputElement).value);

@@ -11,6 +11,7 @@ import {
 } from '../../core/api/generated/model/anotacion-observador-request';
 import { CasoConvivenciaRequestTipoSituacionEnum } from '../../core/api/generated/model/caso-convivencia-request';
 import { PagedEstudianteResponse } from '../../core/api/generated/model/paged-estudiante-response';
+import { EstudianteResponse } from '../../core/api/generated/model/estudiante-response';
 
 @Component({
   selector: 'app-convivencia',
@@ -58,18 +59,18 @@ import { PagedEstudianteResponse } from '../../core/api/generated/model/paged-es
         <div class="tab-content">
           <div class="content-toolbar">
             <div class="selector-row">
-              <label for="selEstudiante">ID del Estudiante:</label>
-              <input
+              <label for="selEstudiante">Estudiante:</label>
+              <select
                 id="selEstudiante"
-                type="number"
                 [value]="estudianteSeleccionadoId()"
-                (input)="onEstudianteIdChange($event)"
-                placeholder="ID estudiante"
-                class="form-control inline-input"
-              />
-              <button type="button" class="btn-primary" (click)="cargarAnotaciones()">
-                Cargar Observador
-              </button>
+                (change)="onEstudianteChange($event)"
+                class="form-control"
+                style="min-width: 250px;"
+              >
+                @for (e of estudiantes(); track e.id) {
+                  <option [value]="e.id">{{ e.nombres }} {{ e.apellidos }} (Doc: {{ e.documento }})</option>
+                }
+              </select>
             </div>
 
             <button type="button" class="btn-primary" (click)="mostrarFormAnotacion.set(true)">
@@ -187,8 +188,16 @@ import { PagedEstudianteResponse } from '../../core/api/generated/model/paged-es
 
             <div class="form-row">
               <div class="form-col">
-                <label for="rEstudiante">ID Estudiante Implicado: *</label>
-                <input id="rEstudiante" type="number" formControlName="estudianteImplicadoId" class="form-control" />
+                <label for="rEstudiante">Estudiante Implicado: *</label>
+                <select id="rEstudiante" formControlName="estudianteImplicadoId" class="form-control">
+                  <option [ngValue]="null">-- Seleccione Estudiante --</option>
+                  @for (e of estudiantes(); track e.id) {
+                    <option [ngValue]="e.id">{{ e.nombres }} {{ e.apellidos }} (Doc: {{ e.documento }})</option>
+                  }
+                </select>
+                @if (formRuta.get('estudianteImplicadoId')?.touched && formRuta.get('estudianteImplicadoId')?.invalid) {
+                  <small class="text-danger">Debe seleccionar un estudiante.</small>
+                }
               </div>
               <div class="form-col">
                 <label for="rTipo">Clasificación de la Situación: *</label>
@@ -335,13 +344,15 @@ import { PagedEstudianteResponse } from '../../core/api/generated/model/paged-es
 export class ConvivenciaComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly convivenciaService = inject(ConvivenciaEscolarService);
+  private readonly estudiantesService = inject(EstudiantesService);
   private readonly notificationService = inject(NotificationService);
 
   readonly tabActiva = signal<'observador' | 'ruta' | 'garantias'>('observador');
   readonly guardandoAnotacion = signal(false);
   readonly abriendoCaso = signal(false);
 
-  readonly estudianteSeleccionadoId = signal<number>(1);
+  readonly estudiantes = signal<EstudianteResponse[]>([]);
+  readonly estudianteSeleccionadoId = signal<number | null>(null);
   readonly anotaciones = signal<AnotacionObservadorResponse[]>([]);
   readonly mostrarFormAnotacion = signal(false);
 
@@ -358,7 +369,7 @@ export class ConvivenciaComponent implements OnInit {
 
   readonly formRuta = this.fb.group({
     anioLectivoId: [1, [Validators.required]],
-    estudianteImplicadoId: [1, [Validators.required]],
+    estudianteImplicadoId: [null as number | null, [Validators.required]],
     tipoSituacion: [CasoConvivenciaRequestTipoSituacionEnum.TipoI, [Validators.required]],
     fechaHechos: [new Date().toISOString().substring(0, 10), [Validators.required]],
     lugarHechos: ['', [Validators.required]],
@@ -368,15 +379,32 @@ export class ConvivenciaComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.cargarAnotaciones();
+    this.cargarEstudiantes();
   }
 
-  onEstudianteIdChange(event: Event): void {
-    this.estudianteSeleccionadoId.set(Number((event.target as HTMLInputElement).value));
+  cargarEstudiantes(): void {
+    this.estudiantesService.apiEstudiantesGet(0, 100).subscribe({
+      next: (paged) => {
+        const list = paged.content || [];
+        this.estudiantes.set(list);
+        if (list.length > 0) {
+          const firstId = list[0].id!;
+          this.estudianteSeleccionadoId.set(firstId);
+          this.formRuta.patchValue({ estudianteImplicadoId: firstId });
+          this.cargarAnotaciones(firstId);
+        }
+      }
+    });
   }
 
-  cargarAnotaciones(): void {
-    const id = this.estudianteSeleccionadoId();
+  onEstudianteChange(event: Event): void {
+    const id = Number((event.target as HTMLSelectElement).value);
+    this.estudianteSeleccionadoId.set(id);
+    this.cargarAnotaciones(id);
+  }
+
+  cargarAnotaciones(estudianteId?: number): void {
+    const id = estudianteId || this.estudianteSeleccionadoId();
     if (!id) return;
 
     this.convivenciaService.listarAnotacionesEstudiante(id).subscribe({

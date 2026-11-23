@@ -5,6 +5,8 @@ import { CierrePromocionComponent } from './cierre-promocion.component';
 import { CierreAcadmicoYPromocinService } from '../../core/api/generated/api/cierre-acadmico-y-promocin.service';
 import { EstructuraAcadmicaPeriodosService } from '../../core/api/generated/api/estructura-acadmica-periodos.service';
 import { EstructuraAcadmicaGruposService } from '../../core/api/generated/api/estructura-acadmica-grupos.service';
+import { EstructuraAcadmicaAosLectivosService } from '../../core/api/generated/api/estructura-acadmica-aos-lectivos.service';
+import { MatrculasService } from '../../core/api/generated/api/matrculas.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { ModalidadTituloBachiller } from '../../core/api/generated/model/modalidad-titulo-bachiller';
 
@@ -12,8 +14,10 @@ describe('CierrePromocionComponent', () => {
   let component: CierrePromocionComponent;
   let fixture: ComponentFixture<CierrePromocionComponent>;
   let mockCierreService: any;
+  let mockAniosService: any;
   let mockPeriodosService: any;
   let mockGruposService: any;
+  let mockMatriculasService: any;
   let mockNotificationService: any;
 
   const mockPeriodos = [{ id: 1, nombre: 'Periodo 1', estado: 'ABIERTO' }];
@@ -46,12 +50,20 @@ describe('CierrePromocionComponent', () => {
       registrarRequisitosTitulacion: vi.fn().mockReturnValue(of({}))
     };
 
+    mockAniosService = {
+      apiAniosLectivosGet: vi.fn().mockReturnValue(of([{ id: 1, anio: 2026, estado: 'ACTIVO' }]))
+    };
+
     mockPeriodosService = {
       apiAniosLectivosAnioIdPeriodosGet: vi.fn().mockReturnValue(of(mockPeriodos))
     };
 
     mockGruposService = {
       apiGruposGet: vi.fn().mockReturnValue(of(mockGrupos))
+    };
+
+    mockMatriculasService = {
+      listarMatriculasPorAnioLectivo: vi.fn().mockReturnValue(of({ content: [{ id: 101, numeroMatricula: 'MAT-2026-001', estudianteNombreCompleto: 'Laura Ramírez', grupoNombre: '11A' }] }))
     };
 
     mockNotificationService = {
@@ -64,8 +76,10 @@ describe('CierrePromocionComponent', () => {
       imports: [CierrePromocionComponent],
       providers: [
         { provide: CierreAcadmicoYPromocinService, useValue: mockCierreService },
+        { provide: EstructuraAcadmicaAosLectivosService, useValue: mockAniosService },
         { provide: EstructuraAcadmicaPeriodosService, useValue: mockPeriodosService },
         { provide: EstructuraAcadmicaGruposService, useValue: mockGruposService },
+        { provide: MatrculasService, useValue: mockMatriculasService },
         { provide: NotificationService, useValue: mockNotificationService }
       ]
     }).compileComponents();

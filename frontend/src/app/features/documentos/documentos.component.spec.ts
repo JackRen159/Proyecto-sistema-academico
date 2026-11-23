@@ -4,6 +4,8 @@ import { of } from 'rxjs';
 import { DocumentosComponent } from './documentos.component';
 import { DocumentosYReportesAcadmicosService } from '../../core/api/generated/api/documentos-y-reportes-acadmicos.service';
 import { ReportesInstitucionalesService } from '../../core/api/generated/api/reportes-institucionales.service';
+import { EstructuraAcadmicaAosLectivosService } from '../../core/api/generated/api/estructura-acadmica-aos-lectivos.service';
+import { MatrculasService } from '../../core/api/generated/api/matrculas.service';
 import { NotificationService } from '../../core/services/notification.service';
 
 describe('DocumentosComponent', () => {
@@ -11,6 +13,8 @@ describe('DocumentosComponent', () => {
   let fixture: ComponentFixture<DocumentosComponent>;
   let mockDocumentosService: any;
   let mockReportesService: any;
+  let mockAniosService: any;
+  let mockMatriculasService: any;
   let mockNotificationService: any;
 
   beforeEach(async () => {
@@ -40,6 +44,14 @@ describe('DocumentosComponent', () => {
       exportarReporteInstitucional: vi.fn().mockReturnValue(of(new Blob()))
     };
 
+    mockAniosService = {
+      apiAniosLectivosGet: vi.fn().mockReturnValue(of([{ id: 1, anio: 2026, estado: 'ACTIVO' }]))
+    };
+
+    mockMatriculasService = {
+      listarMatriculasPorAnioLectivo: vi.fn().mockReturnValue(of({ content: [{ id: 101, numeroMatricula: 'MAT-2026-001', estudianteNombreCompleto: 'Juan Pérez', grupoNombre: '10A' }] }))
+    };
+
     mockNotificationService = {
       showSuccess: vi.fn(),
       showInfo: vi.fn(),
@@ -52,6 +64,8 @@ describe('DocumentosComponent', () => {
       providers: [
         { provide: DocumentosYReportesAcadmicosService, useValue: mockDocumentosService },
         { provide: ReportesInstitucionalesService, useValue: mockReportesService },
+        { provide: EstructuraAcadmicaAosLectivosService, useValue: mockAniosService },
+        { provide: MatrculasService, useValue: mockMatriculasService },
         { provide: NotificationService, useValue: mockNotificationService }
       ]
     }).compileComponents();
