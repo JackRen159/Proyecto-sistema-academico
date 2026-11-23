@@ -66,7 +66,8 @@ public class ObservadorService {
         boolean esZonaComun = request.esZonaComun() != null && request.esZonaComun();
         if (!esZonaComun) {
             Rol rolAutor = autor.getRol();
-            boolean esDirectivo = rolAutor == Rol.RECTOR ||
+            boolean esDirectivo = rolAutor == Rol.ADMINISTRADOR ||
+                    rolAutor == Rol.RECTOR ||
                     rolAutor == Rol.COORDINADOR ||
                     rolAutor == Rol.COORDINADOR_CONVIVENCIA ||
                     rolAutor == Rol.COORDINADOR_ACADEMICO ||

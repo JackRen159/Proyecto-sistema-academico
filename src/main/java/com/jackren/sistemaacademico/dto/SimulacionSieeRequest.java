@@ -1,5 +1,6 @@
 package com.jackren.sistemaacademico.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.constraints.NotEmpty;
 
 import java.math.BigDecimal;
@@ -8,6 +9,7 @@ import java.util.List;
 public class SimulacionSieeRequest {
 
     @NotEmpty(message = "Debe proporcionar al menos una calificación para la simulación")
+    @JsonAlias({"calificacionesActividades"})
     private List<BigDecimal> calificaciones;
 
     private List<BigDecimal> ponderaciones;

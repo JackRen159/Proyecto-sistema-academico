@@ -453,6 +453,7 @@ export class ConfiguracionInstitucionalComponent implements OnInit {
 
     const nota = this.notaSimulacion();
     const req = {
+      calificaciones: [nota],
       calificacionesActividades: [nota]
     };
 

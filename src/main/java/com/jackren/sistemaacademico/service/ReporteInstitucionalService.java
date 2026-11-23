@@ -56,8 +56,23 @@ public class ReporteInstitucionalService {
 
         List<Grado> grados = gradoRepository.findAll();
         List<Matricula> matriculasAnio = matriculaRepository.findByAnioLectivoIdAndEstado(anioLectivoId, EstadoMatricula.MATRICULADA);
+        if (matriculasAnio == null || matriculasAnio.isEmpty()) {
+            try {
+                org.springframework.data.domain.Page<Matricula> page = matriculaRepository.findByAnioLectivoId(anioLectivoId, org.springframework.data.domain.Pageable.unpaged());
+                if (page != null && page.getContent() != null) {
+                    matriculasAnio = page.getContent().stream()
+                            .filter(m -> m.getEstado() == EstadoMatricula.MATRICULADA || m.getEstado() == EstadoMatricula.MATRICULADO_ACTIVO)
+                            .toList();
+                }
+            } catch (Exception ignored) {
+            }
+        }
+        if (matriculasAnio == null) {
+            matriculasAnio = Collections.emptyList();
+        }
 
         Map<Long, List<Matricula>> matPorGrado = matriculasAnio.stream()
+                .filter(m -> m.getGrupo() != null && m.getGrupo().getGrado() != null && m.getEstudiante() != null)
                 .collect(Collectors.groupingBy(m -> m.getGrupo().getGrado().getId()));
 
         List<ItemCoberturaGradoDTO> items = new ArrayList<>();
@@ -71,17 +86,17 @@ public class ReporteInstitucionalService {
 
             // Calcular cupos desde grupos del grado
             int cuposGrado = grupoRepository.findByAnioLectivoIdAndActivoTrue(anioLectivoId).stream()
-                    .filter(grp -> grp.getGrado().getId().equals(g.getId()))
+                    .filter(grp -> grp.getGrado() != null && grp.getGrado().getId().equals(g.getId()))
                     .mapToInt(Grupo::getCupoMaximo)
                     .sum();
             if (cuposGrado == 0) cuposGrado = matriculadosGrado + 10;
             totalCuposGlobal += cuposGrado;
 
             int masc = (int) mats.stream()
-                    .filter(m -> m.getEstudiante().getSexo() == SexoDocumental.MASCULINO)
+                    .filter(m -> m.getEstudiante() != null && m.getEstudiante().getSexo() == SexoDocumental.MASCULINO)
                     .count();
             int fem = (int) mats.stream()
-                    .filter(m -> m.getEstudiante().getSexo() == SexoDocumental.FEMENINO)
+                    .filter(m -> m.getEstudiante() != null && m.getEstudiante().getSexo() == SexoDocumental.FEMENINO)
                     .count();
 
             items.add(new ItemCoberturaGradoDTO(
@@ -96,15 +111,18 @@ public class ReporteInstitucionalService {
         }
 
         if (auditoriaGlobalService != null) {
-            auditoriaGlobalService.registrarEvento(
-                    "CONSULTA_REPORTE_COBERTURA_SIMAT",
-                    "ReporteInstitucional",
-                    anioLectivoId.toString(),
-                    "N/A",
-                    "Total matriculados: " + totalMatriculados,
-                    "Generación oficial de reporte de cobertura SIMAT/DANE",
-                    "EXITOSO"
-            );
+            try {
+                auditoriaGlobalService.registrarEvento(
+                        "CONSULTA_REPORTE_COBERTURA_SIMAT",
+                        "ReporteInstitucional",
+                        anioLectivoId.toString(),
+                        "N/A",
+                        "Total matriculados: " + totalMatriculados,
+                        "Generación oficial de reporte de cobertura SIMAT/DANE",
+                        "EXITOSO"
+                );
+            } catch (Exception ignored) {
+            }
         }
 
         return new ReporteCoberturaSimatResponse(

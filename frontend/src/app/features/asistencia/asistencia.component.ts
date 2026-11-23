@@ -14,6 +14,7 @@ import { RegistroAsistenciaItemRequest } from '../../core/api/generated/model/re
 import { PeriodoAcademicoResponse } from '../../core/api/generated/model/periodo-academico-response';
 import { GrupoResponse } from '../../core/api/generated/model/grupo-response';
 import { MatriculaResponse } from '../../core/api/generated/model/matricula-response';
+import { AnioLectivoResponse } from '../../core/api/generated/model/anio-lectivo-response';
 import { SesionAsistenciaResponse } from '../../core/api/generated/model/sesion-asistencia-response';
 import { SesionAsistenciaRequest } from '../../core/api/generated/model/sesion-asistencia-request';
 import { EstadoAnioLectivo } from '../../core/api/generated/model/estado-anio-lectivo';
@@ -65,8 +66,19 @@ interface FilaPlanilla {
           <div class="filtro-panel">
             <div class="form-row">
               <div class="form-col">
+                <label for="pAnio">Año Lectivo:</label>
+                <select id="pAnio" [value]="anioSeleccionadoId()" (change)="onAnioAsistenciaChange($event)" class="form-control">
+                  @for (a of anios(); track a.id) {
+                    <option [value]="a.id">Año {{ a.anio }} ({{ a.estado }})</option>
+                  }
+                </select>
+              </div>
+              <div class="form-col">
                 <label for="pPeriodo">Periodo:</label>
                 <select id="pPeriodo" [value]="periodoSeleccionadoId()" (change)="onPeriodoChange($event)" class="form-control">
+                  @if (periodos().length === 0) {
+                    <option [value]="null">-- Sin periodos en este año --</option>
+                  }
                   @for (p of periodos(); track p.id) {
                     <option [value]="p.id">{{ p.nombre }}</option>
                   }
@@ -75,6 +87,9 @@ interface FilaPlanilla {
               <div class="form-col">
                 <label for="pGrupo">Grupo:</label>
                 <select id="pGrupo" [value]="grupoSeleccionadoId()" (change)="onGrupoChange($event)" class="form-control">
+                  @if (grupos().length === 0) {
+                    <option [value]="null">-- Sin grupos en este año --</option>
+                  }
                   @for (g of grupos(); track g.id) {
                     <option [value]="g.id">{{ g.nombre }}</option>
                   }
@@ -352,6 +367,9 @@ export class AsistenciaComponent implements OnInit {
   readonly guardandoPlanilla = signal(false);
   readonly guardandoExcusa = signal(false);
 
+  readonly anios = signal<AnioLectivoResponse[]>([]);
+  readonly anioSeleccionadoId = signal<number | null>(null);
+
   readonly periodos = signal<PeriodoAcademicoResponse[]>([]);
   readonly grupos = signal<GrupoResponse[]>([]);
   readonly matriculasGrupo = signal<MatriculaResponse[]>([]);
@@ -381,28 +399,43 @@ export class AsistenciaComponent implements OnInit {
   cargarCatalogos(): void {
     this.aniosService.apiAniosLectivosGet().subscribe({
       next: (anios) => {
-        const activo = anios.find(a => a.estado === EstadoAnioLectivo.Activo) || anios[0];
-        const anioId = activo ? activo.id! : 1;
-
-        this.periodosService.apiAniosLectivosAnioIdPeriodosGet(anioId).subscribe({
-          next: (pers) => {
-            this.periodos.set(pers);
-            if (pers.length > 0) this.periodoSeleccionadoId.set(pers[0].id!);
-          }
-        });
-
-        this.gruposService.apiGruposGet(anioId).subscribe({
-          next: (grps) => {
-            this.grupos.set(grps);
-            if (grps.length > 0) {
-              const gId = grps[0].id!;
-              this.grupoSeleccionadoId.set(gId);
-              this.cargarMatriculasGrupo(gId);
-            }
-          }
-        });
+        this.anios.set(anios);
+        if (anios.length > 0) {
+          const activo = anios.find(a => a.estado === EstadoAnioLectivo.Activo) || anios[0];
+          const anioId = activo ? activo.id! : 1;
+          this.anioSeleccionadoId.set(anioId);
+          this.cargarCatalogosPorAnio(anioId);
+        }
       }
     });
+  }
+
+  cargarCatalogosPorAnio(anioId: number): void {
+    this.periodosService.apiAniosLectivosAnioIdPeriodosGet(anioId).subscribe({
+      next: (pers) => {
+        this.periodos.set(pers);
+        if (pers.length > 0) this.periodoSeleccionadoId.set(pers[0].id!);
+      }
+    });
+
+    this.gruposService.apiGruposGet(anioId).subscribe({
+      next: (grps) => {
+        this.grupos.set(grps);
+        if (grps.length > 0) {
+          const gId = grps[0].id!;
+          this.grupoSeleccionadoId.set(gId);
+          this.cargarMatriculasGrupo(gId);
+        } else {
+          this.matriculasGrupo.set([]);
+        }
+      }
+    });
+  }
+
+  onAnioAsistenciaChange(event: Event): void {
+    const aId = Number((event.target as HTMLSelectElement).value);
+    this.anioSeleccionadoId.set(aId);
+    this.cargarCatalogosPorAnio(aId);
   }
 
   cargarMatriculasGrupo(grupoId: number): void {

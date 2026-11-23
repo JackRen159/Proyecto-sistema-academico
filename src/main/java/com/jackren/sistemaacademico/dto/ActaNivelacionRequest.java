@@ -1,6 +1,6 @@
 package com.jackren.sistemaacademico.dto;
 
-import jakarta.validation.constraints.NotNull;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
@@ -8,14 +8,19 @@ import java.time.LocalDate;
 
 public class ActaNivelacionRequest {
 
-    @NotNull(message = "La calificación de periodo es obligatoria")
     private Long calificacionPeriodoId;
 
-    @NotNull(message = "La fecha de sustentación es obligatoria")
+    private Long matriculaId;
+
+    private Long asignaturaId;
+
+    private Long periodoId;
+
     private LocalDate fechaSustentacion;
 
     private Boolean asistencia = true;
 
+    @JsonAlias({"notaNivelacion"})
     private BigDecimal notaObtenida;
 
     @Size(max = 1000, message = "La estrategia pedagógica no puede superar 1000 caracteres")
@@ -36,6 +41,30 @@ public class ActaNivelacionRequest {
 
     public void setCalificacionPeriodoId(Long calificacionPeriodoId) {
         this.calificacionPeriodoId = calificacionPeriodoId;
+    }
+
+    public Long getMatriculaId() {
+        return matriculaId;
+    }
+
+    public void setMatriculaId(Long matriculaId) {
+        this.matriculaId = matriculaId;
+    }
+
+    public Long getAsignaturaId() {
+        return asignaturaId;
+    }
+
+    public void setAsignaturaId(Long asignaturaId) {
+        this.asignaturaId = asignaturaId;
+    }
+
+    public Long getPeriodoId() {
+        return periodoId;
+    }
+
+    public void setPeriodoId(Long periodoId) {
+        this.periodoId = periodoId;
     }
 
     public LocalDate getFechaSustentacion() {

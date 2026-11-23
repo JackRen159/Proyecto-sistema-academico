@@ -173,7 +173,7 @@ public class AsistenciaController {
     // =========================================================================
 
     @PostMapping("/excusas")
-    @PreAuthorize("hasAnyRole('ESTUDIANTE', 'ACUDIENTE', 'SECRETARIA', 'COORDINADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RECTOR', 'ESTUDIANTE', 'ACUDIENTE', 'SECRETARIA', 'COORDINADOR')")
     public ResponseEntity<SolicitudExcusaAsistenciaResponse> radicarExcusa(
             @Valid @RequestBody SolicitudExcusaAsistenciaRequest request,
             @AuthenticationPrincipal Jwt jwt) {

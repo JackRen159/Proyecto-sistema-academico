@@ -73,8 +73,19 @@ interface FilaCalificacion {
           <div class="filtro-panel">
             <div class="form-row">
               <div class="form-col">
+                <label for="cAnio">Año Lectivo:</label>
+                <select id="cAnio" [value]="anioSeleccionadoId()" (change)="onAnioCalificacionesChange($event)" class="form-control">
+                  @for (a of anios(); track a.id) {
+                    <option [value]="a.id">Año {{ a.anio }} ({{ a.estado }})</option>
+                  }
+                </select>
+              </div>
+              <div class="form-col">
                 <label for="cAsignacion">Carga / Asignación:</label>
                 <select id="cAsignacion" [value]="asignacionSeleccionadaId()" (change)="onAsignacionChange($event)" class="form-control">
+                  @if (asignaciones().length === 0) {
+                    <option [value]="null">-- Sin asignaciones en este año --</option>
+                  }
                   @for (asig of asignaciones(); track asig.id) {
                     <option [value]="asig.id">{{ asig.grupoNombre }} — {{ asig.asignaturaNombre }} ({{ asig.profesorNombreCompleto }})</option>
                   }
@@ -83,6 +94,9 @@ interface FilaCalificacion {
               <div class="form-col">
                 <label for="cPeriodo">Periodo Académico:</label>
                 <select id="cPeriodo" [value]="periodoSeleccionadoId()" (change)="onPeriodoChange($event)" class="form-control">
+                  @if (periodos().length === 0) {
+                    <option [value]="null">-- Sin periodos en este año --</option>
+                  }
                   @for (p of periodos(); track p.id) {
                     <option [value]="p.id">{{ p.nombre }} ({{ p.porcentaje }}%)</option>
                   }
@@ -209,8 +223,19 @@ interface FilaCalificacion {
           <div class="filtro-panel">
             <div class="form-row">
               <div class="form-col">
+                <label for="sabAnio">Año Lectivo:</label>
+                <select id="sabAnio" [value]="anioSeleccionadoId()" (change)="onAnioCalificacionesChange($event)" class="form-control">
+                  @for (a of anios(); track a.id) {
+                    <option [value]="a.id">Año {{ a.anio }} ({{ a.estado }})</option>
+                  }
+                </select>
+              </div>
+              <div class="form-col">
                 <label for="sabGrupo">Grupo:</label>
                 <select id="sabGrupo" [value]="grupoSabanaId()" (change)="onGrupoSabanaChange($event)" class="form-control">
+                  @if (grupos().length === 0) {
+                    <option [value]="null">-- Sin grupos en este año --</option>
+                  }
                   @for (g of grupos(); track g.id) {
                     <option [value]="g.id">{{ g.nombre }}</option>
                   }
@@ -219,6 +244,9 @@ interface FilaCalificacion {
               <div class="form-col">
                 <label for="sabPeriodo">Periodo:</label>
                 <select id="sabPeriodo" [value]="periodoSabanaId()" (change)="onPeriodoSabanaChange($event)" class="form-control">
+                  @if (periodos().length === 0) {
+                    <option [value]="null">-- Sin periodos en este año --</option>
+                  }
                   @for (p of periodos(); track p.id) {
                     <option [value]="p.id">{{ p.nombre }}</option>
                   }
@@ -490,43 +518,56 @@ export class CalificacionesComponent implements OnInit {
           const activo = anios.find(a => a.estado === EstadoAnioLectivo.Activo) || anios[0];
           const anioId = activo.id!;
           this.anioSeleccionadoId.set(anioId);
-
-          this.asignacionesService.apiAsignacionesAcademicasGet(undefined, undefined, anioId).subscribe({
-            next: (asigs) => {
-              this.asignaciones.set(asigs);
-              if (asigs.length > 0) {
-                this.asignacionSeleccionadaId.set(asigs[0].id!);
-                this.cargarActividades(asigs[0].id!, this.periodoSeleccionadoId());
-                if (asigs[0].grupoId) {
-                  this.formNivelacion.patchValue({
-                    asignaturaId: asigs[0].asignaturaId,
-                    periodoId: this.periodoSeleccionadoId()
-                  });
-                  this.cargarMatriculasNivelacion(asigs[0].grupoId);
-                }
-              }
-            }
-          });
-
-          this.periodosService.apiAniosLectivosAnioIdPeriodosGet(anioId).subscribe({
-            next: (pers) => {
-              this.periodos.set(pers);
-              if (pers.length > 0) {
-                this.periodoSeleccionadoId.set(pers[0].id!);
-                this.periodoSabanaId.set(pers[0].id!);
-              }
-            }
-          });
-
-          this.gruposService.apiGruposGet(anioId).subscribe({
-            next: (grps) => {
-              this.grupos.set(grps);
-              if (grps.length > 0) this.grupoSabanaId.set(grps[0].id!);
-            }
-          });
+          this.cargarCatalogosPorAnio(anioId);
         }
       }
     });
+  }
+
+  cargarCatalogosPorAnio(anioId: number): void {
+    this.asignacionesService.apiAsignacionesAcademicasGet(undefined, undefined, anioId).subscribe({
+      next: (asigs) => {
+        this.asignaciones.set(asigs);
+        if (asigs.length > 0) {
+          this.asignacionSeleccionadaId.set(asigs[0].id!);
+          this.cargarActividades(asigs[0].id!, this.periodoSeleccionadoId());
+          if (asigs[0].grupoId) {
+            this.formNivelacion.patchValue({
+              asignaturaId: asigs[0].asignaturaId,
+              periodoId: this.periodoSeleccionadoId()
+            });
+            this.cargarMatriculasNivelacion(asigs[0].grupoId);
+          }
+        } else {
+          this.asignacionSeleccionadaId.set(1);
+          this.actividades.set([]);
+          this.filasCalificaciones.set([]);
+        }
+      }
+    });
+
+    this.periodosService.apiAniosLectivosAnioIdPeriodosGet(anioId).subscribe({
+      next: (pers) => {
+        this.periodos.set(pers);
+        if (pers.length > 0) {
+          this.periodoSeleccionadoId.set(pers[0].id!);
+          this.periodoSabanaId.set(pers[0].id!);
+        }
+      }
+    });
+
+    this.gruposService.apiGruposGet(anioId).subscribe({
+      next: (grps) => {
+        this.grupos.set(grps);
+        if (grps.length > 0) this.grupoSabanaId.set(grps[0].id!);
+      }
+    });
+  }
+
+  onAnioCalificacionesChange(event: Event): void {
+    const aId = Number((event.target as HTMLSelectElement).value);
+    this.anioSeleccionadoId.set(aId);
+    this.cargarCatalogosPorAnio(aId);
   }
 
   cargarMatriculasNivelacion(grupoId: number): void {
@@ -704,7 +745,14 @@ export class CalificacionesComponent implements OnInit {
     if (this.formNivelacion.invalid) return;
 
     this.guardandoNivelacion.set(true);
-    this.calificacionService.registrarActaNivelacion(this.formNivelacion.getRawValue() as any).subscribe({
+    const raw = this.formNivelacion.getRawValue();
+    const req = {
+      ...raw,
+      notaObtenida: raw.notaNivelacion,
+      fechaSustentacion: new Date().toISOString().substring(0, 10),
+      asistencia: true
+    };
+    this.calificacionService.registrarActaNivelacion(req as any).subscribe({
       next: () => {
         this.guardandoNivelacion.set(false);
         this.notificationService.showSuccess('Acta de nivelación formalizada bajo principio de no desmejoramiento.');

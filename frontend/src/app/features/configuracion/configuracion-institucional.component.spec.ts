@@ -102,6 +102,7 @@ describe('ConfiguracionInstitucionalComponent', () => {
     component.ejecutarSimulacion();
 
     expect(mockConfigService.apiConfiguracionSieeIdSimularPost).toHaveBeenCalledWith(5, {
+      calificaciones: [3.5],
       calificacionesActividades: [3.5]
     });
     expect(component.resultadoSimulacion()?.aprobado).toBe(true);

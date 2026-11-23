@@ -66,9 +66,8 @@ public class AuditoriaEvento {
     @Column(name = "user_agent", length = 255)
     private String userAgent;
 
-    @CreationTimestamp
     @Column(name = "fecha_evento", nullable = false, updatable = false)
-    private LocalDateTime fechaEvento;
+    private LocalDateTime fechaEvento = LocalDateTime.now();
 
     @Column(name = "hash_anterior", nullable = false, length = 64)
     private String hashAnterior;

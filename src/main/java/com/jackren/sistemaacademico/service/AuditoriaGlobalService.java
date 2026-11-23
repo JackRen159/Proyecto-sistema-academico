@@ -13,6 +13,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.HexFormat;
 import java.util.List;
@@ -79,7 +80,7 @@ public class AuditoriaGlobalService {
         Optional<AuditoriaEvento> ultimoEventoOpt = auditoriaRepository.findTopByOrderByIdDesc();
         String hashAnterior = ultimoEventoOpt.map(AuditoriaEvento::getHashEvento).orElse(HASH_GENESIS);
 
-        LocalDateTime ahora = LocalDateTime.now();
+        LocalDateTime ahora = LocalDateTime.now().truncatedTo(ChronoUnit.MICROS);
         String fechaIso = ahora.format(ISO_FORMATTER);
 
         // Sanitización preventiva: nunca almacenar secretos ni tokens en texto plano (RN-DOC-06)
@@ -128,7 +129,7 @@ public class AuditoriaGlobalService {
      * Ejecuta la verificación criptográfica de integridad sobre la cadena de auditoría (UC-PROV-29).
      * Recalcula el SHA-256 de cada evento y comprueba la continuidad de hashes anteriores.
      */
-    @Transactional(readOnly = true)
+    @Transactional
     public VerificacionIntegridadResponse verificarIntegridadCadena() {
         List<AuditoriaEvento> eventos = auditoriaRepository.findAllByOrderByIdAsc();
         if (eventos.isEmpty()) {
@@ -166,14 +167,38 @@ public class AuditoriaGlobalService {
             );
 
             if (!hashCalculado.equalsIgnoreCase(ev.getHashEvento())) {
-                registrarAlertaSeguridad(
-                        TipoAlertaSeguridad.DISCREPANCIA_CADENA_HASH,
-                        SeveridadAlertaSeguridad.CRITICA,
-                        "Discrepancia criptográfica en evento ID " + ev.getId(),
-                        ev.getUsuario() != null ? ev.getUsuario().getId() : null,
-                        ev.getDireccionIp(),
-                        ev.getCorrelationId()
+                String fechaIsoMicros = ev.getFechaEvento().truncatedTo(ChronoUnit.MICROS).format(ISO_FORMATTER);
+                String hashMicros = calcularHashCanónico(
+                        ev.getUsername(),
+                        ev.getRolActivo(),
+                        ev.getModulo(),
+                        ev.getAccion(),
+                        ev.getEntidad(),
+                        ev.getEntidadId(),
+                        ev.getMotivo(),
+                        ev.getResultado().name(),
+                        ev.getCorrelationId(),
+                        fechaIsoMicros,
+                        ev.getHashAnterior()
                 );
+                if (hashMicros.equalsIgnoreCase(ev.getHashEvento())) {
+                    hashCalculado = hashMicros;
+                }
+            }
+
+            if (!hashCalculado.equalsIgnoreCase(ev.getHashEvento())) {
+                try {
+                    registrarAlertaSeguridad(
+                            TipoAlertaSeguridad.DISCREPANCIA_CADENA_HASH,
+                            SeveridadAlertaSeguridad.CRITICA,
+                            "Discrepancia criptográfica en evento ID " + ev.getId(),
+                            ev.getUsuario() != null ? ev.getUsuario().getId() : null,
+                            ev.getDireccionIp(),
+                            ev.getCorrelationId()
+                    );
+                } catch (Exception ignored) {
+                    // Prevenir que un fallo en persistir la alerta aborte el resultado de verificación
+                }
                 return VerificacionIntegridadResponse.discrepancia(
                         i,
                         ev.getId(),

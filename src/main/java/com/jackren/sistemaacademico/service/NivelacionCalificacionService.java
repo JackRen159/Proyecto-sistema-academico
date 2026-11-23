@@ -45,8 +45,21 @@ public class NivelacionCalificacionService {
     }
 
     public ActaNivelacionResponse registrarActaNivelacion(ActaNivelacionRequest request, Long usuarioId, String username) {
-        CalificacionPeriodo calif = calificacionPeriodoRepository.findById(request.getCalificacionPeriodoId())
-                .orElseThrow(() -> new RecursoNoEncontradoException("Calificación de periodo no encontrada con ID " + request.getCalificacionPeriodoId()));
+        CalificacionPeriodo calif;
+        if (request.getCalificacionPeriodoId() != null) {
+            calif = calificacionPeriodoRepository.findById(request.getCalificacionPeriodoId())
+                    .orElseThrow(() -> new RecursoNoEncontradoException("Calificación de periodo no encontrada con ID " + request.getCalificacionPeriodoId()));
+        } else if (request.getMatriculaId() != null && request.getAsignaturaId() != null && request.getPeriodoId() != null) {
+            calif = calificacionPeriodoRepository.findByMatriculaIdAndAsignaturaIdAndPeriodoAcademicoId(
+                    request.getMatriculaId(), request.getAsignaturaId(), request.getPeriodoId()
+            ).orElseThrow(() -> new RecursoNoEncontradoException("No existe calificación de periodo registrada para el estudiante, asignatura y periodo indicados"));
+        } else {
+            throw new ValidacionException("Debe proporcionar calificacionPeriodoId o la terna (matriculaId, asignaturaId, periodoId)");
+        }
+
+        if (request.getFechaSustentacion() == null) {
+            request.setFechaSustentacion(LocalDate.now());
+        }
 
         PeriodoAcademico periodo = calif.getPeriodoAcademico();
         AnioLectivo anio = periodo.getAnioLectivo();

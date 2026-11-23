@@ -366,8 +366,9 @@ export class DocumentosComponent implements OnInit {
   }
 
   generarSimat(): void {
+    const anioId = this.anioSeleccionadoId() || 1;
     this.cargandoReporte.set(true);
-    this.reportesService.generarReporteCoberturaSimat(1).subscribe({
+    this.reportesService.generarReporteCoberturaSimat(anioId).subscribe({
       next: (rep) => {
         this.cargandoReporte.set(false);
         this.reporteSimat.set(rep);
@@ -378,9 +379,19 @@ export class DocumentosComponent implements OnInit {
   }
 
   exportarReporte(tipo: string): void {
-    this.reportesService.exportarReporteInstitucional(tipo, 1, 'CSV').subscribe({
-      next: () => {
-        this.notificationService.showSuccess('Reporte descargado correctamente.');
+    const anioId = this.anioSeleccionadoId() || 1;
+    this.reportesService.exportarReporteInstitucional(tipo, anioId, 'CSV').subscribe({
+      next: (blobData: any) => {
+        const blob = blobData instanceof Blob ? blobData : new Blob([blobData], { type: 'text/csv;charset=utf-8;' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Reporte_${tipo}_${anioId}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        this.notificationService.showSuccess('Reporte descargado correctamente en formato CSV.', 'Descarga Exitosa');
       }
     });
   }
