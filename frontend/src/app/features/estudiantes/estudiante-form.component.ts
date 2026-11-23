@@ -20,7 +20,12 @@ import { ExpedienteCompletoRequest } from '../../core/api/generated/model/expedi
           <h2>Registro de Expediente Escolar Completo</h2>
           <p class="subtitle">Inscripción integral de estudiante y acudiente principal (UC-12, Ley 1098 / Ley 1581)</p>
         </div>
-        <a routerLink="/estudiantes" class="btn-secondary">← Volver al Listado</a>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <button type="button" class="btn-demo-simular" (click)="rellenarEstudiantePrueba()">
+            ⚡ Rellenar Datos de Prueba (Simulación UC-12)
+          </button>
+          <a routerLink="/estudiantes" class="btn-secondary">← Volver al Listado</a>
+        </div>
       </div>
 
       <form [formGroup]="form" (ngSubmit)="guardarExpediente()" class="form-card">
@@ -322,6 +327,18 @@ import { ExpedienteCompletoRequest } from '../../core/api/generated/model/expedi
       cursor: pointer;
     }
     .btn-primary:disabled { background: #93c5fd; cursor: not-allowed; }
+    .btn-secondary { background: #e2e8f0; color: #334155; border: none; padding: 0.55rem 1rem; border-radius: 4px; font-size: 0.9rem; cursor: pointer; text-decoration: none; }
+    .btn-demo-simular {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      padding: 0.55rem 1rem;
+      border-radius: 4px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #1d4ed8;
+      cursor: pointer;
+    }
+    .btn-demo-simular:hover { background: #dbeafe; }
     .text-danger { color: #dc2626; font-size: 0.78rem; margin-top: 0.2rem; }
   `]
 })
@@ -364,6 +381,40 @@ export class EstudianteFormComponent {
     conviveConEstudiante: [true],
     autorizaUsoImagenFotografiaOpcional: [false]
   });
+
+  rellenarEstudiantePrueba(): void {
+    const randomNum = Math.floor(100000 + Math.random() * 900000);
+    this.form.patchValue({
+      nombres: 'Camila',
+      apellidos: 'Rodríguez Silva',
+      tipoDocumento: TipoDocumento.Ti,
+      documento: `1040${randomNum}`,
+      fechaNacimiento: '2010-06-20',
+      sexo: SexoDocumental.Femenino,
+      direccion: 'Carrera 45 # 12-34',
+      telefono: '3151234567',
+      correo: `camila.${randomNum}@colegio.edu.co`,
+      eps: 'Sanitas EPS',
+      grupoSanguineoRh: 'O+',
+      tieneDiscapacidadPiar: false,
+      acudienteNombres: 'Carlos',
+      acudienteApellidos: 'Rodríguez',
+      acudienteTipoDocumento: TipoDocumento.Cc,
+      acudienteDocumento: `52${randomNum}`,
+      acudienteTelefono: '3109876543',
+      acudienteCorreo: `carlos.acudiente${randomNum}@colegio.edu.co`,
+      parentesco: Parentesco.Padre,
+      representacionLegal: true,
+      tieneCustodia: true,
+      autorizadoRetiro: true,
+      conviveConEstudiante: true,
+      autorizaUsoImagenFotografiaOpcional: true
+    });
+    this.notificationService.showSuccess(
+      'Expediente completo diligenciado con estudiante y acudiente listos para formalizar.',
+      'Datos de Simulación UC-12'
+    );
+  }
 
   guardarExpediente(): void {
     if (this.form.invalid) return;

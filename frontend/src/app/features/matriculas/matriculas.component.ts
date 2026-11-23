@@ -134,7 +134,12 @@ import { EstadoAnioLectivo } from '../../core/api/generated/model/estado-anio-le
       @if (tabActiva() === 'formalizar') {
         <div class="tab-content">
           <form [formGroup]="formMatricula" (ngSubmit)="formalizarMatricula()" class="form-card">
-            <h3>Formalización de Matrícula (UC-13, RN-MAT-01, RN-MAT-05)</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <h3 style="margin: 0;">Formalización de Matrícula (UC-13, RN-MAT-01, RN-MAT-05)</h3>
+              <button type="button" class="btn-demo-simular" (click)="seleccionarSofiaListo()">
+                ⚡ Seleccionar Estudiante Lista (Sofía Herrera)
+              </button>
+            </div>
 
             <div class="form-row">
               <div class="form-col">
@@ -333,6 +338,17 @@ import { EstadoAnioLectivo } from '../../core/api/generated/model/estado-anio-le
     .btn-danger { background: #dc2626; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; font-weight: 600; cursor: pointer; }
     .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.78rem; border-radius: 4px; border: none; cursor: pointer; font-weight: 500; }
     .btn-action { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+    .btn-demo-simular {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      padding: 0.45rem 0.85rem;
+      border-radius: 4px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #1d4ed8;
+      cursor: pointer;
+    }
+    .btn-demo-simular:hover { background: #dbeafe; }
     .text-danger { color: #dc2626; font-size: 0.8rem; margin-top: 0.25rem; }
 
     /* MODAL */
@@ -399,13 +415,29 @@ export class MatriculasComponent implements OnInit {
     this.cargarEstudiantes();
   }
 
+  seleccionarSofiaListo(): void {
+    const sofia = this.estudiantes().find(e => e.documento === '1030405060' || e.nombres?.includes('Sof'));
+    if (sofia) {
+      this.formMatricula.patchValue({
+        estudianteId: sofia.id!,
+        tipoMatricula: TipoMatricula.Nuevo,
+        folio: `Libro 2026 Folio ${Math.floor(10 + Math.random() * 90)}`
+      });
+      this.notificationService.showSuccess(`Estudiante ${sofia.nombres} ${sofia.apellidos} seleccionada para matrícula formal.`, 'Estudiante Seleccionada');
+    }
+  }
+
   cargarEstudiantes(): void {
     this.estudiantesService.apiEstudiantesGet(0, 100).subscribe({
       next: (data) => {
         const list = data.content || [];
         this.estudiantes.set(list);
-        if (list.length > 0 && !this.formMatricula.get('estudianteId')?.value) {
-          this.formMatricula.patchValue({ estudianteId: list[0].id! });
+        if (list.length > 0) {
+          const sofia = list.find(e => e.documento === '1030405060') || list[0];
+          this.formMatricula.patchValue({
+            estudianteId: sofia.id!,
+            folio: `Libro 2026 Folio 15`
+          });
         }
       }
     });

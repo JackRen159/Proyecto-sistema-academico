@@ -33,7 +33,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @TestPropertySource(properties = {
     "spring.flyway.enabled=false",
     "spring.jpa.hibernate.ddl-auto=none",
-    "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect"
+    "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect",
+    "demo.seed.enabled=false",
+    "security.bootstrap.admin.enabled=false"
 })
 class SistemaAcademicoApplicationTests {
 
