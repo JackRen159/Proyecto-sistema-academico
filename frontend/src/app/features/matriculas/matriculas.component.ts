@@ -28,6 +28,14 @@ import { EstadoAnioLectivo } from '../../core/api/generated/model/estado-anio-le
         </div>
       </header>
 
+      <div class="guion-step-banner">
+        <div class="step-badge">Paso 4 del Guion</div>
+        <div class="step-content">
+          <strong>Formalización de Matrícula y Control de Cupo (UC-13):</strong>
+          Con el rol de Secretaría, abre la pestaña <em>✍️ Formalizar Matrícula</em> y pulsa el botón <code>⚡ Seleccionar Estudiante Lista (Sofía Herrera)</code>. Al dar clic en <strong>Formalizar Matrícula</strong>, el backend ejecuta bloqueo pesimista contra sobrecupo (UC-13 E8), descuenta el cupo de 10-A (35 ➔ 34) y genera el folio oficial <code>MAT-2026-0001</code>.
+        </div>
+      </div>
+
       <!-- TABS -->
       <div class="tabs-bar">
         <button

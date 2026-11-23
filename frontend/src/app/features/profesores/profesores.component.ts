@@ -29,6 +29,14 @@ import { EstadoAdministrativoDocente } from '../../core/api/generated/model/esta
         </div>
       </header>
 
+      <div class="guion-step-banner">
+        <div class="step-badge">Paso 5 del Guion</div>
+        <div class="step-content">
+          <strong>Asignación Académica y Verificación Docente (UC-15):</strong>
+          Con el rol de Coordinación, abre la pestaña <em>📚 Asignaciones y Cargas</em> y haz clic en <strong>«+ Asignar Carga a Docente»</strong>. Selecciona a <strong>Albert Einstein</strong>, Grupo <strong>10-A</strong>, Asignatura <strong>Física</strong>, IHS: <strong>4 horas</strong> y marca <strong>Director de Grupo</strong>. El sistema valida automáticamente la ausencia de antecedentes especiales según la Ley 1918 de 2018.
+        </div>
+      </div>
+
       <!-- TABS -->
       <div class="tabs-bar">
         <button
