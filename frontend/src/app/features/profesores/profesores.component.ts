@@ -13,6 +13,7 @@ import { AnioLectivoResponse } from '../../core/api/generated/model/anio-lectivo
 import { GrupoResponse } from '../../core/api/generated/model/grupo-response';
 import { AsignaturaResponse } from '../../core/api/generated/model/asignatura-response';
 import { TipoDocumento } from '../../core/api/generated/model/tipo-documento';
+import { EstadoAnioLectivo } from '../../core/api/generated/model/estado-anio-lectivo';
 import { EstadoAdministrativoDocente } from '../../core/api/generated/model/estado-administrativo-docente';
 
 @Component({
@@ -181,7 +182,21 @@ import { EstadoAdministrativoDocente } from '../../core/api/generated/model/esta
       @if (tabActiva() === 'asignaciones') {
         <div class="tab-content">
           <div class="content-toolbar">
-            <h3>Matriz de Cargas y Asignaciones Académicas</h3>
+            <div class="selector-row">
+              <h3>Matriz de Cargas y Asignaciones Académicas</h3>
+              <label for="selectAnioAsig" style="margin-left: 1rem; font-weight: 500;">Año Lectivo:</label>
+              <select
+                id="selectAnioAsig"
+                class="form-control"
+                style="width: auto; display: inline-block; margin-left: 0.5rem;"
+                [value]="anioSeleccionadoId()"
+                (change)="onAnioAsignacionChange($event)"
+              >
+                @for (a of anios(); track a.id) {
+                  <option [value]="a.id">Año {{ a.anio }} ({{ a.estado }})</option>
+                }
+              </select>
+            </div>
             <button type="button" class="btn-primary" (click)="mostrarFormAsignacion.set(true)">
               + Nueva Asignación Docente
             </button>
@@ -403,6 +418,8 @@ export class ProfesoresComponent implements OnInit {
   readonly grupos = signal<GrupoResponse[]>([]);
   readonly asignaturas = signal<AsignaturaResponse[]>([]);
 
+  readonly anioSeleccionadoId = signal<number | null>(null);
+
   readonly mostrarFormDocente = signal(false);
   readonly mostrarFormAsignacion = signal(false);
 
@@ -431,7 +448,6 @@ export class ProfesoresComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarDocentes();
-    this.cargarAsignaciones();
     this.cargarCatalogosAuxiliares();
   }
 
@@ -446,8 +462,10 @@ export class ProfesoresComponent implements OnInit {
     });
   }
 
-  cargarAsignaciones(): void {
-    this.asignacionesService.apiAsignacionesAcademicasGet().subscribe({
+  cargarAsignaciones(anioLectivoId?: number): void {
+    const anioId = anioLectivoId || this.anioSeleccionadoId();
+    if (!anioId) return;
+    this.asignacionesService.apiAsignacionesAcademicasGet(undefined, undefined, anioId).subscribe({
       next: (data) => {
         this.asignaciones.set(data);
       }
@@ -459,7 +477,10 @@ export class ProfesoresComponent implements OnInit {
       next: (data) => {
         this.anios.set(data);
         if (data.length > 0) {
-          const anioId = data[0].id!;
+          const activo = data.find(a => a.estado === EstadoAnioLectivo.Activo) || data[0];
+          const anioId = activo.id!;
+          this.anioSeleccionadoId.set(anioId);
+          this.cargarAsignaciones(anioId);
           this.gruposService.apiGruposGet(anioId).subscribe({
             next: (grps) => {
               this.grupos.set(grps);
@@ -478,6 +499,17 @@ export class ProfesoresComponent implements OnInit {
         if (asigs.length > 0 && !this.formAsignacion.get('asignaturaId')?.value) {
           this.formAsignacion.patchValue({ asignaturaId: asigs[0].id! });
         }
+      }
+    });
+  }
+
+  onAnioAsignacionChange(event: Event): void {
+    const anioId = Number((event.target as HTMLSelectElement).value);
+    this.anioSeleccionadoId.set(anioId);
+    this.cargarAsignaciones(anioId);
+    this.gruposService.apiGruposGet(anioId).subscribe({
+      next: (grps) => {
+        this.grupos.set(grps);
       }
     });
   }

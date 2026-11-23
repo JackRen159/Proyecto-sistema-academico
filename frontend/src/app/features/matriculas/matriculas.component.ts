@@ -10,6 +10,7 @@ import { NotificationService } from '../../core/services/notification.service';
 import { MatriculaResponse } from '../../core/api/generated/model/matricula-response';
 import { AnioLectivoResponse } from '../../core/api/generated/model/anio-lectivo-response';
 import { GrupoResponse } from '../../core/api/generated/model/grupo-response';
+import { EstudianteResponse } from '../../core/api/generated/model/estudiante-response';
 import { TipoMatricula } from '../../core/api/generated/model/tipo-matricula';
 import { TipoNovedadMatricula } from '../../core/api/generated/model/tipo-novedad-matricula';
 import { EstadoAnioLectivo } from '../../core/api/generated/model/estado-anio-lectivo';
@@ -137,10 +138,15 @@ import { EstadoAnioLectivo } from '../../core/api/generated/model/estado-anio-le
 
             <div class="form-row">
               <div class="form-col">
-                <label for="fEstudianteId">ID del Estudiante: *</label>
-                <input id="fEstudianteId" type="number" formControlName="estudianteId" placeholder="ID único del estudiante" class="form-control" />
+                <label for="fEstudianteId">Estudiante: *</label>
+                <select id="fEstudianteId" formControlName="estudianteId" class="form-control">
+                  <option [ngValue]="null">-- Seleccione Estudiante --</option>
+                  @for (e of estudiantes(); track e.id) {
+                    <option [ngValue]="e.id">{{ e.nombres }} {{ e.apellidos }} (Doc: {{ e.documento }})</option>
+                  }
+                </select>
                 @if (formMatricula.get('estudianteId')?.touched && formMatricula.get('estudianteId')?.invalid) {
-                  <small class="text-danger">ID de estudiante requerido.</small>
+                  <small class="text-danger">Selección de estudiante requerida.</small>
                 }
               </div>
               <div class="form-col">
@@ -353,6 +359,7 @@ export class MatriculasComponent implements OnInit {
   private readonly novedadesService = inject(MatrculasNovedadesDePermanenciaService);
   private readonly aniosService = inject(EstructuraAcadmicaAosLectivosService);
   private readonly gruposService = inject(EstructuraAcadmicaGruposService);
+  private readonly estudiantesService = inject(EstudiantesService);
   private readonly notificationService = inject(NotificationService);
 
   readonly tabActiva = signal<'listado' | 'formalizar'>('listado');
@@ -362,6 +369,7 @@ export class MatriculasComponent implements OnInit {
   readonly anios = signal<AnioLectivoResponse[]>([]);
   readonly grupos = signal<GrupoResponse[]>([]);
   readonly matriculas = signal<MatriculaResponse[]>([]);
+  readonly estudiantes = signal<EstudianteResponse[]>([]);
 
   readonly anioSeleccionadoId = signal<number | null>(null);
   readonly grupoSeleccionadoId = signal<number | null>(null);
@@ -388,6 +396,19 @@ export class MatriculasComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarAnios();
+    this.cargarEstudiantes();
+  }
+
+  cargarEstudiantes(): void {
+    this.estudiantesService.apiEstudiantesGet(0, 100).subscribe({
+      next: (data) => {
+        const list = data.content || [];
+        this.estudiantes.set(list);
+        if (list.length > 0 && !this.formMatricula.get('estudianteId')?.value) {
+          this.formMatricula.patchValue({ estudianteId: list[0].id! });
+        }
+      }
+    });
   }
 
   cargarAnios(): void {
@@ -416,11 +437,19 @@ export class MatriculasComponent implements OnInit {
   }
 
   cargarMatriculas(anioId: number, grupoId?: number | null): void {
-    this.matriculasService.listarMatriculas(grupoId || undefined).subscribe({
-      next: (data) => {
-        this.matriculas.set(data);
-      }
-    });
+    if (grupoId) {
+      this.matriculasService.listarMatriculas(grupoId).subscribe({
+        next: (data) => {
+          this.matriculas.set(data);
+        }
+      });
+    } else {
+      this.matriculasService.listarMatriculasPorAnioLectivo(anioId).subscribe({
+        next: (data) => {
+          this.matriculas.set(data.content || []);
+        }
+      });
+    }
   }
 
   onAnioChange(event: Event): void {
@@ -445,8 +474,8 @@ export class MatriculasComponent implements OnInit {
     this.guardando.set(true);
     const raw = this.formMatricula.getRawValue();
     const req = {
-      estudianteId: raw.estudianteId!,
-      grupoId: raw.grupoId!,
+      estudianteId: Number(raw.estudianteId),
+      grupoId: Number(raw.grupoId),
       tipoMatricula: raw.tipoMatricula!,
       fechaMatricula: raw.fechaMatricula!,
       folio: raw.folio || undefined

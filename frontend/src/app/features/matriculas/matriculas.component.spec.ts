@@ -6,6 +6,7 @@ import { MatrculasService } from '../../core/api/generated/api/matrculas.service
 import { MatrculasNovedadesDePermanenciaService } from '../../core/api/generated/api/matrculas-novedades-de-permanencia.service';
 import { EstructuraAcadmicaAosLectivosService } from '../../core/api/generated/api/estructura-acadmica-aos-lectivos.service';
 import { EstructuraAcadmicaGruposService } from '../../core/api/generated/api/estructura-acadmica-grupos.service';
+import { EstudiantesService } from '../../core/api/generated/api/estudiantes.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { TipoMatricula } from '../../core/api/generated/model/tipo-matricula';
 import { TipoNovedadMatricula } from '../../core/api/generated/model/tipo-novedad-matricula';
@@ -17,6 +18,7 @@ describe('MatriculasComponent', () => {
   let mockNovedadesService: any;
   let mockAniosService: any;
   let mockGruposService: any;
+  let mockEstudiantesService: any;
   let mockNotificationService: any;
 
   const mockAnios = [{ id: 1, anio: 2026, estado: 'ACTIVO' }];
@@ -35,6 +37,7 @@ describe('MatriculasComponent', () => {
   beforeEach(async () => {
     mockMatriculasService = {
       listarMatriculas: vi.fn().mockReturnValue(of(mockMatriculas)),
+      listarMatriculasPorAnioLectivo: vi.fn().mockReturnValue(of({ content: mockMatriculas })),
       matricular: vi.fn().mockReturnValue(of({ id: 101, numeroMatricula: 'MAT-2026-002' }))
     };
 
@@ -50,6 +53,10 @@ describe('MatriculasComponent', () => {
       apiGruposGet: vi.fn().mockReturnValue(of(mockGrupos))
     };
 
+    mockEstudiantesService = {
+      apiEstudiantesGet: vi.fn().mockReturnValue(of({ content: [{ id: 5, nombres: 'Carlos', apellidos: 'Pérez', documento: '12345678' }] }))
+    };
+
     mockNotificationService = {
       showSuccess: vi.fn(),
       showError: vi.fn(),
@@ -63,6 +70,7 @@ describe('MatriculasComponent', () => {
         { provide: MatrculasNovedadesDePermanenciaService, useValue: mockNovedadesService },
         { provide: EstructuraAcadmicaAosLectivosService, useValue: mockAniosService },
         { provide: EstructuraAcadmicaGruposService, useValue: mockGruposService },
+        { provide: EstudiantesService, useValue: mockEstudiantesService },
         { provide: NotificationService, useValue: mockNotificationService }
       ]
     }).compileComponents();

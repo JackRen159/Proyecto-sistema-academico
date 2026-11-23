@@ -6,6 +6,7 @@ import { CalificacionesYSIEEService } from '../../core/api/generated/api/calific
 import { AsignacionesAcadmicasService } from '../../core/api/generated/api/asignaciones-acadmicas.service';
 import { EstructuraAcadmicaPeriodosService } from '../../core/api/generated/api/estructura-acadmica-periodos.service';
 import { EstructuraAcadmicaGruposService } from '../../core/api/generated/api/estructura-acadmica-grupos.service';
+import { EstructuraAcadmicaAosLectivosService } from '../../core/api/generated/api/estructura-acadmica-aos-lectivos.service';
 import { MatrculasService } from '../../core/api/generated/api/matrculas.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { EstadoCalificacionActividad } from '../../core/api/generated/model/estado-calificacion-actividad';
@@ -15,6 +16,7 @@ describe('CalificacionesComponent', () => {
   let fixture: ComponentFixture<CalificacionesComponent>;
   let mockCalificacionService: any;
   let mockAsignacionesService: any;
+  let mockAniosService: any;
   let mockPeriodosService: any;
   let mockGruposService: any;
   let mockMatriculasService: any;
@@ -43,6 +45,10 @@ describe('CalificacionesComponent', () => {
       apiAsignacionesAcademicasGet: vi.fn().mockReturnValue(of(mockAsignaciones))
     };
 
+    mockAniosService = {
+      apiAniosLectivosGet: vi.fn().mockReturnValue(of([{ id: 1, anio: 2026, estado: 'ACTIVO' }]))
+    };
+
     mockPeriodosService = {
       apiAniosLectivosAnioIdPeriodosGet: vi.fn().mockReturnValue(of(mockPeriodos))
     };
@@ -67,6 +73,7 @@ describe('CalificacionesComponent', () => {
       providers: [
         { provide: CalificacionesYSIEEService, useValue: mockCalificacionService },
         { provide: AsignacionesAcadmicasService, useValue: mockAsignacionesService },
+        { provide: EstructuraAcadmicaAosLectivosService, useValue: mockAniosService },
         { provide: EstructuraAcadmicaPeriodosService, useValue: mockPeriodosService },
         { provide: EstructuraAcadmicaGruposService, useValue: mockGruposService },
         { provide: MatrculasService, useValue: mockMatriculasService },

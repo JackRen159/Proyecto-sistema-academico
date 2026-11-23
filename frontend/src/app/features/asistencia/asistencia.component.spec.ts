@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { AsistenciaComponent } from './asistencia.component';
 import { ControlDeAsistenciaService } from '../../core/api/generated/api/control-de-asistencia.service';
+import { EstructuraAcadmicaAosLectivosService } from '../../core/api/generated/api/estructura-acadmica-aos-lectivos.service';
 import { EstructuraAcadmicaPeriodosService } from '../../core/api/generated/api/estructura-acadmica-periodos.service';
 import { EstructuraAcadmicaGruposService } from '../../core/api/generated/api/estructura-acadmica-grupos.service';
 import { MatrculasService } from '../../core/api/generated/api/matrculas.service';
@@ -14,6 +15,7 @@ describe('AsistenciaComponent', () => {
   let component: AsistenciaComponent;
   let fixture: ComponentFixture<AsistenciaComponent>;
   let mockAsistenciaService: any;
+  let mockAniosService: any;
   let mockPeriodosService: any;
   let mockGruposService: any;
   let mockMatriculasService: any;
@@ -31,6 +33,10 @@ describe('AsistenciaComponent', () => {
       crearSesionAsistencia: vi.fn().mockReturnValue(of({ id: 50, fecha: '2026-03-15' })),
       registrarPlanillaAsistenciaLote: vi.fn().mockReturnValue(of([])),
       radicarExcusa: vi.fn().mockReturnValue(of({ id: 99, numeroRadicado: 'EXC-2026-001' }))
+    };
+
+    mockAniosService = {
+      apiAniosLectivosGet: vi.fn().mockReturnValue(of([{ id: 1, anio: 2026, estado: 'ACTIVO' }]))
     };
 
     mockPeriodosService = {
@@ -55,6 +61,7 @@ describe('AsistenciaComponent', () => {
       imports: [AsistenciaComponent],
       providers: [
         { provide: ControlDeAsistenciaService, useValue: mockAsistenciaService },
+        { provide: EstructuraAcadmicaAosLectivosService, useValue: mockAniosService },
         { provide: EstructuraAcadmicaPeriodosService, useValue: mockPeriodosService },
         { provide: EstructuraAcadmicaGruposService, useValue: mockGruposService },
         { provide: MatrculasService, useValue: mockMatriculasService },

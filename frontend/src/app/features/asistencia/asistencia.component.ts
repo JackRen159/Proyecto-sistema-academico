@@ -2,17 +2,21 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ControlDeAsistenciaService } from '../../core/api/generated/api/control-de-asistencia.service';
+import { EstructuraAcadmicaAosLectivosService } from '../../core/api/generated/api/estructura-acadmica-aos-lectivos.service';
 import { EstructuraAcadmicaPeriodosService } from '../../core/api/generated/api/estructura-acadmica-periodos.service';
 import { EstructuraAcadmicaGruposService } from '../../core/api/generated/api/estructura-acadmica-grupos.service';
 import { MatrculasService } from '../../core/api/generated/api/matrculas.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { EstadoAsistencia } from '../../core/api/generated/model/estado-asistencia';
 import { TipoJustificacionAsistencia } from '../../core/api/generated/model/tipo-justificacion-asistencia';
+import { TipoRegistroAsistencia } from '../../core/api/generated/model/tipo-registro-asistencia';
 import { RegistroAsistenciaItemRequest } from '../../core/api/generated/model/registro-asistencia-item-request';
 import { PeriodoAcademicoResponse } from '../../core/api/generated/model/periodo-academico-response';
 import { GrupoResponse } from '../../core/api/generated/model/grupo-response';
 import { MatriculaResponse } from '../../core/api/generated/model/matricula-response';
 import { SesionAsistenciaResponse } from '../../core/api/generated/model/sesion-asistencia-response';
+import { SesionAsistenciaRequest } from '../../core/api/generated/model/sesion-asistencia-request';
+import { EstadoAnioLectivo } from '../../core/api/generated/model/estado-anio-lectivo';
 
 interface FilaPlanilla {
   matriculaId: number;
@@ -320,6 +324,7 @@ interface FilaPlanilla {
 export class AsistenciaComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly asistenciaService = inject(ControlDeAsistenciaService);
+  private readonly aniosService = inject(EstructuraAcadmicaAosLectivosService);
   private readonly periodosService = inject(EstructuraAcadmicaPeriodosService);
   private readonly gruposService = inject(EstructuraAcadmicaGruposService);
   private readonly matriculasService = inject(MatrculasService);
@@ -355,17 +360,24 @@ export class AsistenciaComponent implements OnInit {
   }
 
   cargarCatalogos(): void {
-    this.periodosService.apiAniosLectivosAnioIdPeriodosGet(1).subscribe({
-      next: (pers) => {
-        this.periodos.set(pers);
-        if (pers.length > 0) this.periodoSeleccionadoId.set(pers[0].id!);
-      }
-    });
+    this.aniosService.apiAniosLectivosGet().subscribe({
+      next: (anios) => {
+        const activo = anios.find(a => a.estado === EstadoAnioLectivo.Activo) || anios[0];
+        const anioId = activo ? activo.id! : 1;
 
-    this.gruposService.apiGruposGet(1).subscribe({
-      next: (grps) => {
-        this.grupos.set(grps);
-        if (grps.length > 0) this.grupoSeleccionadoId.set(grps[0].id!);
+        this.periodosService.apiAniosLectivosAnioIdPeriodosGet(anioId).subscribe({
+          next: (pers) => {
+            this.periodos.set(pers);
+            if (pers.length > 0) this.periodoSeleccionadoId.set(pers[0].id!);
+          }
+        });
+
+        this.gruposService.apiGruposGet(anioId).subscribe({
+          next: (grps) => {
+            this.grupos.set(grps);
+            if (grps.length > 0) this.grupoSeleccionadoId.set(grps[0].id!);
+          }
+        });
       }
     });
   }
@@ -387,14 +399,15 @@ export class AsistenciaComponent implements OnInit {
     const grupoId = this.grupoSeleccionadoId();
     const fecha = this.fechaSesion();
 
-    const req = {
-      periodoId,
+    const req: SesionAsistenciaRequest = {
+      periodoAcademicoId: periodoId,
       grupoId,
       fecha,
-      horaInicio: '07:00:00'
+      bloqueHorario: 1,
+      tipoRegistro: TipoRegistroAsistencia.SesionAsignatura
     };
 
-    this.asistenciaService.crearSesionAsistencia(req as any).subscribe({
+    this.asistenciaService.crearSesionAsistencia(req).subscribe({
       next: (sesion) => {
         this.sesionActiva.set(sesion);
         this.cargarAlumnosParaPlanilla(grupoId);

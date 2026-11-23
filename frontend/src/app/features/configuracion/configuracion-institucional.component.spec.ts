@@ -16,6 +16,7 @@ describe('ConfiguracionInstitucionalComponent', () => {
     nombreOficial: 'Colegio Departamental San José',
     codigoDane: '111001012345',
     nit: '890.123.456-7',
+    caracter: 'OFICIAL',
     resolucionAprobacion: 'Res 004523 de 2018',
     nombreRectorFirmante: 'Dr. Alejandro Morales',
     documentoRectorFirmante: '70123456',

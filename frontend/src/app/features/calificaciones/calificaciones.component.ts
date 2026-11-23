@@ -5,13 +5,16 @@ import { CalificacionesYSIEEService } from '../../core/api/generated/api/calific
 import { AsignacionesAcadmicasService } from '../../core/api/generated/api/asignaciones-acadmicas.service';
 import { EstructuraAcadmicaPeriodosService } from '../../core/api/generated/api/estructura-acadmica-periodos.service';
 import { EstructuraAcadmicaGruposService } from '../../core/api/generated/api/estructura-acadmica-grupos.service';
+import { EstructuraAcadmicaAosLectivosService } from '../../core/api/generated/api/estructura-acadmica-aos-lectivos.service';
 import { MatrculasService } from '../../core/api/generated/api/matrculas.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { AsignacionAcademicaResponse } from '../../core/api/generated/model/asignacion-academica-response';
 import { PeriodoAcademicoResponse } from '../../core/api/generated/model/periodo-academico-response';
+import { AnioLectivoResponse } from '../../core/api/generated/model/anio-lectivo-response';
 import { GrupoResponse } from '../../core/api/generated/model/grupo-response';
 import { ActividadEvaluativaResponse } from '../../core/api/generated/model/actividad-evaluativa-response';
 import { EstadoCalificacionActividad } from '../../core/api/generated/model/estado-calificacion-actividad';
+import { EstadoAnioLectivo } from '../../core/api/generated/model/estado-anio-lectivo';
 import { SabanaConsolidadaResponse } from '../../core/api/generated/model/sabana-consolidada-response';
 
 interface FilaCalificacion {
@@ -407,6 +410,7 @@ export class CalificacionesComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly calificacionService = inject(CalificacionesYSIEEService);
   private readonly asignacionesService = inject(AsignacionesAcadmicasService);
+  private readonly aniosService = inject(EstructuraAcadmicaAosLectivosService);
   private readonly periodosService = inject(EstructuraAcadmicaPeriodosService);
   private readonly gruposService = inject(EstructuraAcadmicaGruposService);
   private readonly matriculasService = inject(MatrculasService);
@@ -417,6 +421,7 @@ export class CalificacionesComponent implements OnInit {
   readonly guardandoNotas = signal(false);
   readonly guardandoNivelacion = signal(false);
 
+  readonly anios = signal<AnioLectivoResponse[]>([]);
   readonly asignaciones = signal<AsignacionAcademicaResponse[]>([]);
   readonly periodos = signal<PeriodoAcademicoResponse[]>([]);
   readonly grupos = signal<GrupoResponse[]>([]);
@@ -424,6 +429,7 @@ export class CalificacionesComponent implements OnInit {
   readonly filasCalificaciones = signal<FilaCalificacion[]>([]);
   readonly sabana = signal<SabanaConsolidadaResponse | null>(null);
 
+  readonly anioSeleccionadoId = signal<number | null>(null);
   readonly asignacionSeleccionadaId = signal<number>(1);
   readonly periodoSeleccionadoId = signal<number>(1);
   readonly actividadSeleccionadaId = signal<number | null>(null);
@@ -454,30 +460,41 @@ export class CalificacionesComponent implements OnInit {
   }
 
   cargarCatalogos(): void {
-    this.asignacionesService.apiAsignacionesAcademicasGet().subscribe({
-      next: (asigs) => {
-        this.asignaciones.set(asigs);
-        if (asigs.length > 0) {
-          this.asignacionSeleccionadaId.set(asigs[0].id!);
-          this.cargarActividades(asigs[0].id!, this.periodoSeleccionadoId());
-        }
-      }
-    });
+    this.aniosService.apiAniosLectivosGet().subscribe({
+      next: (anios) => {
+        this.anios.set(anios);
+        if (anios.length > 0) {
+          const activo = anios.find(a => a.estado === EstadoAnioLectivo.Activo) || anios[0];
+          const anioId = activo.id!;
+          this.anioSeleccionadoId.set(anioId);
 
-    this.periodosService.apiAniosLectivosAnioIdPeriodosGet(1).subscribe({
-      next: (pers) => {
-        this.periodos.set(pers);
-        if (pers.length > 0) {
-          this.periodoSeleccionadoId.set(pers[0].id!);
-          this.periodoSabanaId.set(pers[0].id!);
-        }
-      }
-    });
+          this.asignacionesService.apiAsignacionesAcademicasGet(undefined, undefined, anioId).subscribe({
+            next: (asigs) => {
+              this.asignaciones.set(asigs);
+              if (asigs.length > 0) {
+                this.asignacionSeleccionadaId.set(asigs[0].id!);
+                this.cargarActividades(asigs[0].id!, this.periodoSeleccionadoId());
+              }
+            }
+          });
 
-    this.gruposService.apiGruposGet(1).subscribe({
-      next: (grps) => {
-        this.grupos.set(grps);
-        if (grps.length > 0) this.grupoSabanaId.set(grps[0].id!);
+          this.periodosService.apiAniosLectivosAnioIdPeriodosGet(anioId).subscribe({
+            next: (pers) => {
+              this.periodos.set(pers);
+              if (pers.length > 0) {
+                this.periodoSeleccionadoId.set(pers[0].id!);
+                this.periodoSabanaId.set(pers[0].id!);
+              }
+            }
+          });
+
+          this.gruposService.apiGruposGet(anioId).subscribe({
+            next: (grps) => {
+              this.grupos.set(grps);
+              if (grps.length > 0) this.grupoSabanaId.set(grps[0].id!);
+            }
+          });
+        }
       }
     });
   }

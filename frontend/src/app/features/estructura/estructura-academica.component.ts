@@ -12,6 +12,7 @@ import { GradoResponse } from '../../core/api/generated/model/grado-response';
 import { GrupoResponse } from '../../core/api/generated/model/grupo-response';
 import { Jornada } from '../../core/api/generated/model/jornada';
 import { EstadoAnioLectivo } from '../../core/api/generated/model/estado-anio-lectivo';
+import { TipoCalendario } from '../../core/api/generated/model/tipo-calendario';
 
 @Component({
   selector: 'app-estructura-academica',
@@ -70,8 +71,21 @@ import { EstadoAnioLectivo } from '../../core/api/generated/model/estado-anio-le
               <div class="form-row">
                 <div class="form-col">
                   <label for="anioNumero">Año Numérico: *</label>
-                  <input id="anioNumero" type="number" formControlName="anio" placeholder="Ej. 2026" class="form-control" />
+                  <input id="anioNumero" type="number" formControlName="anio" placeholder="Ej. 2026" class="form-control" (input)="onAnioNumeroChange()" />
                 </div>
+                <div class="form-col">
+                  <label for="anioNombre">Nombre del Año Lectivo: *</label>
+                  <input id="anioNombre" type="text" formControlName="nombre" placeholder="Ej. Año Lectivo 2026" class="form-control" />
+                </div>
+                <div class="form-col">
+                  <label for="tipoCalendario">Tipo de Calendario: *</label>
+                  <select id="tipoCalendario" formControlName="tipoCalendario" class="form-control">
+                    <option [value]="TipoCalendario.CalendarioA">Calendario A</option>
+                    <option [value]="TipoCalendario.CalendarioB">Calendario B</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
                 <div class="form-col">
                   <label for="fechaInicio">Fecha Inicio: *</label>
                   <input id="fechaInicio" type="date" formControlName="fechaInicio" class="form-control" />
@@ -433,11 +447,22 @@ export class EstructuraAcademicaComponent implements OnInit {
   readonly mostrarFormPeriodo = signal(false);
   readonly mostrarFormGrupo = signal(false);
 
+  readonly TipoCalendario = TipoCalendario;
+
   readonly formAnio = this.fb.group({
     anio: [new Date().getFullYear(), [Validators.required]],
+    nombre: [`Año Lectivo ${new Date().getFullYear()}`, [Validators.required]],
+    tipoCalendario: [TipoCalendario.CalendarioA, [Validators.required]],
     fechaInicio: ['', [Validators.required]],
     fechaFin: ['', [Validators.required]]
   });
+
+  onAnioNumeroChange(): void {
+    const anioVal = this.formAnio.get('anio')?.value;
+    if (anioVal && (!this.formAnio.get('nombre')?.dirty || !this.formAnio.get('nombre')?.value)) {
+      this.formAnio.patchValue({ nombre: `Año Lectivo ${anioVal}` });
+    }
+  }
 
   readonly formPeriodo = this.fb.group({
     numero: [1, [Validators.required, Validators.min(1)]],

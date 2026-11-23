@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ConfiguracinInstitucionalService } from '../../core/api/generated/api/configuracin-institucional.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { InstitucionDatosLegalesResponse } from '../../core/api/generated/model/institucion-datos-legales-response';
+import { CaracterInstitucion } from '../../core/api/generated/model/caracter-institucion';
 import { ConfiguracionSieeResponse } from '../../core/api/generated/model/configuracion-siee-response';
 import { ConfiguracionManualConvivenciaResponse } from '../../core/api/generated/model/configuracion-manual-convivencia-response';
 import { SimulacionSieeResponse } from '../../core/api/generated/model/simulacion-siee-response';
@@ -70,6 +71,13 @@ import { SimulacionSieeResponse } from '../../core/api/generated/model/simulacio
             </div>
 
             <div class="form-row">
+              <div class="form-col">
+                <label for="caracter">Carácter Institucional: *</label>
+                <select id="caracter" formControlName="caracter" class="form-control">
+                  <option [value]="CaracterInstitucion.Oficial">Oficial (Público)</option>
+                  <option [value]="CaracterInstitucion.Privado">Privado</option>
+                </select>
+              </div>
               <div class="form-col">
                 <label for="resolucionAprobacion">Resolución de Aprobación de Estudios: *</label>
                 <input id="resolucionAprobacion" type="text" formControlName="resolucionAprobacion" class="form-control" />
@@ -361,10 +369,13 @@ export class ConfiguracionInstitucionalComponent implements OnInit {
   readonly notaSimulacion = signal<number>(3.5);
   readonly resultadoSimulacion = signal<SimulacionSieeResponse | null>(null);
 
+  readonly CaracterInstitucion = CaracterInstitucion;
+
   readonly formInstitucion = this.fb.group({
     nombreOficial: ['', [Validators.required]],
     codigoDane: ['', [Validators.required]],
     nit: ['', [Validators.required]],
+    caracter: [CaracterInstitucion.Oficial, [Validators.required]],
     resolucionAprobacion: ['', [Validators.required]],
     municipio: [''],
     nombreRectorFirmante: ['', [Validators.required]],
@@ -387,6 +398,7 @@ export class ConfiguracionInstitucionalComponent implements OnInit {
           nombreOficial: data.nombreOficial || '',
           codigoDane: data.codigoDane || '',
           nit: data.nit || '',
+          caracter: data.caracter || CaracterInstitucion.Oficial,
           resolucionAprobacion: data.resolucionAprobacion || '',
           municipio: data.municipio || '',
           nombreRectorFirmante: data.nombreRectorFirmante || '',
