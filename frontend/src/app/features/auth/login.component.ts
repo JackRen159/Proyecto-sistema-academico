@@ -12,8 +12,11 @@ import { HttpErrorResponse } from '@angular/common/http';
   template: `
     <div class="login-container">
       <div class="login-card">
-        <h2>Sistema de Gestión Escolar</h2>
-        <p class="subtitle">Inicio de sesión institucional</p>
+        <div class="brand-header">
+          <div class="logo-circle">🏛️</div>
+          <h2>Sistema de Gestión Escolar</h2>
+          <p class="subtitle">Plataforma Institucional Integral V2.1</p>
+        </div>
 
         @if (mensajeSesionExpirada()) {
           <div class="alert alert-warning">
@@ -34,7 +37,7 @@ import { HttpErrorResponse } from '@angular/common/http';
               id="username"
               type="text"
               formControlName="username"
-              placeholder="Ej. admin"
+              placeholder="Ej. secretaria1, coordinador1, profesor1"
               class="form-control"
             />
             @if (loginForm.get('username')?.touched && loginForm.get('username')?.hasError('required')) {
@@ -48,7 +51,7 @@ import { HttpErrorResponse } from '@angular/common/http';
               id="password"
               type="password"
               formControlName="password"
-              placeholder="Contraseña"
+              placeholder="Contraseña de acceso"
               class="form-control"
             />
             @if (loginForm.get('password')?.touched && loginForm.get('password')?.hasError('required')) {
@@ -56,28 +59,44 @@ import { HttpErrorResponse } from '@angular/common/http';
             }
           </div>
 
-          <button type="submit" [disabled]="loginForm.invalid || cargando()" class="btn-primary">
+          <button type="submit" [disabled]="loginForm.invalid || cargando()" class="btn-primary btn-block">
             @if (cargando()) {
-              <span>Iniciando sesión...</span>
+              <span>Iniciando sesión segura...</span>
             } @else {
-              <span>Ingresar</span>
+              <span>Ingresar a la Plataforma</span>
             }
           </button>
 
           <div class="login-footer">
-            <a routerLink="/recuperar-password" class="text-link">¿Olvidó su contraseña?</a>
+            <a routerLink="/recuperar-password" class="text-link">¿Olvidó su contraseña? Autoservicio</a>
           </div>
 
+          <!-- ASISTENTE DE DEMOSTRACIÓN -->
           <div class="demo-credentials-box">
-            <h4>Acceso Rápido para Demostración</h4>
+            <div class="demo-box-header">
+              <span class="demo-tag">SIMULACIÓN</span>
+              <h4>Roles Rápidos del Guion</h4>
+            </div>
+            <p class="demo-subtext">Haga clic en un rol para rellenar automáticamente sus credenciales:</p>
             <div class="demo-buttons">
-              <button type="button" class="btn-demo-chip" (click)="rellenarCredenciales('rector1', 'Rector123*')">Rector</button>
-              <button type="button" class="btn-demo-chip" (click)="rellenarCredenciales('coordinador1', 'Coord123*')">Coordinador</button>
-              <button type="button" class="btn-demo-chip" (click)="rellenarCredenciales('secretaria1', 'Secretaria123*')">Secretaría</button>
-              <button type="button" class="btn-demo-chip" (click)="rellenarCredenciales('profesor1', 'Profe123*')">Docente</button>
-              <button type="button" class="btn-demo-chip" (click)="rellenarCredenciales('estudiante1', 'Estudiante123*')">Estudiante</button>
-              <button type="button" class="btn-demo-chip" (click)="rellenarCredenciales('admin', 'Admin123*')">Admin</button>
-              <button type="button" class="btn-demo-chip demo-temporal" (click)="rellenarCredenciales('usuario.temporal', 'Temp123*')">1.er Ingreso</button>
+              <button type="button" class="btn-demo-chip" (click)="rellenarCredenciales('secretaria1', 'Secretaria123*')">
+                <strong>Secretaría</strong> (Pasos 1, 2 y 4)
+              </button>
+              <button type="button" class="btn-demo-chip" (click)="rellenarCredenciales('coordinador1', 'Coord123*')">
+                <strong>Coordinador</strong> (Paso 5)
+              </button>
+              <button type="button" class="btn-demo-chip" (click)="rellenarCredenciales('profesor1', 'Profe123*')">
+                <strong>Docente Einstein</strong> (Pasos 6 y 7)
+              </button>
+              <button type="button" class="btn-demo-chip demo-temporal" (click)="rellenarCredenciales('usuario.temporal', 'Temp123*')">
+                <strong>1.er Ingreso</strong> (Seguridad UC-01)
+              </button>
+              <button type="button" class="btn-demo-chip" (click)="rellenarCredenciales('rector1', 'Rector123*')">
+                <strong>Rector</strong>
+              </button>
+              <button type="button" class="btn-demo-chip" (click)="rellenarCredenciales('admin', 'Admin123*')">
+                <strong>Admin</strong>
+              </button>
             </div>
           </div>
         </form>
@@ -89,87 +108,121 @@ import { HttpErrorResponse } from '@angular/common/http';
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 80vh;
-      font-family: system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      background: radial-gradient(circle at 50% 20%, #1e293b 0%, #0f172a 100%);
+      padding: 1.5rem;
     }
     .login-card {
       width: 100%;
-      max-width: 400px;
-      padding: 2rem;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      max-width: 460px;
+      padding: 2.25rem;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
       background: white;
     }
-    h2 { margin-top: 0; color: #1e293b; font-size: 1.5rem; text-align: center; }
-    .subtitle { color: #64748b; font-size: 0.9rem; text-align: center; margin-bottom: 1.5rem; }
-    .form-group { margin-bottom: 1rem; }
-    label { display: block; margin-bottom: 0.35rem; font-weight: 500; color: #334155; }
+    .brand-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .logo-circle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 52px;
+      height: 52px;
+      background: #eff6ff;
+      border: 2px solid #bfdbfe;
+      border-radius: 50%;
+      font-size: 1.75rem;
+      margin-bottom: 0.75rem;
+    }
+    h2 { margin: 0 0 0.35rem; color: #0f172a; font-size: 1.45rem; font-weight: 800; letter-spacing: -0.02em; }
+    .subtitle { color: #64748b; font-size: 0.88rem; margin: 0; }
+    .form-group { margin-bottom: 1.15rem; }
+    label { display: block; margin-bottom: 0.35rem; font-weight: 600; color: #334155; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em; }
     .form-control {
       width: 100%;
       box-sizing: border-box;
-      padding: 0.6rem;
-      border: 1px solid #cbd5e1;
-      border-radius: 4px;
-      font-size: 1rem;
+      padding: 0.7rem 0.85rem;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      transition: all 0.15s ease;
     }
-    .btn-primary {
-      width: 100%;
-      padding: 0.75rem;
-      background: #2563eb;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      font-size: 1rem;
-      cursor: pointer;
-      font-weight: 600;
-      margin-top: 1rem;
+    .form-control:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
     }
-    .btn-primary:disabled { background: #93c5fd; cursor: not-allowed; }
-    .login-footer { margin-top: 1.25rem; text-align: center; }
-    .text-link { color: #2563eb; text-decoration: none; font-size: 0.88rem; }
+    .btn-block { width: 100%; padding: 0.8rem; font-size: 0.95rem; margin-top: 0.5rem; }
+    .login-footer { margin-top: 1rem; text-align: center; }
+    .text-link { color: #2563eb; text-decoration: none; font-size: 0.88rem; font-weight: 500; }
     .text-link:hover { text-decoration: underline; }
     .demo-credentials-box {
       margin-top: 1.5rem;
-      padding-top: 1rem;
-      border-top: 1px dashed #cbd5e1;
+      padding: 1rem;
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
     }
-    .demo-credentials-box h4 {
-      margin: 0 0 0.5rem;
-      font-size: 0.82rem;
+    .demo-box-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.35rem;
+    }
+    .demo-tag {
+      background: #2563eb;
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+    }
+    .demo-box-header h4 {
+      margin: 0;
+      font-size: 0.85rem;
+      color: #1e293b;
+      font-weight: 700;
+    }
+    .demo-subtext {
+      font-size: 0.78rem;
       color: #64748b;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      text-align: center;
+      margin-bottom: 0.75rem;
     }
     .demo-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.35rem;
-      justify-content: center;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.45rem;
     }
     .btn-demo-chip {
-      background: #f1f5f9;
+      background: white;
       border: 1px solid #cbd5e1;
-      border-radius: 4px;
-      padding: 0.25rem 0.5rem;
-      font-size: 0.78rem;
+      border-radius: 6px;
+      padding: 0.45rem 0.5rem;
+      font-size: 0.75rem;
       color: #334155;
       cursor: pointer;
-      font-weight: 500;
+      font-weight: 400;
+      text-align: left;
       transition: all 0.15s;
     }
     .btn-demo-chip:hover {
-      background: #e2e8f0;
-      border-color: #94a3b8;
+      background: #eff6ff;
+      border-color: #93c5fd;
+      color: #1d4ed8;
+      transform: translateY(-1px);
     }
     .demo-temporal {
-      background: #fef3c7;
+      background: #fffbeb;
       border-color: #fde68a;
       color: #92400e;
     }
     .demo-temporal:hover {
-      background: #fde68a;
+      background: #fef3c7;
+      border-color: #f59e0b;
     }
     .alert { padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.9rem; }
     .alert-danger { background: #fee2e2; color: #991b1b; }

@@ -40,6 +40,14 @@ interface FilaPlanilla {
         </div>
       </header>
 
+      <div class="guion-step-banner">
+        <div class="step-badge">Paso 6 del Guion</div>
+        <div class="step-content">
+          <strong>Registro de Asistencia Escolar y Evasión Interna (UC-19):</strong>
+          Inicia sesión como Docente (<code>profesor1</code>). Selecciona Año <strong>2026</strong>, Periodo <strong>1</strong> y Grupo <strong>10-A</strong>. Pulsa <strong>«Abrir / Cargar Planilla»</strong>: el sistema verifica tu asignación contextual y carga a <strong>Sofía Herrera</strong>. Puedes cambiar el estado a <em>Evasión Interna de Clase</em> para disparar la alerta de custodia de la Ley 1098.
+        </div>
+      </div>
+
       <!-- TABS -->
       <div class="tabs-bar">
         <button

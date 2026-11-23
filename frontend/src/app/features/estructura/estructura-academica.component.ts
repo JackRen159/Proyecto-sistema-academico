@@ -27,6 +27,14 @@ import { TipoCalendario } from '../../core/api/generated/model/tipo-calendario';
         </div>
       </header>
 
+      <div class="guion-step-banner">
+        <div class="step-badge">Paso 3 del Guion</div>
+        <div class="step-content">
+          <strong>Configuración del Año Lectivo y Escala SIEE (UC-14):</strong>
+          Visualiza que el <strong>Año 2026</strong> se encuentra <code>ACTIVO</code>. En la pestaña <em>Periodos Académicos</em> verifica que los 4 periodos suman exactamente <strong>100.00%</strong> (Periodo 1 en estado <code>ABIERTO</code>) y en <em>Grados y Cursos</em> observa la oferta del <strong>Grupo 10-A</strong> con su aforo regulado de <strong>35 cupos</strong>.
+        </div>
+      </div>
+
       <!-- TABS -->
       <div class="tabs-bar">
         <button

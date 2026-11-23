@@ -41,6 +41,14 @@ interface FilaCalificacion {
         </div>
       </header>
 
+      <div class="guion-step-banner">
+        <div class="step-badge">Paso 7 del Guion</div>
+        <div class="step-content">
+          <strong>Registro y Recálculo Automático de Calificaciones SIEE (UC-17):</strong>
+          Como Docente (<code>profesor1</code>), selecciona la carga <strong>10-A Física</strong> y Periodo <strong>1</strong>. Crea la actividad (<em>Taller 1: Cinemática Vectorial - 100%</em>) y pulsa <code>⚡ Asignar Nota 4.5</code>. Al hacer clic en <strong>Guardar Notas</strong> y <strong>⚡ Consolidar Definitivas</strong>, el motor con precisión <code>BigDecimal</code> homologa el resultado de inmediato a <strong>Desempeño ALTO (4.50)</strong> en tiempo real.
+        </div>
+      </div>
+
       <!-- TABS -->
       <div class="tabs-bar">
         <button

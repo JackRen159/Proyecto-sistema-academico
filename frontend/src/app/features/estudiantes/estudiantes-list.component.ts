@@ -22,6 +22,14 @@ import { AuthService } from '../../core/services/auth.service';
         </div>
       </header>
 
+      <div class="guion-step-banner">
+        <div class="step-badge">Paso 2 del Guion</div>
+        <div class="step-content">
+          <strong>Consulta y Verificación del Expediente Escolar (UC-12):</strong>
+          Comprueba que la estudiante <strong>Sofía Herrera</strong> (TI 1030405060) está registrada en el sistema. Haz clic en <strong>«Ver Ficha»</strong> para constatar que cuenta con su acudiente principal único verificado (Marta Gómez), autorización de Ley 1581 firmada y estado <code>LISTO_PARA_MATRICULA</code>.
+        </div>
+      </div>
+
       <div class="search-toolbar" style="margin-bottom: 1.25rem; display: flex; gap: 0.75rem; align-items: center;">
         <input
           type="text"
