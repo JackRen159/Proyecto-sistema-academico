@@ -187,10 +187,16 @@ public class AsistenciaService {
         AsignacionAcademica asignacion = null;
         if (tipo == TipoRegistroAsistencia.SESION_ASIGNATURA) {
             if (request.getAsignacionAcademicaId() == null) {
-                throw new ConflictoNegocioException("La asignación académica es obligatoria para el registro de asistencia por sesión de asignatura");
+                List<AsignacionAcademica> asigs = asignacionRepository.findByGrupoIdAndActivoTrue(grupo.getId());
+                if (!asigs.isEmpty()) {
+                    asignacion = asigs.get(0);
+                } else {
+                    throw new ConflictoNegocioException("La asignación académica es obligatoria para el registro de asistencia por sesión de asignatura");
+                }
+            } else {
+                asignacion = asignacionRepository.findById(request.getAsignacionAcademicaId())
+                        .orElseThrow(() -> new RecursoNoEncontradoException("Asignación académica no encontrada con ID " + request.getAsignacionAcademicaId()));
             }
-            asignacion = asignacionRepository.findById(request.getAsignacionAcademicaId())
-                    .orElseThrow(() -> new RecursoNoEncontradoException("Asignación académica no encontrada con ID " + request.getAsignacionAcademicaId()));
 
             if (!Boolean.TRUE.equals(asignacion.getActivo())) {
                 throw new ConflictoNegocioException("La asignación académica seleccionada se encuentra inactiva");

@@ -131,15 +131,10 @@ public class DemoDataSeederRunner implements ApplicationRunner {
         Asignatura fisica = seedAsignaturaFisica(areaNaturales);
         seedPlanEstudios(grado10, fisica, anio2026);
 
-        // 5. Expediente Docente: Albert Einstein y Carga Académica (UC-15)
+        // 5. Expediente Docente: Albert Einstein (CC 79123456) verificado Ley 1918
         Profesor albert = seedProfesor(profeUser);
-        AsignacionAcademica asigAlbert = seedAsignacion(albert, grupo10A, fisica);
-        seedActividadEvaluativa(asigAlbert, periodo1);
 
-        // 6. Expediente Escolar Base Matriculado (Lucas Martínez en 10-A)
-        seedExpedienteLucasMatriculado(anio2026, grupo10A, politica);
-
-        // 7. Expediente Escolar Listo para Matrícula en Vivo (Sofía Herrera - UC-12 / UC-13)
+        // 6. Expediente Escolar: Sofía Herrera y su Acudiente Marta Gómez (UC-12 / UC-13 en vivo)
         seedExpedienteSofia(politica);
 
         log.info("[DEMO SEEDER] Precondiciones cargadas exitosamente. Entorno listo para la demostración.");

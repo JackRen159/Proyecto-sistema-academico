@@ -61,7 +61,12 @@ import { EstadoAdministrativoDocente } from '../../core/api/generated/model/esta
 
           @if (mostrarFormDocente()) {
             <form [formGroup]="formDocente" (ngSubmit)="guardarDocente()" class="form-card">
-              <h4>Registro de Docente con Verificación Ley 1918 de 2018 (RN-PRO-02)</h4>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h4>Registro de Docente con Verificación Ley 1918 de 2018 (RN-PRO-02)</h4>
+                <button type="button" class="btn-demo-simular" (click)="rellenarDocentePrueba()">
+                  ⚡ Rellenar Docente de Prueba
+                </button>
+              </div>
 
               <div class="form-row">
                 <div class="form-col">
@@ -570,6 +575,27 @@ export class ProfesoresComponent implements OnInit {
         this.grupos.set(grps);
       }
     });
+  }
+
+  rellenarDocentePrueba(): void {
+    const randomNum = Math.floor(100000 + Math.random() * 900000);
+    this.archivoSoporteNombre.set('Certificado_Antecedentes_Especiales_Policia_Nacional.pdf');
+    this.formDocente.patchValue({
+      tipoDocumento: TipoDocumento.Cc,
+      documento: `71${randomNum}`,
+      nombres: 'Gabriel',
+      apellidos: 'García Márquez',
+      correo: `docente.prueba${randomNum}@colegio.edu.co`,
+      telefono: '3129876543',
+      especialidad: 'Lengua Castellana y Literatura',
+      verificadoInhabilidades: true,
+      numeroCertificadoInhabilidades: `CERT-INH-${randomNum}`,
+      fechaVerificacionInhabilidades: new Date().toISOString().substring(0, 10)
+    });
+    this.notificationService.showSuccess(
+      'Formulario de docente diligenciado con verificación Ley 1918 lista para guardar.',
+      'Datos de Prueba Cargados'
+    );
   }
 
   onArchivoSeleccionado(event: Event): void {
