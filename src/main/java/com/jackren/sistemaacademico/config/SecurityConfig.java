@@ -2,6 +2,7 @@ package com.jackren.sistemaacademico.config;
 
 import com.jackren.sistemaacademico.security.RestAccessDeniedHandler;
 import com.jackren.sistemaacademico.security.RestAuthenticationEntryPoint;
+import com.jackren.sistemaacademico.security.VerificacionPasswordTemporalFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -30,16 +32,19 @@ public class SecurityConfig {
     private final RestAuthenticationEntryPoint authenticationEntryPoint;
     private final RestAccessDeniedHandler accessDeniedHandler;
     private final JwtAuthenticationConverter jwtAuthenticationConverter;
+    private final VerificacionPasswordTemporalFilter passwordTemporalFilter;
 
     @Value("${cors.allowed-origins:http://localhost:4200,http://localhost,http://localhost:80}")
     private String corsAllowedOrigins;
 
     public SecurityConfig(RestAuthenticationEntryPoint authenticationEntryPoint,
                           RestAccessDeniedHandler accessDeniedHandler,
-                          JwtAuthenticationConverter jwtAuthenticationConverter) {
+                          JwtAuthenticationConverter jwtAuthenticationConverter,
+                          VerificacionPasswordTemporalFilter passwordTemporalFilter) {
         this.authenticationEntryPoint = authenticationEntryPoint;
         this.accessDeniedHandler = accessDeniedHandler;
         this.jwtAuthenticationConverter = jwtAuthenticationConverter;
+        this.passwordTemporalFilter = passwordTemporalFilter;
     }
 
     @Bean
@@ -88,7 +93,8 @@ public class SecurityConfig {
                 .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter))
                 .authenticationEntryPoint(authenticationEntryPoint)
                 .accessDeniedHandler(accessDeniedHandler)
-            );
+            )
+            .addFilterAfter(passwordTemporalFilter, BearerTokenAuthenticationFilter.class);
 
         return http.build();
     }

@@ -104,7 +104,8 @@ public class MatriculaService {
             acudientePrincipal = acudienteRepository.findById(request.getAcudientePrincipalId()).orElse(null);
         }
 
-        Grupo grupo = grupoRepository.findById(request.getGrupoId())
+        Grupo grupo = grupoRepository.findByIdWithLock(request.getGrupoId())
+                .or(() -> grupoRepository.findById(request.getGrupoId()))
                 .orElseThrow(() -> new RecursoNoEncontradoException("Grupo no encontrado con ID " + request.getGrupoId()));
 
         if (!Boolean.TRUE.equals(grupo.getActivo())) {
@@ -164,7 +165,8 @@ public class MatriculaService {
             throw new ConflictoNegocioException("El grupo destino debe ser diferente al grupo actual");
         }
 
-        Grupo grupoDestino = grupoRepository.findById(request.getNuevoGrupoId())
+        Grupo grupoDestino = grupoRepository.findByIdWithLock(request.getNuevoGrupoId())
+                .or(() -> grupoRepository.findById(request.getNuevoGrupoId()))
                 .orElseThrow(() -> new RecursoNoEncontradoException("Grupo destino no encontrado con ID " + request.getNuevoGrupoId()));
 
         if (!Boolean.TRUE.equals(grupoDestino.getActivo())) {
@@ -246,7 +248,8 @@ public class MatriculaService {
             throw new ConflictoNegocioException("Debe seleccionar el grupo destino en el grado superior para la promoción anticipada");
         }
 
-        Grupo grupoDestino = grupoRepository.findById(request.getNuevoGrupoId())
+        Grupo grupoDestino = grupoRepository.findByIdWithLock(request.getNuevoGrupoId())
+                .or(() -> grupoRepository.findById(request.getNuevoGrupoId()))
                 .orElseThrow(() -> new RecursoNoEncontradoException("Grupo destino no encontrado con ID: " + request.getNuevoGrupoId()));
 
         Grupo grupoOrigen = matricula.getGrupo();

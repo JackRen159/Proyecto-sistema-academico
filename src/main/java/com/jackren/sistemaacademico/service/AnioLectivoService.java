@@ -110,6 +110,21 @@ public class AnioLectivoService {
 
         validarRangoFechas(request.getFechaInicio(), request.getFechaFin());
 
+        // Validación en cascada: las nuevas fechas no pueden dejar periodos existentes fuera de rango (UC-14 E1)
+        if (periodoAcademicoRepository != null) {
+            List<PeriodoAcademico> periodos = periodoAcademicoRepository.findByAnioLectivoIdOrderByNumeroAsc(id);
+            for (PeriodoAcademico p : periodos) {
+                if (p.getFechaInicio() != null && request.getFechaInicio() != null && request.getFechaInicio().isAfter(p.getFechaInicio())) {
+                    throw new ConflictoNegocioException("La nueva fecha de inicio (" + request.getFechaInicio()
+                            + ") deja al periodo '" + p.getNombre() + "' (inicio: " + p.getFechaInicio() + ") fuera del año lectivo (UC-14 E1).");
+                }
+                if (p.getFechaFin() != null && request.getFechaFin() != null && request.getFechaFin().isBefore(p.getFechaFin())) {
+                    throw new ConflictoNegocioException("La nueva fecha de fin (" + request.getFechaFin()
+                            + ") deja al periodo '" + p.getNombre() + "' (fin: " + p.getFechaFin() + ") fuera del año lectivo (UC-14 E1).");
+                }
+            }
+        }
+
         if (!anio.getAnio().equals(request.getAnio()) && anioLectivoRepository.existsByAnio(request.getAnio())) {
             throw new ConflictoNegocioException("Ya existe un año lectivo registrado para el año: " + request.getAnio());
         }

@@ -31,6 +31,9 @@ class AnioLectivoServiceTest {
     @Mock
     private AnioLectivoRepository anioLectivoRepository;
 
+    @Mock
+    private com.jackren.sistemaacademico.repository.PeriodoAcademicoRepository periodoAcademicoRepository;
+
     @Spy
     private AnioLectivoMapper anioLectivoMapper = new AnioLectivoMapper();
 
@@ -130,5 +133,28 @@ class AnioLectivoServiceTest {
         AnioLectivoResponse response = anioLectivoService.cerrar(1L);
 
         assertEquals(EstadoAnioLectivo.CERRADO, response.getEstado());
+    }
+
+    @Test
+    @DisplayName("Debe rechazar actualización de año lectivo si las nuevas fechas dejan fuera de rango un periodo (UC-14 E1)")
+    void debeRechazarActualizarAnioSiNuevasFechasDejanPeriodoFueraDeRango() {
+        when(anioLectivoRepository.findById(1L)).thenReturn(Optional.of(anio2026));
+
+        com.jackren.sistemaacademico.entity.PeriodoAcademico p1 = new com.jackren.sistemaacademico.entity.PeriodoAcademico();
+        p1.setNombre("Periodo 1");
+        p1.setFechaInicio(LocalDate.of(2026, 1, 20));
+        p1.setFechaFin(LocalDate.of(2026, 4, 10));
+
+        when(periodoAcademicoRepository.findByAnioLectivoIdOrderByNumeroAsc(1L)).thenReturn(java.util.List.of(p1));
+
+        // Intento de mover la fecha de inicio del año al 1 de febrero (posterior al inicio del Periodo 1)
+        AnioLectivoRequest request = new AnioLectivoRequest(
+                2026, "Año 2026 Modificado", LocalDate.of(2026, 2, 1), LocalDate.of(2026, 11, 30)
+        );
+
+        ConflictoNegocioException ex = assertThrows(ConflictoNegocioException.class,
+                () -> anioLectivoService.actualizar(1L, request));
+        assertTrue(ex.getMessage().contains("deja al periodo 'Periodo 1'"));
+        assertTrue(ex.getMessage().contains("fuera del año lectivo (UC-14 E1)"));
     }
 }

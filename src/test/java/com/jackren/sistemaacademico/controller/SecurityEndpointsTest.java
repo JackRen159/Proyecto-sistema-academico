@@ -13,6 +13,7 @@ import com.jackren.sistemaacademico.security.RestAuthenticationEntryPoint;
 import com.jackren.sistemaacademico.security.TokenRevocationService;
 import com.jackren.sistemaacademico.service.AuthService;
 import com.jackren.sistemaacademico.service.EstudianteService;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -157,5 +158,34 @@ class SecurityEndpointsTest {
                                 .authorities(new SimpleGrantedAuthority("ROLE_ADMINISTRADOR"))
                                 .jwt(builder -> builder.subject("admin").claim("rol", "ADMINISTRADOR"))))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("Petición a /api/estudiantes con debeCambiarPassword=true debe ser bloqueada con 403 (UC-01 A1)")
+    void getEstudiantes_ConTokenDebeCambiarPasswordTrue_DebeRetornar403Forbidden() throws Exception {
+        mockMvc.perform(get("/api/estudiantes")
+                        .with(jwt()
+                                .authorities(new SimpleGrantedAuthority("ROLE_ADMINISTRADOR"))
+                                .jwt(builder -> builder.subject("admin")
+                                        .claim("rol", "ADMINISTRADOR")
+                                        .claim("debeCambiarPassword", true))))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.status").value(403))
+                .andExpect(jsonPath("$.codigo").value("PASSWORD_CAMBIO_REQUERIDO"))
+                .andExpect(jsonPath("$.message").value("Debe cambiar su contraseña temporal antes de acceder a este recurso (UC-01 A1)"));
+    }
+
+    @Test
+    @DisplayName("Petición a /api/auth/cambiar-password con debeCambiarPassword=true debe permitirse pasar el filtro")
+    void postCambiarPassword_ConTokenDebeCambiarPasswordTrue_DebePermitirOperacion() throws Exception {
+        mockMvc.perform(post("/api/auth/cambiar-password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"passwordActual\":\"Temp123*\",\"passwordNuevo\":\"NuevoPass123*\",\"confirmacionPassword\":\"NuevoPass123*\"}")
+                        .with(jwt()
+                                .authorities(new SimpleGrantedAuthority("ROLE_DOCENTE"))
+                                .jwt(builder -> builder.subject("docente1")
+                                        .claim("rol", "PROFESOR")
+                                        .claim("debeCambiarPassword", true))))
+                .andExpect(status().isOk());
     }
 }

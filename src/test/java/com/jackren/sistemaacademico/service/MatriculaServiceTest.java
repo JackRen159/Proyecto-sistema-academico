@@ -228,4 +228,24 @@ class MatriculaServiceTest {
         assertThat(matriculaService.tieneMatriculaActivaEnGrupo(1L, 99L)).isFalse();
         assertThat(matriculaService.tieneMatriculaActivaEnGrupo(null, 20L)).isFalse();
     }
+
+    @Test
+    @DisplayName("Debe invocar bloqueo pesimista en grupo al formalizar matrícula para prevenir sobrecupo (UC-13 E8)")
+    void debeUsarBloqueoPesimistaAlConsultarGrupoParaMatricular() {
+        when(estudianteRepository.findById(1L)).thenReturn(Optional.of(estudiante));
+        when(grupoRepository.findByIdWithLock(20L)).thenReturn(Optional.of(grupo));
+        when(matriculaRepository.existsByEstudianteIdAndAnioLectivoIdAndEstado(1L, 10L, EstadoMatricula.MATRICULADA)).thenReturn(false);
+        when(matriculaRepository.countByGrupoIdAndEstado(20L, EstadoMatricula.MATRICULADA)).thenReturn(10L);
+        when(matriculaRepository.countByAnioLectivoId(10L)).thenReturn(0L);
+        when(matriculaRepository.save(any(Matricula.class))).thenAnswer(invocation -> {
+            Matricula m = invocation.getArgument(0);
+            m.setId(1L);
+            return m;
+        });
+
+        MatriculaResponse response = matriculaService.matricular(request);
+
+        assertThat(response).isNotNull();
+        verify(grupoRepository).findByIdWithLock(20L);
+    }
 }

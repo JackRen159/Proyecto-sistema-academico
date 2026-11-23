@@ -412,6 +412,11 @@ public class CalificacionService {
             responses.add(calificacionMapper.toResponse(guardada, escala));
         }
 
+        // Recálculo reactivo y sincronizado de definitivas de periodo (UC-17, S2)
+        if (actividad.getAsignacionAcademica() != null && actividad.getPeriodoAcademico() != null) {
+            recalcularDefinitivasSeguro(actividad.getAsignacionAcademica().getId(), actividad.getPeriodoAcademico().getId());
+        }
+
         return responses;
     }
 
@@ -467,6 +472,14 @@ public class CalificacionService {
         }
 
         CalificacionActividad actualizada = calificacionActividadRepository.save(calificacion);
+        if (calificacion.getActividad() != null &&
+                calificacion.getActividad().getAsignacionAcademica() != null &&
+                calificacion.getActividad().getPeriodoAcademico() != null) {
+            recalcularDefinitivasSeguro(
+                    calificacion.getActividad().getAsignacionAcademica().getId(),
+                    calificacion.getActividad().getPeriodoAcademico().getId()
+            );
+        }
         return calificacionMapper.toResponse(actualizada, escala);
     }
 
@@ -633,6 +646,16 @@ public class CalificacionService {
             califArea.setDesempeno(desempenoArea);
             califArea.setAprobada(aprobadaArea);
             calificacionAreaPeriodoRepository.save(califArea);
+        }
+    }
+
+    private void recalcularDefinitivasSeguro(Long asignacionId, Long periodoId) {
+        try {
+            if (asignacionId != null && periodoId != null) {
+                calcularDefinitivasPeriodo(asignacionId, periodoId);
+            }
+        } catch (Exception ignored) {
+            // No bloquear el registro de notas si aún no se configuran ponderaciones completas o en casos descriptivos
         }
     }
 

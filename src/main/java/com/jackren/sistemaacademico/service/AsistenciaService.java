@@ -273,6 +273,17 @@ public class AsistenciaService {
         Usuario usuario = usuarioId != null ? usuarioRepository.findById(usuarioId).orElse(null) : null;
         String userStr = username != null ? username : (usuario != null ? usuario.getUsername() : "sistema");
 
+        // Optimización N+1 (UC-19, S5): Carga previa en lote de registros preexistentes de la sesión
+        Map<Long, RegistroAsistencia> existentesPorMatricula = new HashMap<>();
+        List<RegistroAsistencia> registrosSesion = registroRepository.findBySesionAsistenciaId(sesion.getId());
+        if (registrosSesion != null) {
+            for (RegistroAsistencia r : registrosSesion) {
+                if (r.getMatricula() != null && r.getMatricula().getId() != null) {
+                    existentesPorMatricula.put(r.getMatricula().getId(), r);
+                }
+            }
+        }
+
         List<RegistroAsistenciaResponse> responses = new ArrayList<>();
 
         for (RegistroAsistenciaItemRequest item : request.getRegistros()) {
@@ -300,6 +311,10 @@ public class AsistenciaService {
 
             EstadoAsistencia estadoFinal = item.getEstado();
 
+            // Consulta única de salida anticipada por estudiante para evitar doble query
+            Optional<AutorizacionSalidaAnticipada> salidaOpt = salidaRepository
+                    .findByMatriculaIdAndFecha(matricula.getId(), fechaSesion);
+
             // UC-19 A2: Detección automática de Evasión Interna de Clase (Ley 1098, RN-ASI-07)
             if (estadoFinal == EstadoAsistencia.AUSENTE_INJUSTIFICADA) {
                 List<RegistroAsistencia> registrosDelDia = registroRepository
@@ -309,19 +324,14 @@ public class AsistenciaService {
                         .anyMatch(r -> r.getEstado() == EstadoAsistencia.PRESENTE &&
                                 !r.getSesionAsistencia().getId().equals(sesion.getId()));
 
-                Optional<AutorizacionSalidaAnticipada> salidaOpt = salidaRepository
-                        .findByMatriculaIdAndFecha(matricula.getId(), fechaSesion);
-
                 if (estuvoPresentePreviamente && salidaOpt.isEmpty()) {
                     estadoFinal = EstadoAsistencia.EVASION_INTERNA_CLASE;
                 }
             }
 
-            // Pre-cargar si tiene permiso de salida anticipada autorizada
-            Optional<AutorizacionSalidaAnticipada> salidaAutorizada = salidaRepository
-                    .findByMatriculaIdAndFecha(matricula.getId(), fechaSesion);
-            if (salidaAutorizada.isPresent() &&
-                    salidaAutorizada.get().getEstado() == EstadoAutorizacionSalida.AUTORIZADA_VERIFICADA &&
+            // Pre-cargar si tiene permiso de salida anticipada autorizada (reutilizando salidaOpt)
+            if (salidaOpt.isPresent() &&
+                    salidaOpt.get().getEstado() == EstadoAutorizacionSalida.AUTORIZADA_VERIFICADA &&
                     estadoFinal == EstadoAsistencia.AUSENTE_INJUSTIFICADA) {
                 estadoFinal = EstadoAsistencia.SALIDA_ANTICIPADA_AUTORIZADA;
             }
@@ -333,12 +343,15 @@ public class AsistenciaService {
                 estadoFinal = EstadoAsistencia.AUSENTE_JUSTIFICADA;
             }
 
-            Optional<RegistroAsistencia> existenteOpt = registroRepository
-                    .findBySesionAsistenciaIdAndMatriculaId(sesion.getId(), matricula.getId());
+            // Resolución optimizada del registro existente con fallback seguro
+            RegistroAsistencia registro = existentesPorMatricula.get(matricula.getId());
+            if (registro == null) {
+                registro = registroRepository
+                        .findBySesionAsistenciaIdAndMatriculaId(sesion.getId(), matricula.getId())
+                        .orElse(null);
+            }
 
-            RegistroAsistencia registro;
-            if (existenteOpt.isPresent()) {
-                registro = existenteOpt.get();
+            if (registro != null) {
                 EstadoAsistencia estadoAnterior = registro.getEstado();
 
                 // Error D / UC-19 E3 / RN-10: Justificación obligatoria en modificación con auditoría inmutable

@@ -56,6 +56,9 @@ class CalificacionServiceTest {
     @Mock
     private UsuarioRepository usuarioRepository;
 
+    @Mock
+    private ProfesorRepository profesorRepository;
+
     @Spy
     private CalificacionMapper calificacionMapper = new CalificacionMapper();
 
@@ -297,5 +300,53 @@ class CalificacionServiceTest {
         assertTrue(res.getAprobada());
 
         verify(auditoriaRepository, times(1)).save(any(AuditoriaCalificacion.class));
+    }
+
+    @Test
+    @DisplayName("registrarCalificacionesLote debe recalcular automáticamente definitivas de periodo (UC-17, S2)")
+    void registrarCalificacionesLote_RecalculaDefinitivasAutomaticamente() {
+        ActividadEvaluativa act = new ActividadEvaluativa();
+        act.setId(10L);
+        act.setAsignacionAcademica(asignacion);
+        act.setPeriodoAcademico(periodo);
+        act.setPorcentaje(new BigDecimal("100.00"));
+        act.setActivo(true);
+
+        when(actividadRepository.findById(10L)).thenReturn(Optional.of(act));
+        when(escalaRepository.findByAnioLectivoId(1L)).thenReturn(Optional.of(escala));
+        when(matriculaRepository.findById(1000L)).thenReturn(Optional.of(matricula));
+        when(calificacionActividadRepository.findByActividadIdAndMatriculaId(10L, 1000L)).thenReturn(Optional.empty());
+        when(calificacionActividadRepository.save(any(CalificacionActividad.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        // Mock para el recálculo interno automático
+        when(asignacionRepository.findById(50L)).thenReturn(Optional.of(asignacion));
+        when(periodoRepository.findById(10L)).thenReturn(Optional.of(periodo));
+        when(actividadRepository.findByAsignacionAcademicaIdAndPeriodoAcademicoIdAndActivoTrue(50L, 10L))
+                .thenReturn(List.of(act));
+        when(matriculaRepository.findByGrupoIdAndEstado(5L, EstadoMatricula.MATRICULADA))
+                .thenReturn(List.of(matricula));
+        when(calificacionPeriodoRepository.findByMatriculaIdAndAsignaturaIdAndPeriodoAcademicoId(1000L, 100L, 10L))
+                .thenReturn(Optional.empty());
+        when(calificacionPeriodoRepository.save(any(CalificacionPeriodo.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        RegistroCalificacionesLoteRequest loteReq = new RegistroCalificacionesLoteRequest();
+        loteReq.setActividadId(10L);
+        RegistroCalificacionRequest item = new RegistroCalificacionRequest();
+        item.setMatriculaId(1000L);
+        item.setValor(new BigDecimal("4.50"));
+        loteReq.setCalificaciones(List.of(item));
+
+        Profesor docente = new Profesor();
+        docente.setId(10L);
+        asignacion.setProfesor(docente);
+        when(profesorRepository.findByUsuarioId(1L)).thenReturn(Optional.of(docente));
+
+        List<CalificacionActividadResponse> respuestas = calificacionService.registrarCalificacionesLote(
+                loteReq, 1L, "profesor1", "PROFESOR"
+        );
+
+        assertNotNull(respuestas);
+        assertEquals(1, respuestas.size());
+        verify(calificacionPeriodoRepository, atLeastOnce()).save(any(CalificacionPeriodo.class));
     }
 }
