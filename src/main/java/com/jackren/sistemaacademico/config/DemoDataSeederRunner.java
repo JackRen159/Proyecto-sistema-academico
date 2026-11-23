@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 /**
@@ -49,8 +50,11 @@ public class DemoDataSeederRunner implements ApplicationRunner {
     private final AcudienteRepository acudienteRepository;
     private final EstudianteAcudienteRepository estudianteAcudienteRepository;
     private final AutorizacionTratamientoDatosMenorRepository autorizacionMenorRepository;
+    private final AsignacionAcademicaRepository asignacionAcademicaRepository;
+    private final MatriculaRepository matriculaRepository;
+    private final ActividadEvaluativaRepository actividadEvaluativaRepository;
 
-    @Value("${demo.seed.enabled:false}")
+    @Value("${demo.seed.enabled:true}")
     private boolean enabled;
 
     public DemoDataSeederRunner(UsuarioRepository usuarioRepository,
@@ -68,7 +72,10 @@ public class DemoDataSeederRunner implements ApplicationRunner {
                                 EstudianteRepository estudianteRepository,
                                 AcudienteRepository acudienteRepository,
                                 EstudianteAcudienteRepository estudianteAcudienteRepository,
-                                AutorizacionTratamientoDatosMenorRepository autorizacionMenorRepository) {
+                                AutorizacionTratamientoDatosMenorRepository autorizacionMenorRepository,
+                                AsignacionAcademicaRepository asignacionAcademicaRepository,
+                                MatriculaRepository matriculaRepository,
+                                ActividadEvaluativaRepository actividadEvaluativaRepository) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.politicaRepository = politicaRepository;
@@ -85,6 +92,9 @@ public class DemoDataSeederRunner implements ApplicationRunner {
         this.acudienteRepository = acudienteRepository;
         this.estudianteAcudienteRepository = estudianteAcudienteRepository;
         this.autorizacionMenorRepository = autorizacionMenorRepository;
+        this.asignacionAcademicaRepository = asignacionAcademicaRepository;
+        this.matriculaRepository = matriculaRepository;
+        this.actividadEvaluativaRepository = actividadEvaluativaRepository;
     }
 
     @Override
@@ -112,7 +122,7 @@ public class DemoDataSeederRunner implements ApplicationRunner {
         // 3. Estructura Académica: Año 2026, Escala SIEE y Periodos
         AnioLectivo anio2026 = seedAnioLectivo2026();
         seedEscalaSiee(anio2026);
-        seedPeriodos(anio2026);
+        PeriodoAcademico periodo1 = seedPeriodos(anio2026);
 
         // 4. Grado 10°, Grupo 10-A, Área y Asignatura
         Grado grado10 = seedGrado10();
@@ -121,10 +131,15 @@ public class DemoDataSeederRunner implements ApplicationRunner {
         Asignatura fisica = seedAsignaturaFisica(areaNaturales);
         seedPlanEstudios(grado10, fisica, anio2026);
 
-        // 5. Expediente Docente: Albert Einstein
-        seedProfesor(profeUser);
+        // 5. Expediente Docente: Albert Einstein y Carga Académica (UC-15)
+        Profesor albert = seedProfesor(profeUser);
+        AsignacionAcademica asigAlbert = seedAsignacion(albert, grupo10A, fisica);
+        seedActividadEvaluativa(asigAlbert, periodo1);
 
-        // 6. Expediente Escolar: Sofía Herrera y su Acudiente Marta Gómez
+        // 6. Expediente Escolar Base Matriculado (Lucas Martínez en 10-A)
+        seedExpedienteLucasMatriculado(anio2026, grupo10A, politica);
+
+        // 7. Expediente Escolar Listo para Matrícula en Vivo (Sofía Herrera - UC-12 / UC-13)
         seedExpedienteSofia(politica);
 
         log.info("[DEMO SEEDER] Precondiciones cargadas exitosamente. Entorno listo para la demostración.");
@@ -192,9 +207,10 @@ public class DemoDataSeederRunner implements ApplicationRunner {
         escalaRepository.save(escala);
     }
 
-    private void seedPeriodos(AnioLectivo anio) {
-        if (!periodoRepository.findByAnioLectivoIdOrderByNumeroAsc(anio.getId()).isEmpty()) {
-            return;
+    private PeriodoAcademico seedPeriodos(AnioLectivo anio) {
+        var existentes = periodoRepository.findByAnioLectivoIdOrderByNumeroAsc(anio.getId());
+        if (!existentes.isEmpty()) {
+            return existentes.get(0);
         }
         PeriodoAcademico p1 = new PeriodoAcademico();
         p1.setAnioLectivo(anio);
@@ -206,7 +222,7 @@ public class DemoDataSeederRunner implements ApplicationRunner {
         p1.setEstado(EstadoPeriodo.ABIERTO);
         p1.setFechaInicioDigitacion(LocalDate.of(2026, 1, 20));
         p1.setFechaFinDigitacion(LocalDate.of(2026, 4, 17));
-        periodoRepository.save(p1);
+        PeriodoAcademico p1Guardado = periodoRepository.save(p1);
 
         PeriodoAcademico p2 = new PeriodoAcademico();
         p2.setAnioLectivo(anio);
@@ -237,6 +253,8 @@ public class DemoDataSeederRunner implements ApplicationRunner {
         p4.setPorcentaje(new BigDecimal("25.00"));
         p4.setEstado(EstadoPeriodo.CERRADO);
         periodoRepository.save(p4);
+
+        return p1Guardado;
     }
 
     private Grado seedGrado10() {
@@ -313,9 +331,10 @@ public class DemoDataSeederRunner implements ApplicationRunner {
         gradoAsignaturaRepository.save(ga);
     }
 
-    private void seedProfesor(Usuario usuarioProfesor) {
-        if (profesorRepository.findByDocumento("79123456").isPresent()) {
-            return;
+    private Profesor seedProfesor(Usuario usuarioProfesor) {
+        var opt = profesorRepository.findByDocumento("79123456");
+        if (opt.isPresent()) {
+            return opt.get();
         }
         Profesor p = new Profesor();
         p.setNombres("Albert");
@@ -335,7 +354,118 @@ public class DemoDataSeederRunner implements ApplicationRunner {
         p.setNumeroCertificadoInhabilidades("CERT-INHAB-2026-0089");
         p.setUsuario(usuarioProfesor);
         p.setActivo(true);
-        profesorRepository.save(p);
+        return profesorRepository.save(p);
+    }
+
+    private AsignacionAcademica seedAsignacion(Profesor profesor, Grupo grupo, Asignatura asignatura) {
+        var opt = asignacionAcademicaRepository.findByGrupoIdAndAsignaturaId(grupo.getId(), asignatura.getId());
+        if (opt.isPresent()) {
+            return opt.get();
+        }
+        AsignacionAcademica asig = new AsignacionAcademica();
+        asig.setProfesor(profesor);
+        asig.setGrupo(grupo);
+        asig.setAsignatura(asignatura);
+        asig.setIntensidadHorariaSemanal(4);
+        asig.setEsDirectorGrupo(true);
+        asig.setEstadoAsignacion(EstadoAsignacionAcademica.TITULAR);
+        asig.setFechaInicioVigencia(LocalDate.of(2026, 1, 20));
+        asig.setActivo(true);
+        return asignacionAcademicaRepository.save(asig);
+    }
+
+    private void seedActividadEvaluativa(AsignacionAcademica asignacion, PeriodoAcademico periodo) {
+        if (!actividadEvaluativaRepository.findByAsignacionAcademicaIdAndPeriodoAcademicoId(asignacion.getId(), periodo.getId()).isEmpty()) {
+            return;
+        }
+        ActividadEvaluativa act = new ActividadEvaluativa();
+        act.setAsignacionAcademica(asignacion);
+        act.setPeriodoAcademico(periodo);
+        act.setNombre("Taller 1: Mecánica Clásica y Cinemática");
+        act.setDescripcion("Solución de problemas de movimiento rectilíneo uniforme y acelerado.");
+        act.setPorcentaje(new BigDecimal("25.00"));
+        act.setFechaEvaluacion(LocalDate.of(2026, 2, 15));
+        act.setCategoriaEvaluativa(CategoriaEvaluativa.COGNITIVA);
+        act.setTipoComponente(TipoComponenteEvaluativo.TALLER);
+        act.setModalidad(ModalidadEvaluativa.HETEROEVALUACION);
+        act.setEstado(EstadoActividadEvaluativa.PUBLICADA);
+        act.setActivo(true);
+        actividadEvaluativaRepository.save(act);
+    }
+
+    private void seedExpedienteLucasMatriculado(AnioLectivo anio, Grupo grupo, PoliticaTratamientoDatos politica) {
+        if (estudianteRepository.findByDocumento("1020304050").isPresent()) {
+            return;
+        }
+
+        Estudiante lucas = new Estudiante();
+        lucas.setNombres("Lucas");
+        lucas.setApellidos("Martínez");
+        lucas.setTipoDocumento(TipoDocumento.TI);
+        lucas.setDocumento("1020304050");
+        lucas.setFechaNacimiento(LocalDate.of(2010, 3, 10));
+        lucas.setSexo(SexoDocumental.MASCULINO);
+        lucas.setCorreo("lucas.martinez@colegio.edu.co");
+        lucas.setTelefono("3123456789");
+        lucas.setDireccion("Cra 15 # 80-45");
+        lucas.setEps("Sura EPS");
+        lucas.setGrupoSanguineoRh("O+");
+        lucas.setTieneDiscapacidadPiar(false);
+        lucas.setEstadoExpediente(EstadoExpediente.MATRICULADO);
+        lucas.setActivo(true);
+        Estudiante lucasGuardado = estudianteRepository.save(lucas);
+
+        Acudiente pedro = new Acudiente();
+        pedro.setNombres("Pedro");
+        pedro.setApellidos("Martínez");
+        pedro.setTipoDocumento(TipoDocumento.CC);
+        pedro.setDocumento("51123456");
+        pedro.setFechaNacimiento(LocalDate.of(1980, 4, 12));
+        pedro.setCorreo("pedro.martinez@colegio.edu.co");
+        pedro.setTelefono("3159876543");
+        pedro.setDireccion("Cra 15 # 80-45");
+        pedro.setOcupacion("Arquitecto");
+        pedro.setActivo(true);
+        Acudiente pedroGuardado = acudienteRepository.save(pedro);
+
+        EstudianteAcudiente vinculo = new EstudianteAcudiente();
+        vinculo.setEstudiante(lucasGuardado);
+        vinculo.setAcudiente(pedroGuardado);
+        vinculo.setParentesco(Parentesco.PADRE);
+        vinculo.setEsPrincipal(true);
+        vinculo.setConviveConEstudiante(true);
+        vinculo.setAutorizadoRetiro(true);
+        vinculo.setTieneCustodia(true);
+        vinculo.setRepresentacionLegal(true);
+        vinculo.setPrioridadEmergencia(1);
+        vinculo.setEstadoVinculo(EstadoVinculo.VERIFICADO);
+        estudianteAcudienteRepository.save(vinculo);
+
+        AutorizacionTratamientoDatosMenor aut = new AutorizacionTratamientoDatosMenor();
+        aut.setEstudiante(lucasGuardado);
+        aut.setAcudiente(pedroGuardado);
+        aut.setPolitica(politica);
+        aut.setAutorizaFinalidadesEducativasObligatorias(true);
+        aut.setAutorizaUsoImagenFotografiaOpcional(true);
+        aut.setDireccionIp("127.0.0.1");
+        aut.setUserAgent("Demostracion Base");
+        autorizacionMenorRepository.save(aut);
+
+        Matricula mat = new Matricula();
+        mat.setNumeroMatricula("MAT-2026-10A-001");
+        mat.setEstudiante(lucasGuardado);
+        mat.setGrupo(grupo);
+        mat.setAnioLectivo(anio);
+        mat.setEstado(EstadoMatricula.MATRICULADA);
+        mat.setTipoMatricula(TipoMatricula.REGULAR);
+        mat.setFechaMatricula(LocalDate.of(2026, 1, 20));
+        mat.setFechaEfectivaInicio(LocalDate.of(2026, 1, 20));
+        mat.setFolio("FOL-10A-001");
+        mat.setConsentimientoAcudiente(true);
+        mat.setFechaAceptacionReglamentos(LocalDateTime.now());
+        mat.setAcudientePrincipal(pedroGuardado);
+        mat.setActivo(true);
+        matriculaRepository.save(mat);
     }
 
     private void seedExpedienteSofia(PoliticaTratamientoDatos politica) {

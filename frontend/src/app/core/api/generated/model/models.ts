@@ -32,6 +32,7 @@ export * from './anular-documento-request';
 export * from './apertura-cargos-request';
 export * from './api-auth-cambiar-password-post200-response';
 export * from './api-auth-logout-post200-response';
+export * from './api-auth-recuperar-password-solicitar-post200-response';
 export * from './aprobar-graduacion-request';
 export * from './aprobar-manual-convivencia-request';
 export * from './aprobar-siee-request';

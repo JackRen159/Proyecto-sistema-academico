@@ -74,6 +74,7 @@ model/anular-documento-request.ts
 model/apertura-cargos-request.ts
 model/api-auth-cambiar-password-post200-response.ts
 model/api-auth-logout-post200-response.ts
+model/api-auth-recuperar-password-solicitar-post200-response.ts
 model/aprobar-graduacion-request.ts
 model/aprobar-manual-convivencia-request.ts
 model/aprobar-siee-request.ts

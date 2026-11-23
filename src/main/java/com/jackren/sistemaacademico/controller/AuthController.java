@@ -13,6 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -84,8 +85,13 @@ public class AuthController {
     @PostMapping("/recuperar-password/solicitar")
     public ResponseEntity<Map<String, String>> solicitarRecuperacion(
             @Valid @RequestBody SolicitudRecuperacionPasswordRequest request) {
-        String mensaje = recuperacionService.solicitarRecuperacion(request);
-        return ResponseEntity.ok(Map.of("mensaje", mensaje));
+        ResultadoSolicitudRecuperacion resultado = recuperacionService.procesarSolicitud(request);
+        Map<String, String> response = new HashMap<>();
+        response.put("mensaje", resultado.mensaje());
+        if (resultado.tokenDemo() != null) {
+            response.put("tokenDemo", resultado.tokenDemo());
+        }
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/recuperar-password/confirmar")

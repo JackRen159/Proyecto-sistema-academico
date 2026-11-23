@@ -193,12 +193,30 @@ export class PrimerIngresoComponent {
 
     this.autenticacionService.apiAuthCambiarPasswordPost(req).subscribe({
       next: () => {
-        this.cargando.set(false);
-        this.notificationService.showSuccess(
-          'Su cuenta ha sido activada y su contraseña actualizada correctamente.',
-          'Primer Ingreso Completado'
-        );
-        this.router.navigate(['/estudiantes']);
+        const username = this.authService.user?.()?.username;
+        if (username && typeof this.authService.login === 'function') {
+          this.authService.login({ username, password: req.passwordNuevo }).subscribe({
+            next: () => {
+              this.cargando.set(false);
+              this.notificationService.showSuccess(
+                'Su cuenta ha sido activada y su contraseña actualizada correctamente.',
+                'Primer Ingreso Completado'
+              );
+              this.router.navigate(['/estudiantes']);
+            },
+            error: () => {
+              this.cargando.set(false);
+              this.router.navigate(['/estudiantes']);
+            }
+          });
+        } else {
+          this.cargando.set(false);
+          this.notificationService.showSuccess(
+            'Su cuenta ha sido activada y su contraseña actualizada correctamente.',
+            'Primer Ingreso Completado'
+          );
+          this.router.navigate(['/estudiantes']);
+        }
       },
       error: () => {
         this.cargando.set(false);

@@ -53,6 +53,14 @@ import { NotificationService } from '../../core/services/notification.service';
         } @else {
           <!-- PASO 2: CONFIRMAR TOKEN Y NUEVA CONTRASEÑA -->
           <form [formGroup]="confirmacionForm" (ngSubmit)="confirmarRecuperacion()">
+            @if (tokenDemo()) {
+              <div class="demo-token-banner">
+                <strong>Simulación de Demostración:</strong> Token generado para la cuenta:
+                <div class="demo-token-code">{{ tokenDemo() }}</div>
+                <small>El token se ha precargado automáticamente en el formulario.</small>
+              </div>
+            }
+
             <p class="info-text">
               Ingrese el token recibido junto con su nueva contraseña segura.
             </p>
@@ -161,6 +169,26 @@ import { NotificationService } from '../../core/services/notification.service';
     }
     .btn-primary:disabled { background: #93c5fd; cursor: not-allowed; }
     .text-danger { color: #dc2626; font-size: 0.8rem; display: block; margin-top: 0.25rem; }
+    .demo-token-banner {
+      background: #ecfdf5;
+      border: 1px solid #10b981;
+      border-radius: 6px;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+      color: #065f46;
+    }
+    .demo-token-code {
+      font-family: monospace;
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin: 0.35rem 0;
+      word-break: break-all;
+      background: #d1fae5;
+      padding: 0.35rem 0.5rem;
+      border-radius: 4px;
+      user-select: all;
+    }
     .link-footer {
       display: flex;
       flex-direction: column;
@@ -183,6 +211,7 @@ export class RecuperarPasswordComponent {
 
   readonly paso = signal<1 | 2>(1);
   readonly cargando = signal(false);
+  readonly tokenDemo = signal<string | null>(null);
 
   readonly solicitudForm = this.fb.group({
     identificador: ['', [Validators.required]]
@@ -207,12 +236,22 @@ export class RecuperarPasswordComponent {
     const identificador = this.solicitudForm.get('identificador')?.value!;
 
     this.autenticacionService.apiAuthRecuperarPasswordSolicitarPost({ identificador }).subscribe({
-      next: () => {
+      next: (resp: any) => {
         this.cargando.set(false);
-        this.notificationService.showSuccess(
-          'Si la cuenta existe, se ha generado el proceso de restablecimiento. Revise su correo.',
-          'Solicitud Procesada'
-        );
+        const tokenRecibido = resp?.tokenDemo;
+        if (tokenRecibido) {
+          this.tokenDemo.set(tokenRecibido);
+          this.confirmacionForm.patchValue({ token: tokenRecibido });
+          this.notificationService.showSuccess(
+            `Token generado y precargado: ${tokenRecibido}`,
+            'Token de Demostración Listo'
+          );
+        } else {
+          this.notificationService.showSuccess(
+            'Si la cuenta existe, se ha generado el proceso de restablecimiento. Revise su correo.',
+            'Solicitud Procesada'
+          );
+        }
         this.paso.set(2);
       },
       error: () => {
